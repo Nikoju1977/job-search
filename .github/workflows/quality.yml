@@ -19,5 +19,10 @@ jobs:
           node --check api/letter.js
           node --check api/reply-agent.js
           node --check lib/candidate.js
+          node --check public/niko-engine.js
+          node --check public/niko-agents.js
+          node --check api/engine-cron.js
+          node --check public/v2.js
+          node --check public/v2-dossiers.js
       - name: Tester le moteur de recherche et le studio
         run: npm test
