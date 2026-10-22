@@ -214,3 +214,19 @@
 .v2-calendar h3{font:800 15px 'Manrope',sans-serif;margin:0 0 12px}
 .v2-calendar>p{font-size:10px;color:#8f95a3;line-height:1.75}
 @media(max-width:650px){.v2-stats{grid-template-columns:1fr 1fr}.v2-stats>div{padding:13px}.v2-interview-form{grid-template-columns:1fr}.v2-question-card{padding:19px}.v2-question-card>p{font-size:16px}.v2-star{padding:15px}.v2-star-steps{grid-template-columns:1fr 1fr}.v2-account-actions .button-primary,.v2-login button{width:100%}}
+
+/* Espace dossier chiffré et vérification d'offres — v2.1 */
+.v2-dossier,.v2-fraud{display:grid;gap:10px;padding:19px 20px;border-radius:13px;margin:20px 0 0;border:1px solid #e9e9f1;background:#fbfbfd}
+.v2-dossier strong,.v2-fraud strong{font:800 14px 'Manrope',sans-serif;color:#272b43}
+.v2-dossier p,.v2-fraud p{margin:5px 0;color:#8c91a0;font-size:11px;line-height:1.75}
+.v2-dossier label{font-size:11px;font-weight:800;color:#666c7a}
+.v2-dossier input{padding:12px 13px;border:1px solid #e2e3eb;border-radius:9px;background:white;font:500 12px 'DM Sans',sans-serif;width:100%}
+.v2-dossier-actions{display:flex;gap:15px;align-items:center;flex-wrap:wrap}
+.v2-dossier-actions span{font-size:11px;color:#717a8b;line-height:1.6}
+.v2-dossier-actions span.is-error{color:#bc3a61}
+.v2-fraud{background:#f9f7fd;border-color:#e8e0f1}
+.v2-fraud .button-secondary{justify-self:start}
+.v2-fraud-summary{font-weight:800;color:#515b75!important}
+#v2FraudFindings ul{margin:6px 0;padding-left:22px;color:#6f647c;font-size:12px;line-height:1.75}
+#v2FraudFindings li{margin:6px 0}
+@media(max-width:650px){.v2-dossier,.v2-fraud{padding:16px}.v2-dossier-actions{align-items:stretch;flex-direction:column}.v2-dossier-actions button{width:100%}.v2-fraud .button-secondary{width:100%}}
