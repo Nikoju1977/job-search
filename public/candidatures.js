@@ -37,16 +37,30 @@ async function loadCV(f){if(!f)return;if(f.size>8*1024*1024||!/\.(pdf|docx|txt)$
  const skillsFound=detected(text);$('cvSummary').textContent=skillsFound.length+' compétences reconnues. Vérifiez le texte ci-dessous.';saveProfile();show('CV importé avec succès. Vérifiez les informations extraites.');
  }catch(e){$('cvSummary').textContent='Impossible de lire ce CV.';show('Import du CV : '+e.message,true);}
 }
-function match(j){const p=prof(),cv=norm(p.cvText),title=norm(j.title),ad=norm(j.title+' '+(j.excerpt||'')),want=words(p.targetRole),cvSkills=detected(cv),adSkills=detected(ad),shared=adSkills.filter(s=>cvSkills.includes(s)),common=words(cv).slice(0,40).filter(w=>ad.includes(w));
- if(!want.length&&cv.length<35)return null;
- return {score:Math.min(100,(want.length?Math.round(55*want.filter(w=>title.includes(w)).length/want.length):0)+(adSkills.length?Math.round(30*shared.length/adSkills.length):0)+(cv.length?Math.round(15*common.length/Math.max(8,Math.min(30,words(cv).length))):0)),shared,missing:adSkills.filter(s=>!cvSkills.includes(s))};}
-function selectJob(j){state.selected=j;$('letterCompany').value=j.company||'';$('letterPosition').value=j.title||'';$('recruiterEmail').value=state.queue.find(x=>x.url===j.url)?.recruiterEmail||'';$('chosenJob').replaceChildren(el('strong','',j.title+' — '+j.company),el('p','',j.location+' · '+j.source));$('letterText').value=state.queue.find(x=>x.url===j.url)?.letter||'';renderJobs();document.getElementById('lettre').scrollIntoView({behavior:'smooth'});}
+function match(j){
+ const p=prof();
+ if(window.NikoEngine){
+  const detailed=window.NikoEngine.screen(p,j);
+  if(detailed.score===null)return null;
+  return {score:detailed.score,shared:detailed.shared,missing:detailed.missing,explanations:detailed.matchReasons,watchouts:detailed.watchouts,reliability:detailed.reliability,axes:detailed.axes};
+ }
+ const cv=norm(p.cvText),title=norm(j.title);
+ if(!p.targetRole&&cv.length<35)return null;
+ return {score:Math.round(100*words(p.targetRole).filter(w=>title.includes(w)).length/Math.max(1,words(p.targetRole).length)),shared:[],missing:[],explanations:[],watchouts:[],reliability:'limitée'};
+}
+function selectJob(j){state.selected=j;$('letterCompany').value=j.company||'';$('letterPosition').value=j.title||'';$('recruiterEmail').value=state.queue.find(x=>x.url===j.url)?.recruiterEmail||'';$('chosenJob').replaceChildren(el('strong','',j.title+' — '+j.company),el('p','',j.location+' · '+j.source));$('letterText').value=state.queue.find(x=>x.url===j.url)?.letter||'';renderJobs();document.dispatchEvent(new CustomEvent('niko:job-selected',{detail:{job:j}}));document.getElementById('lettre').scrollIntoView({behavior:'smooth'});}
 function toggleQueue(j){const i=state.queue.findIndex(x=>x.url===j.url);if(i>=0)state.queue.splice(i,1);else if(state.queue.length<20)state.queue.push({...j,recruiterEmail:'',letter:''});else return show('20 annonces maximum par sélection.',true);renderJobs();renderQueue();}
 function renderJobs(){const b=$('jobResults');b.replaceChildren();let rows=state.jobs.map(job=>({job,fit:match(job)}));if($('rqthOnly').checked)rows=rows.filter(({job})=>eligibleMention(job));if($('relevantOnly').checked)rows.sort((a,b)=>(b.fit?.score||0)-(a.fit?.score||0));$('jobsCount').textContent=rows.length+' offre'+(rows.length>1?'s':'')+' affichée'+(rows.length>1?'s':'');
  if(!rows.length){b.append(el('div','studio-empty',state.jobs.length?'Aucune annonce consultée ne mentionne explicitement ces critères : les offres générales restent accessibles.':'Aucune annonce reçue pour cette recherche. Élargissez vos critères.'));return;}
  for(const {job:j,fit} of rows.slice(0,60)){const a=el('article','studio-job'+(state.selected?.url===j.url?' selected':'')),body=el('div');body.append(el('h3','',j.title),el('small','',j.company+' · '+j.location));const meta=el('div','job-source-line');meta.append(el('span','',j.source),el('span','',j.contract||'Contrat non précisé'));if(eligibleMention(j))meta.append(el('span','rqth-signal','Mention inclusion / RQTH'));body.append(meta,el('p','',j.excerpt||'Consulter la fiche détaillée chez le fournisseur.'));
  if(fit?.shared.length)body.append(el('small','matched-terms','Compétences communes : '+fit.shared.join(' · ')));
  if(fit?.missing.length)body.append(el('small','missed-terms','Compétences à vérifier : '+fit.missing.slice(0,5).join(' · ')));
+ if(fit?.explanations?.length){
+  const explain=el('details','niko-explain'),summary=el('summary','','Pourquoi cette offre ? · Fiabilité '+fit.reliability);
+  const list=el('ul','');for(const explanation of fit.explanations.slice(0,4))list.append(el('li','',explanation));
+  if(fit.watchouts?.length)for(const caution of fit.watchouts.slice(0,2))list.append(el('li','niko-caution',caution));
+  explain.append(summary,list);body.append(explain);
+ }
  const actions=el('div','job-match');actions.append(el('b','',fit?fit.score+' % indicatif':'Profil à compléter'));
  const pick=el('button','','Préparer →');pick.type='button';pick.onclick=()=>selectJob(j);
  const basket=el('button','queue-add',state.queue.some(x=>x.url===j.url)?'✓ Sélectionnée':'+ Sélection');basket.type='button';basket.onclick=()=>toggleQueue(j);actions.append(pick,basket);
@@ -55,7 +69,7 @@ function renderJobs(){const b=$('jobResults');b.replaceChildren();let rows=state
  if(rows.length>60)b.append(el('div','studio-empty','Affichage limité à 60 offres. Affinez la recherche.'));
 }
 async function loadJobs(evt){evt?.preventDefault();const p=prof(),params=new URLSearchParams({q:$('jobKeyword').value.trim()||p.targetRole,location:$('jobLocation').value.trim()||p.targetLocation||'Toute la France'});busy('findJobsBtn',true,'Recherche…');$('jobResults').replaceChildren(el('div','studio-empty','Recherche des offres réelles en cours…'));
- try{const r=await fetch('/api/jobs?'+params,{signal:AbortSignal.timeout(32000)});if(!r.ok)throw Error('Service indisponible ('+r.status+')');const data=await r.json();if(!Array.isArray(data.jobs))throw Error('Réponse du service invalide');state.jobs=data.jobs.filter(j=>j&&urlOf(j.url));renderJobs();if(data.partial)show('Certaines sources sont momentanément inaccessibles, les résultats sont partiels.');document.getElementById('offres-studio').scrollIntoView({behavior:'smooth'});}catch(e){state.jobs=[];renderJobs();show('Erreur de recherche : '+e.message,true)}finally{busy('findJobsBtn',false);}
+ try{const r=await fetch('/api/jobs?'+params,{signal:AbortSignal.timeout(32000)});if(!r.ok)throw Error('Service indisponible ('+r.status+')');const data=await r.json();if(!Array.isArray(data.jobs))throw Error('Réponse du service invalide');state.jobs=data.jobs.filter(j=>j&&urlOf(j.url));renderJobs();document.dispatchEvent(new CustomEvent('niko:jobs-loaded',{detail:{jobs:state.jobs,partial:!!data.partial,sources:data.sources||{}}}));if(data.partial)show('Certaines sources sont momentanément inaccessibles, les résultats sont partiels.');document.getElementById('offres-studio').scrollIntoView({behavior:'smooth'});}catch(e){state.jobs=[];renderJobs();show('Erreur de recherche : '+e.message,true)}finally{busy('findJobsBtn',false);}
 }
 function renderQueue(){const area=$('queue');area.replaceChildren();if(!state.queue.length){area.append(el('div','studio-empty','Ajoutez des offres depuis les résultats.'));return;}
  for(const job of state.queue){const row=el('div','queue-entry'),desc=el('div','queue-title');desc.append(el('strong','',job.title+' · '+job.company),el('small','',job.letter?'Lettre préparée':'Lettre non préparée'));
