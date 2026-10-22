@@ -1,5 +1,29 @@
 {
   "version": 2,
-  "functions": { "api/jobs.js": { "maxDuration": 30 } },
-  "headers": [ { "source": "/(.*)", "headers": [ { "key": "X-Content-Type-Options", "value": "nosniff" }, { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" } ] } ]
+  "functions": {
+    "api/jobs.js": {
+      "maxDuration": 30
+    },
+    "api/letter.js": {
+      "maxDuration": 30
+    },
+    "api/reply-agent.js": {
+      "maxDuration": 30
+    }
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
+      ]
+    }
+  ]
 }
