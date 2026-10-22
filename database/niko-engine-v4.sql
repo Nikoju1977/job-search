@@ -76,6 +76,7 @@ create table if not exists public.niko_agent_runs (
  id bigint generated always as identity primary key,
  user_id uuid references public.niko_users(id) on delete set null,
  started_at timestamptz not null default now(),
+ run_day date not null default (now() at time zone 'UTC')::date,
  finished_at timestamptz,
  outcome text not null default 'running' check(outcome in ('running','ok','error','skipped')),
  matches_found integer not null default 0,
@@ -85,3 +86,5 @@ create index if not exists niko_agent_runs_user on public.niko_agent_runs(user_i
 -- The original niko_public_jobs and niko_scan_runs tables are in niko-autonomy.sql.
 -- No unrestricted public database access: SQL credentials remain server-side.
 -- User data is isolated in every SQL query by the authenticated user_id.
+
+create unique index if not exists niko_agent_runs_one_daily on public.niko_agent_runs(user_id,run_day) where user_id is not null;
