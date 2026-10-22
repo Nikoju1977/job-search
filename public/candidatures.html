@@ -59,6 +59,21 @@
           <p class="v2-disclosure">L'enregistrement cloud du CV est facultatif et ne se déclenche qu'après votre confirmation. Par défaut, votre CV reste sur votre appareil. Aucune donnée RQTH n'est requise pour utiliser le cockpit.</p>
           <div id="v2Activity" class="v2-activity" aria-live="polite"></div>
         </section>
+        <section id="autonomie" class="studio-panel niko-autonomy">
+          <div class="panel-topline"><span>NIKO INTELLIGENCE 4.0</span><span class="topline-accent">AGENT AUTONOME INTÉGRÉ</span></div>
+          <div class="panel-heading"><div><h2>Votre radar, même hors ligne<span>.</span></h2><p>Analyse personnalisée des offres, classement explicable et recommandations consultables à votre retour. Aucun envoi de candidature sans votre décision.</p></div><span class="panel-icon">✦</span></div>
+          <div class="niko-autonomy-status" id="naStatus" role="status" aria-live="polite">Vérification de votre agent personnel…</div>
+          <div class="niko-autonomy-controls">
+            <label class="na-check"><input type="checkbox" id="naEnabled"> Activer la veille automatisée sur mon profil sauvegardé</label>
+            <label for="naThreshold">Score minimum de recommandation : <strong id="naThresholdValue">50</strong>/100</label>
+            <input type="range" id="naThreshold" min="20" max="95" step="5" value="50">
+            <div class="na-row"><label class="na-check"><input type="checkbox" id="naRemote"> Télétravail seulement</label><label class="na-check"><input type="checkbox" id="naInclusive"> Offres mentionnant l'inclusion</label></div>
+            <label class="na-check"><input type="checkbox" id="naConsent"> J'autorise la comparaison de mon profil sauvegardé avec les offres publiques, sans transfert de mes informations RQTH.</label>
+            <div class="na-actions"><button id="naSave" class="button-primary" type="button">Enregistrer mes préférences</button><button id="naPreview" class="button-secondary" type="button">Analyser les offres maintenant</button><button id="naStop" class="button-secondary" type="button">Arrêter l'agent</button></div>
+          </div>
+          <p class="v2-disclosure">L'agent ne fonctionne en arrière-plan que si la base de données et le planificateur sont configurés. Sur le plan Vercel Hobby, la fréquence prévue est quotidienne et non en temps réel.</p>
+          <div class="na-results"><div class="na-results-top"><h3>Mes opportunités prioritaires</h3><span id="naCount">0 offre</span></div><div id="naMatches" aria-live="polite"><p>Connectez votre compte pour consulter les recommandations de l'agent.</p></div></div>
+        </section>
         <section id="cv" class="studio-panel">
           <div class="panel-topline"><span>ÉTAPE 01</span><span class="topline-accent">VOTRE POINT DE DÉPART</span></div>
           <div class="panel-heading"><div><h2>Construisons votre profil<span>.</span></h2><p>Un CV suffit pour commencer. Vous pouvez compléter ou corriger les informations détectées.</p></div><span class="panel-icon">◈</span></div>
@@ -185,5 +200,6 @@
 <script src="/v2.js" defer></script>
 <script src="/v2-dossiers.js" defer></script>
 <script src="/niko-agents.js" defer></script>
+<script src="/niko-autonomy.js" defer></script>
 </body>
 </html>
