@@ -78,3 +78,35 @@ test('Frontend shows a visible Himalayas credit link and dynamic provider list',
  const studio=fs.readFileSync(require('node:path').join(__dirname,'../public/candidatures.js'),'utf8');
  assert.match(studio,/sourceTag\.href='https:\/\/himalayas\.app'/);
 });
+
+
+test('Configured Greenhouse board activates the provider and exposes only France-eligible posts',async()=>{
+ const originalFetch=global.fetch,originalBoards=process.env.GREENHOUSE_BOARDS;
+ process.env.GREENHOUSE_BOARDS='datadog:Datadog;invalid-without-company';
+ const source=raw=>({ok:true,json:async()=>raw});
+ const one={id:42,title:'Assistant administratif',location:{name:'Nantes, France'},
+  absolute_url:'https://job-boards.greenhouse.io/datadog/jobs/42',updated_at:'2026-10-20T10:00:00Z'};
+ const wrong={...one,id:43,location:{name:'US Remote'},absolute_url:'https://job-boards.greenhouse.io/datadog/jobs/43'};
+ global.fetch=async url=>{
+  const u=String(url),host=new URL(u).hostname;
+  if(host==='boards-api.greenhouse.io'){
+   assert.match(u,/\/boards\/datadog\/jobs/);
+   return source({jobs:[one,wrong]});
+  }
+  if(host==='api.easyjobs.fr')return source({data:[],pagination:{has_next_page:false}});
+  if(host==='jobicy.com')return source({jobs:[]});
+  if(host==='www.arbeitnow.com')return source({data:[]});
+  if(host==='himalayas.app')return source({jobs:[]});
+  throw Error('Unexpected provider '+u);
+ };
+ try{
+  const result=await getJobs({q:'assistant',location:'Toute la France'});
+  assert.equal(result.sources.Greenhouse.ok,true);
+  assert.equal(result.sources.Greenhouse.received,1);
+  assert.ok(result.jobs.some(j=>j.company==='Datadog'&&j.source==='Greenhouse'));
+  assert.ok(result.jobs.every(j=>j.location!=='US Remote'));
+ }finally{
+  global.fetch=originalFetch;
+  if(originalBoards===undefined)delete process.env.GREENHOUSE_BOARDS;else process.env.GREENHOUSE_BOARDS=originalBoards;
+ }
+});
