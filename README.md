@@ -2,6 +2,34 @@
 
 Moteur d'offres d'emploi **réelles** (jamais de faux résultats de démonstration) avec recherche, filtres, favoris et dédoublonnage intersources.
 
+## Studio candidature — édition 1.1
+
+La page \`/candidatures.html\` fournit un parcours complet :
+- Import **PDF / DOCX / TXT** (maximum 8 Mo), extraction locale du texte, correction et suppression du profil. Les CV scannés sans couche texte nécessitent une version OCR.
+- Moteur d'offres réel existant, score ATS indicatif, compétences communes/manquantes, regroupement d'offres inclusives portant des **mentions explicites** RQTH / handicap / aménagement. Une offre sans mention peut néanmoins être accessible. Agefiph et Handimatch sont proposés comme ressources externes, sans scraping.
+- Lettre locale personnalisée, et rédaction IA optionnelle par l'API Responses uniquement avec consentement. Aucune expérience n'est inventée ; le candidat relit et modifie la lettre. Le statut RQTH n'est jamais ajouté automatiquement.
+- Candidature **Gmail** par OAuth Google Identity Services : pièce jointe CV, e-mail au recruteur, historique et envoi groupé limité à 5 offres par lot après vérification et consentement.
+- **Agent de réponse recruteur** : classement local des réponses favorables/défavorables, invitations à un entretien et cas ambigus, génération de brouillons, option d'analyse IA consentie, et réponses Gmail dans le fil existant. Les réponses complexes exigent validation. Un réglage opt-in autorise uniquement les **accusés de réception fixes** pour les réponses clairement favorables ou défavorables. Ce mode surveille les fils uniquement **tant que la page reste ouverte**.
+
+### Préparer les intégrations sur Vercel
+
+Variables d'environnement :
+\`\`\`text
+OPENAI_API_KEY=...                 # optionnel, secret serveur, ne jamais exposer au navigateur
+OPENAI_MODEL=gpt-4.1-mini          # optionnel
+GOOGLE_CLIENT_ID=...apps.googleusercontent.com
+\`\`\`
+
+Créer un client OAuth 2.0 de type **application Web** dans Google Cloud, activer **Gmail API**, ajouter l'origine JavaScript \`https://niko-emploi.vercel.app\`, configurer écran de consentement et autoriser les scopes \`gmail.send\` et \`gmail.readonly\`. L'accès Gmail nécessite **la vérification Google** des scopes sensibles/restrictifs pour une diffusion publique, et peut être limité en mode test. Le \`GOOGLE_CLIENT_ID\` est public ; **ne mettez jamais de secret Google ou OpenAI dans \`public/\`**.
+
+L'application garde les jetons Google OAuth **en mémoire du navigateur** : pas de persistance de connexion et donc **aucun monitoring 24/7 ni envoi quand la page est fermée**. Pour une automatisation permanente il faut concevoir un backend OAuth à refresh tokens chiffrés, une base de données isolée par utilisateur, un ordonnanceur, un historique d'approbation, des contrôles de limitation/désinscription et une revue RGPD/sécurité. Ce backend n'est **pas** encore livré.
+
+Les candidats renseignent eux-mêmes l'adresse e-mail du recruteur si l'API de l'offre n'en fournit pas. Les sites ATS externes ne sont pas soumis automatiquement : utiliser le lien de l'annonce sans contourner CAPTCHA ni conditions d'utilisation.
+
+Le navigateur conserve le profil uniquement si l'utilisateur le choisit, et sauvegarde localement son historique (effaçable). Les appels IA traitent temporairement les données textuelles consenties. Avant une ouverture publique, finaliser les mentions légales, la politique de confidentialité, les coordonnées du responsable de traitement et la vérification OAuth. Ne jamais transmettre de RQTH sans consentement spécifique.
+
+Tests : \`npm test\` (moteur de recherche, CV/ATS, protection RQTH, serveur/API), vérification de syntaxe automatisée sur GitHub Actions.
+
 ## Utiliser localement
 
 Node.js 20+ :
@@ -46,6 +74,6 @@ Pour le passage à grande échelle, ajouter une base PostgreSQL avec identifiant
 
 ## Confidentialité
 
-Aucun compte, CV, email ou candidature collecté par ce projet. Les favoris sont stockés localement dans `localStorage` sur l'appareil.
+Le moteur d'offres n'enregistre pas les données candidats. Le Studio candidature traite le CV dans le navigateur et le conserve localement sur choix explicite ; les lettres générées par IA font appel à l'API externe seulement avec consentement. Les candidatures Gmail passent par l'API Google avec autorisation OAuth. L'historique local peut être effacé.
 
 Projet indépendant : pas d'affiliation institutionnelle à France Travail.
