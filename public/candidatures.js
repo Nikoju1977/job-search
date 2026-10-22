@@ -124,6 +124,17 @@ async function gmailSend(to,subject,body,file=null,thread={}){
  const result=await gmail('/messages/send',{method:'POST',body:JSON.stringify({raw,...(thread.threadId?{threadId:thread.threadId}:{})})});
  if(!result.id)throw Error('Gmail n’a pas confirmé l’envoi.');return result;
 }
+async function syncConfirmedSend(job,to,letter,sent){
+ if(!$('v2SyncSent')?.checked||!job?.url||!state.token)return;
+ let session;try{session=JSON.parse(sessionStorage.getItem('niko_secure_session_v2')||'null')}catch{return}
+ if(!session?.access_token)return;
+ try{
+  const response=await fetch('/api/applications',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify({action:'sent',consent:true,job,to,letter,threadId:sent.threadId,messageId:sent.id,gmailAccessToken:state.token})});
+  if(response.ok)return;
+  const data=await response.json().catch(()=>({}));
+  if(response.status!==409)show('E-mail envoyé. Synchronisation du suivi impossible : '+(data.error||response.status),true);
+ }catch{show('E-mail envoyé, mais la synchronisation du suivi a échoué.',true);}
+}
 async function sendCurrent(){
  if(!$('sendConsent').checked)return show('Cochez votre autorisation d’envoi après avoir relu la candidature.',true);
  const p=prof(),job=state.selected||{title:$('letterPosition').value.trim(),company:$('letterCompany').value.trim()};
@@ -132,7 +143,7 @@ async function sendCurrent(){
  if(!validEmail(to)||!validEmail(p.email)||!text||!job.title)return show('Vérifiez le destinataire, votre adresse, le poste et la lettre.',true);
  busy('sendBtn',true,'Envoi en cours…');
  try{await gmailAuth();const sent=await gmailSend(to,'Candidature — '+job.title+' — '+(p.fullName||'Candidat'),text,state.file);
- history(job,'Envoyée',{threadId:sent.threadId,to,messageId:sent.id});show('Candidature envoyée par Gmail. ID de suivi : '+sent.id);$('sendConsent').checked=false;
+ history(job,'Envoyée',{threadId:sent.threadId,to,messageId:sent.id});void syncConfirmedSend(job,to,text,sent);show('Candidature envoyée par Gmail. ID de suivi : '+sent.id);$('sendConsent').checked=false;
  }catch(e){show('Envoi non confirmé : '+e.message,true)}finally{busy('sendBtn',false);}
 }
 async function sendBatch(){
@@ -143,7 +154,7 @@ async function sendBatch(){
  if(!confirm('Envoyer '+jobs.length+' candidatures avec CV joint, aux adresses indiquées ?'))return;
  busy('sendBatch',true,'Envoi…');
  try{await gmailAuth();let done=0;for(const job of jobs){
- try{const sent=await gmailSend(job.recruiterEmail,'Candidature — '+job.title+' — '+(p.fullName||'Candidat'),job.letter,state.file);history(job,'Envoyée',{threadId:sent.threadId,to:job.recruiterEmail,messageId:sent.id});state.queue=state.queue.filter(j=>j.url!==job.url);done++;
+ try{const sent=await gmailSend(job.recruiterEmail,'Candidature — '+job.title+' — '+(p.fullName||'Candidat'),job.letter,state.file);history(job,'Envoyée',{threadId:sent.threadId,to:job.recruiterEmail,messageId:sent.id});void syncConfirmedSend(job,job.recruiterEmail,job.letter,sent);state.queue=state.queue.filter(j=>j.url!==job.url);done++;
  }catch(err){show(done+' envoyée(s). Échec sur '+job.company+' : '+err.message,true);break;}
  }renderQueue();show(done+' candidature(s) confirmée(s) comme envoyée(s) sur '+jobs.length+'.');$('batchConsent').checked=false;
  }catch(e){show('Envoi du lot interrompu : '+e.message,true)}finally{busy('sendBatch',false);}
