@@ -7,11 +7,11 @@ const {decrypt}=require('../lib/platform');
 const number=(x,d,min,max)=>Number.isFinite(Number(x))?Math.max(min,Math.min(max,Math.floor(Number(x)))):d;
 async function status(uid){
  const [pol,matches,runs]=await Promise.all([
-  query('select enabled,min_score,remote_only,inclusive_only,max_results,updated_at from public.niko_agent_policies where user_id=$1',[uid]),
+  query('select enabled,email_digest,min_score,remote_only,inclusive_only,max_results,updated_at from public.niko_agent_policies where user_id=$1',[uid]),
   query('select m.job_url,m.score,m.explanation,m.status,m.last_seen_at,j.title,j.company,j.location,j.source,j.remote from public.niko_agent_matches m join public.niko_public_jobs j on j.url=m.job_url where m.user_id=$1 and m.status<>$2 order by m.score desc limit 30',[uid,'dismissed']),
   query('select started_at,finished_at,outcome,matches_found from public.niko_agent_runs where user_id=$1 order by started_at desc limit 5',[uid])
  ]);
- return {policy:pol[0]||{enabled:false,min_score:50,remote_only:false,inclusive_only:false,max_results:20},matches,runs};
+ return {policy:pol[0]||{enabled:false,email_digest:false,min_score:50,remote_only:false,inclusive_only:false,max_results:20},matches,runs};
 }
 async function preview(uid,policy){
  const [profiles,jobs]=await Promise.all([
@@ -48,10 +48,12 @@ module.exports=async(req,res)=>{
    const profiles=await query('select target_role,cv_ciphertext from public.niko_profiles where user_id=$1',[user.id]);
    if(!profiles.length||!profiles[0].target_role&&!profiles[0].cv_ciphertext)throw new ApiError(400,'Sauvegardez votre profil avant d’activer l’agent.');
   }
-  const policy={enabled,minScore:number(body.minScore,50,0,100),remoteOnly:body.remoteOnly===true,inclusiveOnly:body.inclusiveOnly===true,maxResults:number(body.maxResults,20,1,50)};
-  await query('insert into public.niko_agent_policies(user_id,enabled,consent_at,min_score,remote_only,inclusive_only,max_results) values($1,$2,$3,$4,$5,$6,$7) '+
-   'on conflict(user_id) do update set enabled=excluded.enabled,consent_at=excluded.consent_at,min_score=excluded.min_score,remote_only=excluded.remote_only,inclusive_only=excluded.inclusive_only,max_results=excluded.max_results,updated_at=now()',[
-    user.id,policy.enabled,enabled?new Date().toISOString():null,policy.minScore,policy.remoteOnly,policy.inclusiveOnly,policy.maxResults
+  const digest=enabled&&body.emailDigest===true;
+  if(digest&&body.digestConsent!==true)throw new ApiError(400,'Autorisation distincte nécessaire pour recevoir des alertes e-mail.');
+  const policy={enabled,emailDigest:digest,minScore:number(body.minScore,50,0,100),remoteOnly:body.remoteOnly===true,inclusiveOnly:body.inclusiveOnly===true,maxResults:number(body.maxResults,20,1,50)};
+  await query('insert into public.niko_agent_policies(user_id,enabled,consent_at,min_score,remote_only,inclusive_only,max_results,email_digest) values($1,$2,$3,$4,$5,$6,$7,$8) '+
+   'on conflict(user_id) do update set enabled=excluded.enabled,consent_at=excluded.consent_at,min_score=excluded.min_score,remote_only=excluded.remote_only,inclusive_only=excluded.inclusive_only,max_results=excluded.max_results,email_digest=excluded.email_digest,updated_at=now()',[
+    user.id,policy.enabled,enabled?new Date().toISOString():null,policy.minScore,policy.remoteOnly,policy.inclusiveOnly,policy.maxResults,policy.emailDigest
    ]);
   return res.status(200).json({saved:true,policy,delivery:'recommandations uniquement : aucun envoi de candidature ni de réponse automatique'});
  }catch(e){return sendError(res,e);}
