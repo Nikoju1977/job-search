@@ -22,7 +22,8 @@ function matchCard(item){
  desc.textContent=[(reasons.skillsMatched||[]).length?'Compétences pertinentes : '+reasons.skillsMatched.slice(0,3).join(', '):'Compétences à comparer',reasons.location].filter(Boolean).join(' · ');
  const actions=document.createElement('div');actions.className='na-match-actions';
  for(const [kind,label] of [['saved','Enregistrer'],['dismissed','Écarter']]){
-  const button=document.createElement('button');button.type='button';button.className='button-secondary';button.textContent=label;
+  const button=document.createElement('button');button.type='button';button.className='button-secondary';button.textContent=kind==='saved'&&item.status==='saved'?'Enregistrée':label;
+  button.disabled=kind==='saved'&&item.status==='saved';
   button.setAttribute('aria-label',label+' '+item.title+' de '+item.company);
   button.addEventListener('click',async()=>{
    button.disabled=true;
@@ -56,7 +57,7 @@ async function refresh(){
   authenticated=auth.authenticated===true;
   if(!authenticated){status('Connectez-vous au compte candidat pour configurer l’agent. Le radar local reste disponible.');return;}
   const data=await request('GET','/api/niko-agent');
-  loadPolicy(data.policy);display((data.matches||[]).map(x=>({url:x.job_url,title:x.title,company:x.company,source:x.source,location:x.location,score:x.score,explanation:x.explanation})));
+  loadPolicy(data.policy);display((data.matches||[]).map(x=>({url:x.job_url,title:x.title,company:x.company,source:x.source,location:x.location,score:x.score,status:x.status,explanation:x.explanation})));
   const ran=data.runs?.[0];const seen=ran?.finished_at?new Date(ran.finished_at).toLocaleString('fr-FR'):'aucune analyse programmée terminée';
   status(data.policy?.enabled?'Veille autorisée · dernière exécution : '+seen:'Veille désactivée · analyse à la demande disponible.');
  }catch(e){status('Agent en attente : '+e.message,true);}
