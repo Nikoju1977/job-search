@@ -10,6 +10,17 @@
 
 **Mise en service :** lire [docs/MISE_EN_SERVICE_V2.md](docs/MISE_EN_SERVICE_V2.md). Les migrations sont [database/niko-autonomy.sql](database/niko-autonomy.sql) puis [database/niko-engine-v4.sql](database/niko-engine-v4.sql). Sans DATABASE_URL, chiffrement, domaine expéditeur et authentification correctement configurés, les fonctions d'autonomie côté serveur restent volontairement inactives.
 
+## Sources d'emplois étendues (API)
+
+Le moteur interroge maintenant **EasyJobs, Jobicy, Arbeitnow et Himalayas**, avec attribution visible, validation des liens, contrôle des annonces expirées, filtrage de l'éligibilité France et dédoublonnage. L'API publique Himalayas fonctionne sans clé ; une clé serveur facultative augmente ses quotas.
+
+Deux connecteurs supplémentaires sont prêts à être activés depuis les **variables Vercel**, sans modifier le code :
+
+- **Adzuna France** : `ADZUNA_APP_ID` et `ADZUNA_APP_KEY`.
+- **Greenhouse Job Board** : `GREENHOUSE_BOARDS=jeton-du-tableau:Entreprise réelle` (plusieurs entreprises séparées par `;`, quatre maximum).
+
+Ces deux sources **ne sont pas activées sans la configuration correspondante**. Les règles des fournisseurs, leurs limites, la provenance et les exemples de configuration figurent dans [docs/SOURCES_API.md](docs/SOURCES_API.md). Aucun nombre de postes additionnels n'est garanti avant une interrogation réussie des API.
+
 Tests : `npm test`. Site : https://niko-emploi.vercel.app
 
 ---
