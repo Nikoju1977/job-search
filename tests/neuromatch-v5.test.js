@@ -58,4 +58,23 @@ test('UI wires opt-in worker without disabling the existing no-cost baseline',()
  assert.doesNotMatch(frontend,/\/api\/letter|\/api\/reply-agent|\/api\/applications/);
  assert.doesNotMatch(worker,/\/api\/letter|\/api\/reply-agent|\/api\/applications/);
  assert.match(html,/id="nikoAnalyze"/);
+ assert.match(html,/id="n5ResetFeedback"/);
+ assert.match(frontend,/localStorage\.removeItem\(FEEDBACK_KEY\)/);
+});
+
+test('Local feedback changes ranking modestly without secretly altering ATS evidence',()=>{
+ const other={...good,url:'https://example.org/c',title:'Chargé de coordination administrative'};
+ const prefs=[{url:'https://old.example/job',title:'Chargé de coordination administrative',status:'saved'}];
+ const rank=core.rank([good,other],[.50,.50],candidate,engine,{feedback:prefs});
+ assert.equal(rank.length,2);
+ assert.ok(core.preferenceBoost(other,prefs)>0);
+ assert.ok(core.preferenceBoost(other,prefs)<=.09);
+ assert.equal(core.rank([good,other],[.5,.5],candidate,engine,{feedback:[{url:good.url,title:good.title,status:'dismissed'}]}).some(r=>r.job.url===good.url),false);
+ assert.deepEqual(rank.map(x=>x.fit.score),rank.map(x=>engine.screen({cvText:core.sanitizeCV(candidate.cvText),targetRole:candidate.targetRole,targetLocation:candidate.targetLocation},x.job).score));
+});
+test('Clinical or disability-services experience is not erased as a health disclosure',()=>{
+ const cv='Infirmier en santé publique, accompagnement du handicap et accueil\nRQTH personnelle reconnue MDPH';
+ const safe=core.sanitizeCV(cv);
+ assert.match(safe,/Infirmier en santé publique/);
+ assert.doesNotMatch(safe,/RQTH|MDPH/);
 });
