@@ -34,12 +34,12 @@
       <a class="brand" href="/" aria-label="Niko Emploi, accueil"><span class="brand-symbol"><span></span><span></span><span></span></span><span>NIKO<span class="brand-light">EMPLOI</span><small>.</small></span></a>
       <nav class="nav" aria-label="Navigation principale">
         <a class="nav-link current" href="#offres">Trouver un emploi</a>
-        <a class="nav-link" href="#comment">Notre méthode</a>
+        <a class="nav-link" href="/candidatures.html">Candidatures IA</a><a class="nav-link" href="#comment">Notre méthode</a>
         <button class="nav-link nav-button" id="sourcesLink">Transparence des sources</button>
       </nav>
       <div class="header-end">
         <button class="saved-nav" id="showSaved"><svg class="ico"><use href="#i-heart"/></svg> <span>Favoris</span> <span class="saved-dot" id="savedCount">0</span></button>
-        <a class="header-cta" href="#offres">Explorer les offres <svg class="ico"><use href="#i-arrowup"/></svg></a>
+        <a class="header-cta" href="/candidatures.html">Mon espace candidature <svg class="ico"><use href="#i-arrowup"/></svg></a>
       </div>
     </div>
   </header>
@@ -66,7 +66,7 @@
             <label class="remote-toggle" for="remote"><input type="checkbox" id="remote" /><span class="toggle-track"></span><span>Uniquement en télétravail</span><svg class="ico"><use href="#i-globe"/></svg></label>
             <button class="search-submit" type="submit">Rechercher des offres <svg class="ico"><use href="#i-arrow"/></svg></button>
           </form>
-          <div class="search-bottom"><svg class="ico"><use href="#i-check"/></svg><span>Gratuit · Pas de compte requis · Candidature chez le recruteur</span></div>
+          <div class="search-bottom"><svg class="ico"><use href="#i-check"/></svg><span>Gratuit · Offres vérifiables · Assistant de candidature disponible</span></div>
         </div>
       </div>
       <div class="hero-edge" aria-hidden="true"></div>
@@ -85,6 +85,11 @@
       </div>
     </section>
 
+    <section class="studio-teaser"><div class="container studio-teaser-inner">
+        <div class="studio-teaser-mark">✦</div>
+        <div class="studio-teaser-copy"><span>LE STUDIO NIKO EMPLOI</span><h2>De la recherche à la candidature, l’IA vous accompagne.</h2><p>Déposez votre CV, découvrez les offres adaptées — y compris les postes inclusifs/RQTH —, générez une lettre et suivez les réponses des recruteurs.</p></div>
+        <a class="studio-teaser-cta" href="/candidatures.html">Découvrir mon espace candidature <svg class="ico"><use href="#i-arrow"/></svg></a>
+      </div></section>
     <section class="results-section" id="offres">
       <div class="container">
         <div class="section-intro">
@@ -113,7 +118,7 @@
   </main>
   <footer class="footer"><div class="container footer-row"><div><a class="brand footer-brand" href="#"><span class="brand-symbol"><span></span><span></span><span></span></span><span>NIKO<span class="brand-light">EMPLOI</span><small>.</small></span></a><p>Votre futur commence par une vraie opportunité.</p></div><div class="footer-links"><button id="footerSources">Sources & transparence</button><a href="https://www.francetravail.fr" target="_blank" rel="noopener noreferrer">France Travail ↗</a><a href="https://api.easyjobs.fr/public/docs/" target="_blank" rel="noopener noreferrer">Documentation EasyJobs ↗</a></div><span class="copyright">© 2026 Niko Emploi · Projet indépendant</span></div></footer>
 </div>
-<dialog class="source-dialog" id="sourceDialog" aria-labelledby="dialogTitle"><div class="dialog-top"><div class="section-kicker">TRANSPARENCE</div><button id="closeDialog" aria-label="Fermer"><svg class="ico"><use href="#i-x"/></svg></button></div><h2 id="dialogTitle">D'où viennent les offres ?</h2><p>Niko Emploi ne fabrique aucune annonce. Les annonces affichées sont fournies par des API externes : EasyJobs (France), Jobicy (télétravail européen) et Arbeitnow (annonces européennes pertinentes pour la France).</p><p>Chaque fiche conserve son lien et le nom de sa source. Les liens identiques ou les annonces ayant le même employeur, le même intitulé et la même localisation sont dédoublonnés. Des annonces presque identiques peuvent encore exister : aucun algorithme ne garantit un taux parfait.</p><p>Le nombre affiché correspond strictement aux résultats reçus dans les pages interrogées et filtrés, pas au nombre total de postes en France. L'existence d'une annonce chez un agrégateur ne garantit pas qu'elle soit encore ouverte sur le site de recrutement.</p><p><strong>France Travail :</strong> son API officielle est actuellement soumise à une demande d'accès. Nous ne la contournons pas et nous n'affichons pas ses offres sous un faux partenariat.</p><p>Les favoris restent dans votre navigateur. Ce site ne collecte pas de candidatures ni de CV.</p><div class="dialog-links"><a href="https://api.easyjobs.fr/public/docs/" target="_blank" rel="noopener noreferrer">EasyJobs ↗</a><a href="https://jobicy.com/jobs-rss-feed" target="_blank" rel="noopener noreferrer">Jobicy ↗</a><a href="https://www.arbeitnow.com/terms" target="_blank" rel="noopener noreferrer">Arbeitnow ↗</a></div></dialog>
+<dialog class="source-dialog" id="sourceDialog" aria-labelledby="dialogTitle"><div class="dialog-top"><div class="section-kicker">TRANSPARENCE</div><button id="closeDialog" aria-label="Fermer"><svg class="ico"><use href="#i-x"/></svg></button></div><h2 id="dialogTitle">D'où viennent les offres ?</h2><p>Niko Emploi ne fabrique aucune annonce. Les annonces affichées sont fournies par des API externes : EasyJobs (France), Jobicy (télétravail européen) et Arbeitnow (annonces européennes pertinentes pour la France).</p><p>Chaque fiche conserve son lien et le nom de sa source. Les liens identiques ou les annonces ayant le même employeur, le même intitulé et la même localisation sont dédoublonnés. Des annonces presque identiques peuvent encore exister : aucun algorithme ne garantit un taux parfait.</p><p>Le nombre affiché correspond strictement aux résultats reçus dans les pages interrogées et filtrés, pas au nombre total de postes en France. L'existence d'une annonce chez un agrégateur ne garantit pas qu'elle soit encore ouverte sur le site de recrutement.</p><p><strong>France Travail :</strong> son API officielle est actuellement soumise à une demande d'accès. Nous ne la contournons pas et nous n'affichons pas ses offres sous un faux partenariat.</p><p>Les favoris et le profil du studio candidature sont conservés localement selon vos choix. La génération IA exige votre consentement et les envois Gmail requièrent une autorisation OAuth explicite.</p><div class="dialog-links"><a href="https://api.easyjobs.fr/public/docs/" target="_blank" rel="noopener noreferrer">EasyJobs ↗</a><a href="https://jobicy.com/jobs-rss-feed" target="_blank" rel="noopener noreferrer">Jobicy ↗</a><a href="https://www.arbeitnow.com/terms" target="_blank" rel="noopener noreferrer">Arbeitnow ↗</a></div></dialog>
 <script src="/app.js" defer></script>
 </body>
 </html>
