@@ -38,11 +38,12 @@ function check(){
 async function save(){
  const offer=getOffer(),letter=clean($('letterText')?.value),to=clean($('recruiterEmail')?.value);
  if(!offer.title||!offer.company||!safeUrl(offer.url)){notify('Choisissez une offre réelle et vérifiez son titre, son entreprise et son URL.',true);return;}
- if(!session()?.access_token){notify('Connectez votre compte dans le cockpit pour activer la sauvegarde chiffrée.',true);return;}
+ const login=await fetch('/api/auth',{credentials:'same-origin',cache:'no-store'}).then(r=>r.json()).catch(()=>({authenticated:false}));
+ if(!login.authenticated){notify('Connectez votre compte dans le cockpit pour activer la sauvegarde chiffrée.',true);return;}
  if(!confirm('Enregistrer ce brouillon et cette lettre dans votre compte chiffré ?'))return;
  const button=$('v2DossierSave');button.disabled=true;notify('Enregistrement du dossier…');
  try{
-  const result=await fetch('/api/applications',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session().access_token},body:JSON.stringify({action:'draft',consent:true,job:offer,letter,to})});
+  const result=await fetch('/api/applications',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'draft',consent:true,job:offer,letter,to})});
   const data=await result.json().catch(()=>({}));
   if(!result.ok)throw new Error(data.error||'Enregistrement indisponible ('+result.status+')');
   notify('Brouillon sauvegardé. Utilisez « Rafraîchir » dans votre cockpit pour le retrouver.');
