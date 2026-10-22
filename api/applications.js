@@ -1,36 +1,32 @@
 'use strict';
-const {authenticate,database,encrypt,clean,validEmail,validUrl,secureOrigin,sendError,ApiError,eq,userQuery}=require('../lib/platform');
+const {ApiError,encrypt,clean,validUrl,validEmail,sendError,secureOrigin}=require('../lib/platform');
+const {currentUser}=require('../lib/niko-auth');
+const {query}=require('../lib/niko-db');
 const {verifyGmailSend}=require('../lib/gmail-proof');
 module.exports=async(req,res)=>{
- res.setHeader('Cache-Control','no-store');
+ res.setHeader('Cache-Control','private, no-store');
  try{
-  secureOrigin(req);
   if(req.method!=='POST')throw new ApiError(405,'Méthode non autorisée.');
-  const user=await authenticate(req),d=req.body||{},j=d.job||{};
-  if(d.consent!==true)throw new ApiError(400,'Autorisation de stockage explicite requise.');
-  if(!validUrl(j.url)||!clean(j.title)||!clean(j.company))throw new ApiError(400,'L’annonce doit avoir un titre, un employeur et une URL valide.');
-  const hasProof=d.action==='sent';
-  if(!['draft','sent'].includes(d.action))throw new ApiError(400,'Action de candidature invalide.');
-  if(hasProof)await verifyGmailSend({accessToken:d.gmailAccessToken,messageId:d.messageId,threadId:d.threadId,recipient:d.to});
-  const letter=clean(d.letter,10000),jobUrl=clean(j.url,1600);
-  const payload={
-   user_id:user.id,job_url:jobUrl,title:clean(j.title,180),company:clean(j.company,150),location:clean(j.location,160),
-   source:clean(j.source,80),recipient_email:validEmail(d.to)?clean(d.to,254):null,
-   letter_ciphertext:letter?encrypt(letter,user.id+':letter'):null,
-   status:hasProof?'sent':'draft',
-   gmail_thread_id:hasProof?clean(d.threadId,250):null,
-   gmail_message_id:hasProof?clean(d.messageId,250):null,
-   sent_at:hasProof?new Date().toISOString():null,
-   updated_at:new Date().toISOString()
-  };
-  const existing=await database('applications',{query:userQuery(user.id,'job_url='+eq(jobUrl)+'&select=id,status')});
-  if(existing?.[0]?.status==='sent' && d.action==='draft')throw new ApiError(409,'Cette candidature est déjà marquée envoyée.');
-  if(existing?.[0]?.status==='sent' && d.action==='sent')throw new ApiError(409,'Candidature déjà enregistrée comme envoyée.');
-  if(existing?.[0]?.id){
-   await database('applications',{method:'PATCH',query:userQuery(user.id,'id='+eq(existing[0].id)),value:payload});
-  }else{
-   await database('applications',{method:'POST',value:payload});
-  }
-  return res.status(200).json({saved:true,status:payload.status});
+  secureOrigin(req);
+  const user=await currentUser(req),payload=req.body||{},job=payload.job||{};
+  if(payload.consent!==true)throw new ApiError(400,'Consentement explicite requis.');
+  if(!validUrl(job.url)||!clean(job.title)||!clean(job.company))throw new ApiError(400,'Annonce invalide : URL, titre et employeur requis.');
+  if(!['sent','draft'].includes(payload.action))throw new ApiError(400,'Action inconnue.');
+  if(payload.action==='sent')await verifyGmailSend({accessToken:payload.gmailAccessToken,messageId:payload.messageId,threadId:payload.threadId,recipient:payload.to});
+  const isSent=payload.action==='sent';
+  const letter=clean(payload.letter,10000),target=validEmail(payload.to)?clean(payload.to,250):null;
+  const status=isSent?'sent':'draft';
+  const rows=await query(
+    'insert into public.niko_applications(user_id,job_url,title,company,location,source,recipient_email,letter_ciphertext,status,gmail_thread_id,gmail_message_id,sent_at) '+
+    'values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) on conflict(user_id,job_url) do update set '+
+    'title=excluded.title,company=excluded.company,location=excluded.location,source=excluded.source,recipient_email=excluded.recipient_email,'+
+    'letter_ciphertext=excluded.letter_ciphertext,status=excluded.status,gmail_thread_id=excluded.gmail_thread_id,'+
+    'gmail_message_id=excluded.gmail_message_id,sent_at=excluded.sent_at,updated_at=now() '+
+    "where public.niko_applications.status='draft' returning id,status",
+    [user.id,clean(job.url,1600),clean(job.title,180),clean(job.company,150),clean(job.location,150),clean(job.source,80),target,
+     letter?encrypt(letter,user.id+':letter'):null,status,isSent?clean(payload.threadId,200):null,isSent?clean(payload.messageId,200):null,isSent?new Date().toISOString():null]
+  );
+  if(!rows.length)throw new ApiError(409,'Candidature déjà envoyée : mise à jour impossible pour éviter les doublons.');
+  return res.status(200).json({saved:true,status:rows[0].status,id:rows[0].id});
  }catch(e){return sendError(res,e);}
 };
