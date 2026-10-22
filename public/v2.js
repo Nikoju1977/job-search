@@ -19,7 +19,8 @@ async function accountFetch(path,options={}){
 }
 async function authRedirect(){
  const params=new URLSearchParams(location.search);
- const token=params.get('login_token');
+ const fragment=new URLSearchParams(location.hash.slice(1));
+ const token=fragment.get('login_token')||params.get('login_token');
  if(!token)return;
  history.replaceState({},'',location.pathname);
  try{
