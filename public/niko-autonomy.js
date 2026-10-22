@@ -46,6 +46,8 @@ function loadPolicy(p={}){
  $('naThresholdValue').textContent=$('naThreshold').value;
  $('naRemote').checked=p.remote_only===true;
  $('naInclusive').checked=p.inclusive_only===true;
+ $('naDigest').checked=p.email_digest===true;
+ $('naDigestConsent').checked=false;
  $('naConsent').checked=false;
 }
 async function refresh(){
@@ -63,8 +65,8 @@ async function save(enabled){
  if(!authenticated)return status('Connectez votre compte avant de régler l’agent.',true);
  if(enabled&&!$('naConsent').checked)return status('Votre autorisation explicite est nécessaire pour activer la veille.',true);
  const data={action:'settings',enabled,consent:enabled&&$('naConsent').checked,
-  minScore:Number($('naThreshold').value),remoteOnly:$('naRemote').checked,inclusiveOnly:$('naInclusive').checked,maxResults:20};
- try{await request('POST','/api/niko-agent',data);status(enabled?'Agent activé : recherches et recommandations autorisées, aucun envoi automatique.':'Agent arrêté. Les recommandations existantes restent accessibles.');await refresh();}
+  minScore:Number($('naThreshold').value),remoteOnly:$('naRemote').checked,inclusiveOnly:$('naInclusive').checked,emailDigest:$('naDigest').checked,digestConsent:$('naDigestConsent').checked,maxResults:20};
+ try{await request('POST','/api/niko-agent',data);status(enabled?'Agent activé : veille autorisée, alertes e-mail uniquement avec accord séparé. Aucun envoi à un recruteur.':'Agent arrêté : veille et notifications désactivées.');await refresh();}
  catch(e){status(e.message,true);}
 }
 async function preview(){
