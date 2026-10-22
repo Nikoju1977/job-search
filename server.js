@@ -2,7 +2,7 @@
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
-const routes = {'/api/jobs':require('./api/jobs'),'/api/config':require('./api/config'),'/api/letter':require('./api/letter'),'/api/reply-agent':require('./api/reply-agent'),'/api/account':require('./api/account'),'/api/auth':require('./api/auth'),'/api/applications':require('./api/applications')};
+const routes = {'/api/jobs':require('./api/jobs'),'/api/config':require('./api/config'),'/api/letter':require('./api/letter'),'/api/reply-agent':require('./api/reply-agent'),'/api/account':require('./api/account'),'/api/auth':require('./api/auth'),'/api/applications':require('./api/applications'),'/api/engine-cron':require('./api/engine-cron')};
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const mime = {'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.ico':'image/x-icon'};
 const port = Number(process.env.PORT || 3000);
