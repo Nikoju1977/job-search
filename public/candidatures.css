@@ -230,3 +230,44 @@
 #v2FraudFindings ul{margin:6px 0;padding-left:22px;color:#6f647c;font-size:12px;line-height:1.75}
 #v2FraudFindings li{margin:6px 0}
 @media(max-width:650px){.v2-dossier,.v2-fraud{padding:16px}.v2-dossier-actions{align-items:stretch;flex-direction:column}.v2-dossier-actions button{width:100%}.v2-fraud .button-secondary{width:100%}}
+
+/* NIKO INTELLIGENCE 3.0 — console de décision explicable */
+.niko-ai{position:relative;overflow:hidden;margin:19px 0 23px;border:1px solid #353a64;border-radius:19px;background:radial-gradient(ellipse at 100% -20%,#544076 0,transparent 45%),linear-gradient(140deg,#171c33,#252b4e 80%);color:#f8f8fc;padding:27px;box-shadow:0 14px 40px #161a3822}
+.niko-ai:before{content:"";position:absolute;right:-110px;bottom:-180px;width:300px;height:300px;border:1px solid #ffc0de22;border-radius:50%;pointer-events:none}
+.niko-ai-head{display:flex;gap:17px;align-items:flex-start}
+.niko-ai-monogram{flex-shrink:0;display:grid;place-items:center;width:48px;height:48px;border:1px solid #ffffff40;border-radius:14px;background:#ffffff12;font:800 24px 'Manrope',sans-serif;letter-spacing:-3px}
+.niko-ai-monogram span{color:#fb96bc}
+.niko-ai-head>div:nth-child(2){flex:1;min-width:0}
+.niko-ai-eyebrow{color:#ffaccb;font:800 9px 'Manrope',sans-serif;letter-spacing:1.8px}
+.niko-ai h3{font:800 23px 'Manrope',sans-serif;letter-spacing:-.8px;margin:5px 0 7px;color:#fff}
+.niko-ai h3 span{color:#f69bc0}
+.niko-ai-head p{color:#c0c4d8;font:400 11px/1.85 'DM Sans',sans-serif;margin:0}
+.niko-ai-signal{font:800 10px 'Manrope',sans-serif;border-radius:100px;border:1px solid #ffffff30;background:#ffffff10;color:#d8e5ff;padding:7px 11px;white-space:nowrap}
+.niko-ai-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:24px 0 19px}
+.niko-ai-metrics>div{padding:16px 18px;background:#fff0;border:1px solid #ffffff21;border-radius:13px}
+.niko-ai-metrics strong{font:800 28px 'Manrope',sans-serif;letter-spacing:-1.3px;display:block;color:#fff}
+.niko-ai-metrics small{color:#aab1ca;font:500 10px 'DM Sans',sans-serif}
+.niko-ai-tools{display:flex;align-items:center;gap:19px;flex-wrap:wrap}
+.niko-ai-tools .button-primary{background:#fa8fb5;color:#1b2237;box-shadow:none;border-radius:10px}
+.niko-ai-tools .button-primary:hover{background:#fdb2cd;color:#1b2237}
+.niko-ai-tools .button-primary span{font-size:15px;padding-right:4px}
+.niko-watch-control{display:flex;align-items:center;gap:9px;font:600 11px 'DM Sans',sans-serif;color:#dde0f1;cursor:pointer}
+.niko-watch-control input{accent-color:#f995bd;width:16px;height:16px}
+.niko-recommendations{margin-top:20px;padding-top:18px;border-top:1px solid #ffffff1d}
+.niko-rec-empty{margin:0;color:#afb7d1;line-height:1.65;font:500 11px 'DM Sans',sans-serif}
+.niko-rec-title{color:#faafd1;font:800 9px 'Manrope',sans-serif;letter-spacing:1.3px;margin-bottom:11px}
+.niko-rec{display:flex;align-items:center;gap:12px;justify-content:space-between;padding:14px 13px;border:1px solid #ffffff1d;background:#ffffff08;border-radius:11px;margin-bottom:8px}
+.niko-rec-main{flex:1;min-width:0;display:grid;gap:4px}
+.niko-rec-main strong{font:700 12px 'Manrope',sans-serif;color:#fff}
+.niko-rec-main>span{font:500 10px/1.6 'DM Sans',sans-serif;color:#c0c6df}
+.niko-rec-main>small{font:500 10px 'DM Sans',sans-serif;color:#f2b4b8}
+.niko-rec-actions{display:flex;align-items:center;gap:12px}
+.niko-rec-actions b{font:800 15px 'Manrope',sans-serif;color:#fda8c5}
+.niko-rec-actions a{white-space:nowrap;text-decoration:none;font:700 10px 'DM Sans',sans-serif;color:#fff;border:1px solid #ffffff3c;border-radius:8px;padding:8px}
+.niko-rec-actions a:hover{background:#ffffff1b}
+.niko-ai-fineprint{font:500 10px/1.8 'DM Sans',sans-serif;color:#aab2cd;margin:18px 0 0}
+.niko-explain{margin:9px 0 3px;border-top:1px solid #ececf3;padding:8px 0}
+.niko-explain summary{color:#865b83;cursor:pointer;font-size:11px;font-weight:700}
+.niko-explain ul{padding:4px 0 0 18px;margin:0;color:#777c8e;font-size:11px;line-height:1.75}
+.niko-explain li.niko-caution{color:#b96a4b}
+@media(max-width:760px){.niko-ai{padding:20px}.niko-ai-head{flex-wrap:wrap}.niko-ai-signal{margin-left:65px}.niko-ai h3{font-size:20px}.niko-ai-metrics>div{padding:12px}.niko-ai-metrics strong{font-size:24px}.niko-ai-tools .button-primary{width:100%}.niko-rec{flex-wrap:wrap}.niko-rec-actions{width:100%;justify-content:space-between}.niko-rec-actions a{min-height:36px;display:flex;align-items:center}}
