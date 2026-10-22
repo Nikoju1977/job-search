@@ -173,3 +173,44 @@
 .agent-disclaimer{font-size:11px;color:#9298a8;line-height:1.75;margin-top:18px}
 @media(max-width:940px){.queue-entry{grid-template-columns:minmax(0,1fr) auto}.queue-entry input{grid-column:1/-1;grid-row:2}}
 @media(max-width:630px){.queue-entry{grid-template-columns:1fr}.queue-entry input{grid-column:auto;grid-row:auto}.queue-row-actions{justify-content:flex-start}.agent-reply-head{align-items:flex-start;flex-direction:column}.rqth-filter label{align-items:flex-start}.resource-links a{flex:1;text-align:center}}
+
+/* Version 2.0 : tableau de bord, compte chiffré et coach d'entretien */
+.v2-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 23px}
+.v2-stats>div{border:1px solid #e8e9f1;border-radius:12px;padding:18px 15px;background:linear-gradient(150deg,#fff,#fcfafd)}
+.v2-stats small{font-size:10px;color:#898d9c;display:block;min-height:30px}
+.v2-stats strong{font:800 29px 'Manrope',sans-serif;color:#272b43;display:block;letter-spacing:-1.5px}
+.v2-account-box{display:grid;gap:15px;padding:19px;border:1px solid #e6e3ef;border-radius:12px;background:#f8f7fc}
+.v2-account-box>div>strong{font:800 13px 'Manrope',sans-serif;color:#30314a}
+.v2-account-box p{font-size:11px;color:#7f8496;line-height:1.7;margin:6px 0 0}
+.v2-login{display:flex;flex-wrap:wrap;align-items:end;gap:10px}
+.v2-login label{font-size:11px;color:#656b7e;font-weight:800;flex-basis:100%}
+.v2-login input{flex:1;min-width:160px;border:1px solid #dedfe9;border-radius:9px;padding:12px}
+.v2-account-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.v2-account-actions>span{flex-basis:100%;font-size:11px;color:#8b5b83}
+.v2-disclosure{font-size:11px;color:#8a8f9f;margin:15px 0;line-height:1.7}
+.v2-activity{display:grid;gap:8px;margin-top:9px}
+.v2-activity-row{padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fbfbfe;border:1px solid #e9eaf0;border-radius:10px}
+.v2-activity-row strong{display:block;font-size:11px;color:#292d42}
+.v2-activity-row span{font-size:10px;color:#9196a5}
+.v2-activity-tag{border-radius:20px;background:#fff0f5;color:#c34376;padding:5px 9px;font-size:10px;white-space:nowrap;font-weight:800}
+.v2-interview-form{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:16px}
+.v2-interview-form label{font-size:11px;font-weight:800;color:#4d5266;display:grid;gap:8px}
+.v2-interview-form select,.v2-interview-form input{border:1px solid #e1e4eb;background:#fff;border-radius:10px;padding:13px;min-width:0;font-size:12px;color:#34394f;width:100%}
+.v2-question-card{border-radius:13px;padding:25px;background:#232740;color:white;margin-top:19px}
+.v2-question-card>span{font:800 10px 'Manrope',sans-serif;letter-spacing:1.8px;color:#ff92b4}
+.v2-question-card>p{font:700 19px/1.55 'Manrope',sans-serif;margin:19px 0 25px;letter-spacing:-.3px}
+.v2-question-actions{display:flex;flex-wrap:wrap;gap:10px}
+.v2-question-actions .button-secondary{background:#ffffff13;border-color:#ffffff28;color:white}
+.v2-question-actions .button-secondary:hover{background:#ffffff26}
+.v2-star{background:#fcfbfd;border:1px solid #eaebf2;border-radius:13px;padding:21px;margin-top:18px}
+.v2-star>strong{font:800 13px 'Manrope',sans-serif;color:#393a4e}
+.v2-star-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:16px 0}
+.v2-star-steps span{display:flex;align-items:center;gap:8px;font-size:11px;color:#6d6f86}
+.v2-star-steps b{background:#fbe3ec;color:#ba4773;border-radius:8px;min-width:28px;height:28px;display:grid;place-items:center;font-size:12px}
+.v2-star textarea{width:100%;border-radius:10px;border:1px solid #e2e4eb;padding:14px;font:500 12px/1.7 'DM Sans',sans-serif;resize:vertical;min-height:130px}
+.v2-coach-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.v2-feedback{font-size:12px;color:#71788b;line-height:1.7;margin-top:12px;white-space:pre-wrap}
+.v2-calendar{border-top:1px solid #ececf1;margin-top:24px;padding-top:22px}
+.v2-calendar h3{font:800 15px 'Manrope',sans-serif;margin:0 0 12px}
+.v2-calendar>p{font-size:10px;color:#8f95a3;line-height:1.75}
+@media(max-width:650px){.v2-stats{grid-template-columns:1fr 1fr}.v2-stats>div{padding:13px}.v2-interview-form{grid-template-columns:1fr}.v2-question-card{padding:19px}.v2-question-card>p{font-size:16px}.v2-star{padding:15px}.v2-star-steps{grid-template-columns:1fr 1fr}.v2-account-actions .button-primary,.v2-login button{width:100%}}
