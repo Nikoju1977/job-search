@@ -2,6 +2,7 @@
 const {timingSafeEqual}=require('node:crypto');
 const {getJobs}=require('../lib/jobs');
 const {ApiError,sendError}=require('../lib/platform');
+const {scanCandidates}=require('../lib/niko-runner');
 function authorized(req){
  const token=process.env.CRON_SECRET;
  if(typeof token!=='string'||token.length<16)return false;
@@ -35,8 +36,9 @@ module.exports=async function handler(req,res){
   if(!authorized(req))throw new ApiError(401,'Invocation non autorisée.');
   const {neon}=require('@neondatabase/serverless');
   const sql=neon(process.env.DATABASE_URL);
-  const result=await scanPublicCatalog(sql);
-  return res.status(200).json({status:'completed',performed:true,...result,notes:'Index d’offres publiques uniquement. Aucune candidature envoyée.'});
+  const catalog=await scanPublicCatalog(sql);
+  const agents=await scanCandidates({maxUsers:4});
+  return res.status(200).json({status:'completed',performed:true,catalog,agents,notes:'Recommandations autonomes uniquement. Aucune candidature ni réponse envoyée automatiquement.'});
  }catch(e){return sendError(res,e);}
 };
 module.exports.scanPublicCatalog=scanPublicCatalog;
