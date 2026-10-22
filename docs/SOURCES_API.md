@@ -41,6 +41,8 @@ GREENHOUSE_BOARDS=board-token:Nom réel de l'entreprise;autre-board:Autre entrep
 
 Le nom d'entreprise doit correspondre au vrai recruteur du site visé : Niko Emploi ne l'invente pas. Un maximum de **4 sites carrières** est interrogé. Le moteur lit uniquement le point d'accès public officiel `GET /v1/boards/{board_token}/jobs?content=true` sur `boards-api.greenhouse.io`, et affiche le lien publié par le recruteur. Il exclut les offres réservées aux États-Unis lorsque l'éligibilité française n'est pas explicitement établie.
 
+**Production Niko Emploi :** la variable `GREENHOUSE_BOARDS` a été configurée sur Vercel pour les tableaux publics **Datadog, Dataiku, DataDome et Doctolib**. Les tableaux ont été identifiés sur leurs pages Greenhouse publiques ; leur bonne réponse via l'API du site déployé reste à contrôler dans les diagnostics de sources.
+
 Le connecteur est volontairement **inactif** tant que `GREENHOUSE_BOARDS` n'est pas renseigné. La lecture des annonces publiées ne permet pas pour autant de soumettre des candidatures sans autorisation.
 
 Référence : https://docs.greenhouse.io/job-board
