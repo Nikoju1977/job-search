@@ -4,10 +4,30 @@
 const $=id=>document.getElementById(id);
 const core=window.NikoNeuroCore;
 const engine=window.NikoEngine;
-let jobs=[],worker=null,nextId=0,timeoutId=null;
+let jobs=[],worker=null,nextId=0,timeoutId=null,lastScored=null;
+const FEEDBACK_KEY='niko_neuro_feedback_v5';
 function setStatus(msg,problem=false){const el=$('n5Status');if(!el)return;el.textContent=msg;el.classList.toggle('is-error',problem);}
 function candidate(){return {cvText:$('cvText')?.value||'',targetRole:$('targetRole')?.value||'',targetLocation:$('targetLocation')?.value||''};}
 function el(tag,className,label){const n=document.createElement(tag);if(className)n.className=className;if(label!==undefined)n.textContent=label;return n;}
+function readFeedback(){
+ try{
+  const data=JSON.parse(localStorage.getItem(FEEDBACK_KEY)||'[]');
+  return Array.isArray(data)?data.filter(x=>x&&['saved','dismissed'].includes(x.status)&&typeof x.url==='string'&&typeof x.title==='string').slice(-100):[];
+ }catch{return [];}
+}
+function changeFeedback(job,status){
+ const previous=readFeedback().filter(x=>x.url!==job.url);
+ const next=[...previous,{url:job.url,title:job.title.slice(0,160),status}].slice(-100);
+ try{localStorage.setItem(FEEDBACK_KEY,JSON.stringify(next));}
+ catch{setStatus('Espace local plein : votre préférence n’a pas été conservée.',true);return;}
+ rerender();
+}
+function rerender(){
+ if(!lastScored)return;
+ const {available,scores,profile,sent}=lastScored;
+ const ranked=core.rank(available,scores,profile,engine,{sentUrls:sent,feedback:readFeedback()});
+ results(ranked);
+}
 function clearWorker(){
  if(timeoutId!==null){clearTimeout(timeoutId);timeoutId=null;}
  if(worker){worker.terminate();worker=null;}
@@ -44,6 +64,15 @@ function results(matches){
   const skills=(m.fit.shared||[]).slice(0,4);
   if(skills.length)main.append(el('small','', 'Compétences du CV : '+skills.join(', ')));
   if(m.fit.watchouts?.length)main.append(el('small','n5-caution',m.fit.watchouts.slice(0,2).join(' · ')));
+  const actions=el('div','n5-match-actions');
+  for(const [status,label] of [['saved','Utile pour moi'],['dismissed','Écarter']]){
+   const btn=el('button','button-secondary',label);
+   btn.type='button';
+   btn.setAttribute('aria-label',label+' : '+m.job.title);
+   btn.addEventListener('click',()=>changeFeedback(m.job,status));
+   actions.append(btn);
+  }
+  main.append(actions);
   row.append(main,el('span','n5-tag',m.fit.reliability==='bonne'?'Critères bien renseignés':'Critères à vérifier'));
   container.append(row);
  }
@@ -52,6 +81,7 @@ function close(msg,problem=false){clearWorker();setStatus(msg,problem);}
 function start(){
  if(!core||!engine){setStatus('Moteur local indisponible. Le radar existant reste utilisable.',true);return;}
  const p=candidate(),text=core.profileText(p);
+ lastScored=null;
  drawPassport();
  if(!text.trim()){setStatus('Indiquez un métier ou complétez votre CV avant l’analyse.',true);return;}
  const available=jobs.filter(core.validJob).slice(0,30);
@@ -77,8 +107,9 @@ function start(){
   }
   if(data.type==='error'){close(data.message||'IA locale indisponible.',true);return;}
   if(data.type!=='result')return;
-  const ranked=core.rank(available,data.scores,p,engine,{sentUrls:[...sent]});
-  results(ranked);
+  lastScored={available,scores:data.scores,profile:p,sent:[...sent]};
+  rerender();
+  const ranked=core.rank(available,data.scores,p,engine,{sentUrls:[...sent],feedback:readFeedback()});
   close(ranked.length+' suggestions classées sur cet appareil. Aucun CV transmis à une API d’IA, aucun e-mail envoyé.');
  };
  localWorker.onerror=()=>{if(worker===localWorker)close('Module de calcul local indisponible. Le radar classique reste actif.',true);};
@@ -88,9 +119,11 @@ document.addEventListener('DOMContentLoaded',()=>{
  if(!$('n5Passport'))return;
  $('n5Passport').addEventListener('click',()=>{drawPassport();setStatus('Passeport mis à jour uniquement à partir des informations présentes dans votre CV.');});
  $('n5Run').addEventListener('click',start);
+ $('n5ResetFeedback').addEventListener('click',()=>{localStorage.removeItem(FEEDBACK_KEY);rerender();setStatus('Préférences locales effacées. Vos CV et candidatures ne sont pas modifiés.');});
  $('n5Cancel').addEventListener('click',()=>close('Analyse annulée. Les offres et votre CV n’ont pas été modifiés.'));
  document.addEventListener('niko:jobs-loaded',event=>{
   jobs=Array.isArray(event.detail?.jobs)?event.detail.jobs:[];
+  lastScored=null;
   if(worker)close('Recherche actualisée : relancez le calcul sémantique avec les nouvelles offres.');
   $('n5OfferCount').textContent=jobs.length+' offre'+(jobs.length>1?'s':'')+' disponible'+(jobs.length>1?'s':'');
  });
