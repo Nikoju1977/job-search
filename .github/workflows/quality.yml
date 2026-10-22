@@ -1,0 +1,23 @@
+name: Niko Emploi - Validation
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Vérifier la syntaxe serveur et navigateur
+        run: |
+          node --check public/app.js
+          node --check public/candidatures.js
+          node --check server.js
+          node --check api/letter.js
+          node --check api/reply-agent.js
+          node --check lib/candidate.js
+      - name: Tester le moteur de recherche et le studio
+        run: npm test
