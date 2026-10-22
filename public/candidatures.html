@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#191d32">
+  <meta name="description" content="Studio de candidature Niko Emploi : CV, offres compatibles et lettres de motivation personnalisées.">
+  <title>Studio candidature — Niko Emploi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/candidatures.css">
+  <script src="/candidatures.js" defer></script>
+</head>
+<body class="studio-page">
+<header class="studio-header">
+  <div class="container studio-header-inner">
+    <a class="studio-brand" href="/"><span class="studio-logo">N<span>·</span></span><span>NIKO <strong>EMPLOI</strong></span></a>
+    <nav class="studio-nav" aria-label="Navigation"><a href="/">Explorer les offres</a><a href="#cv" class="active">Mon espace candidature</a></nav>
+    <a href="/" class="header-back">← Retour aux offres</a>
+  </div>
+</header>
+<main>
+  <section class="studio-hero">
+    <div class="container studio-hero-grid">
+      <div class="studio-hero-copy">
+        <span class="studio-overline"><span class="studio-live"></span> VOTRE COPILOTE DE CANDIDATURE</span>
+        <h1>Un CV.<br><em>De nouvelles portes.</em></h1>
+        <p>Importez votre parcours, découvrez les offres pertinentes et préparez chaque candidature avec une lettre adaptée à l'entreprise. Vous gardez le contrôle des envois.</p>
+        <div class="studio-hero-points"><span>✓ CV analysé sur votre appareil</span><span>✓ Lettres sur mesure</span><span>✓ Envoi avec votre accord</span></div>
+      </div>
+      <div class="hero-metrics" aria-label="Étapes du parcours">
+        <div class="metric-main"><span class="metric-counter">01 — 03</span><div class="metric-glow">✦</div><h2>Votre prochain chapitre commence ici.</h2></div>
+        <div class="metric-steps"><div><strong>01</strong><span>Votre profil</span></div><div><strong>02</strong><span>Vos offres</span></div><div><strong>03</strong><span>Votre lettre</span></div></div>
+      </div>
+    </div>
+  </section>
+  <div class="container">
+    <div id="notice" class="studio-notice" role="status" aria-live="polite" hidden></div>
+    <div class="studio-layout">
+      <aside class="studio-sidebar" aria-label="Étapes de candidature">
+        <div class="step-intro">VOTRE PARCOURS</div>
+        <a href="#cv" class="step-item active" data-step="cv"><span>01</span><div><strong>Votre CV</strong><small>Importer et compléter</small></div></a>
+        <a href="#offres-studio" class="step-item" data-step="offres-studio"><span>02</span><div><strong>Offres ciblées</strong><small>Recherche et pertinence</small></div></a>
+        <a href="#lettre" class="step-item" data-step="lettre"><span>03</span><div><strong>Candidature</strong><small>Rédiger et envoyer</small></div></a>
+        <div class="privacy-note"><span>♧</span><strong>Vos données, votre décision.</strong><p>Le CV est lu dans votre navigateur. L'IA ne le reçoit que lorsque vous demandez explicitement une lettre.</p></div>
+      </aside>
+      <div class="studio-main">
+        <section id="cv" class="studio-panel">
+          <div class="panel-topline"><span>ÉTAPE 01</span><span class="topline-accent">VOTRE POINT DE DÉPART</span></div>
+          <div class="panel-heading"><div><h2>Construisons votre profil<span>.</span></h2><p>Un CV suffit pour commencer. Vous pouvez compléter ou corriger les informations détectées.</p></div><span class="panel-icon">◈</span></div>
+          <label class="cv-drop" id="dropZone" for="cvFile" tabindex="0">
+            <input id="cvFile" type="file" accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" aria-describedby="cvInfo">
+            <span class="drop-icon">⇧</span><strong>Glissez votre CV ici, ou cliquez pour parcourir</strong>
+            <span id="cvInfo">PDF, DOCX ou TXT · 8 Mo maximum</span>
+            <span id="cvFileName" class="file-name" hidden></span>
+          </label>
+          <div class="form-grid">
+            <label>Nom complet<input id="fullName" type="text" autocomplete="name" placeholder="Prénom Nom" maxlength="100"></label>
+            <label>Adresse e-mail<input id="email" type="email" autocomplete="email" placeholder="nom@exemple.fr" maxlength="150"></label>
+            <label>Intitulé du poste recherché<input id="targetRole" type="text" placeholder="Ex. assistant administratif" maxlength="120"></label>
+            <label>Ville de recherche<input id="targetLocation" type="text" placeholder="Ex. Nantes, France" maxlength="100" value="Toute la France"></label>
+          </div>
+          <label class="full-label" for="cvText">Texte du CV extrait <small>(modifiable pour corriger les erreurs de lecture)</small></label>
+          <textarea id="cvText" rows="7" placeholder="Votre CV apparaîtra ici après import. Vous pouvez également coller directement votre parcours." maxlength="25000"></textarea>
+          <div class="cv-actions"><label class="check-line"><input type="checkbox" id="remember"><span>Conserver ce profil uniquement dans ce navigateur</span></label><button id="clearProfile" class="text-action" type="button">Effacer mes données</button></div>
+          <div class="panel-bottom"><span id="cvSummary">Aucun CV importé pour le moment.</span><button id="findJobsBtn" class="button-primary" type="button">Trouver mes offres <span>→</span></button></div>
+        </section>
+        <section id="offres-studio" class="studio-panel">
+          <div class="panel-topline"><span>ÉTAPE 02</span><span class="topline-accent">OPPORTUNITÉS RÉELLES</span></div>
+          <div class="panel-heading"><div><h2>Des offres qui vous ressemblent<span>.</span></h2><p>Classement indicatif par mots-clés du CV et des annonces. Les offres proviennent du moteur Niko Emploi.</p></div><span class="panel-icon">⌕</span></div>
+          <form id="jobSearch" class="studio-search">
+            <input id="jobKeyword" type="search" placeholder="Métier, compétence, mot-clé" maxlength="120" aria-label="Métier recherché">
+            <input id="jobLocation" type="search" placeholder="Ville ou toute la France" maxlength="120" aria-label="Localisation">
+            <button class="button-primary" type="submit">Rechercher</button>
+          </form>
+          <div class="offers-toolbar"><strong id="jobsCount">Lancez une recherche pour voir les offres.</strong><label><input type="checkbox" id="relevantOnly"> Prioriser les profils similaires</label></div>
+          <div id="jobResults" class="studio-jobs" aria-live="polite"><div class="studio-empty">Vos futures opportunités apparaîtront ici.</div></div>
+        </section>
+        <section id="lettre" class="studio-panel">
+          <div class="panel-topline"><span>ÉTAPE 03</span><span class="topline-accent">PERSONNALISEZ VOTRE APPROCHE</span></div>
+          <div class="panel-heading"><div><h2>Une lettre qui fait la différence<span>.</span></h2><p>L'argumentaire s'appuie sur votre vrai parcours et les informations disponibles sur l'offre. Relisez-le avant chaque envoi.</p></div><span class="panel-icon">✎</span></div>
+          <div id="chosenJob" class="chosen-job">Sélectionnez une offre dans la liste ci-dessus, ou ouvrez cet espace depuis une annonce.</div>
+          <div class="form-grid">
+            <label>Destinataire / entreprise<input id="letterCompany" type="text" placeholder="Nom de l'entreprise" maxlength="150"></label>
+            <label>Poste visé<input id="letterPosition" type="text" placeholder="Intitulé du poste" maxlength="180"></label>
+          </div>
+          <div class="letter-controls"><button id="generateBtn" class="button-primary" type="button">✦ Générer ma lettre</button><small id="generationMode">Rédaction personnalisée disponible même sans configuration IA.</small></div>
+          <label class="full-label" for="letterText">Votre lettre de motivation <small>(entièrement modifiable)</small></label>
+          <textarea id="letterText" class="letter-paper" rows="17" placeholder="Votre lettre de motivation personnalisée apparaîtra ici." maxlength="12000"></textarea>
+          <div class="letter-actions"><button type="button" id="downloadLetter" class="button-secondary">↓ Télécharger la lettre</button><button type="button" id="copyLetter" class="button-secondary">Copier le texte</button><button type="button" id="openJob" class="button-secondary">Voir l'annonce ↗</button></div>
+          <div class="sending-block">
+            <div class="sending-title"><h3>Envoyer votre candidature</h3><span>Avec votre accord uniquement</span></div>
+            <p>Si vous disposez de l'adresse du recruteur, l'envoi Gmail peut inclure automatiquement votre CV et votre lettre. Les formulaires d'autres plateformes restent accessibles depuis leur annonce.</p>
+            <div class="send-grid"><label>Adresse e-mail du recruteur<input id="recruiterEmail" type="email" placeholder="recrutement@entreprise.fr" maxlength="180"></label><button id="sendBtn" type="button" class="button-primary">Envoyer avec Gmail →</button></div>
+            <label class="check-line"><input type="checkbox" id="sendConsent"><span>Je valide le destinataire, le CV et la lettre et j'autorise cet envoi.</span></label>
+            <div class="send-footer"><button id="emailFallback" class="text-action" type="button">Préparer un e-mail sans connexion Gmail ↗</button><span id="gmailStatus">Connexion Google requise pour l'envoi direct.</span></div>
+          </div>
+        </section>
+        <section id="suivi" class="studio-panel">
+          <div class="panel-topline"><span>VOTRE SUIVI</span><span class="topline-accent">ENREGISTRÉ DANS CE NAVIGATEUR</span></div>
+          <div class="panel-heading"><div><h2>Mon tableau de bord<span>.</span></h2><p>Un historique local des lettres préparées et des envois confirmés. Aucun envoi n'est indiqué comme effectué avant confirmation du service.</p></div><span class="panel-icon">✓</span></div>
+          <div id="history" class="history-list"><div class="studio-empty">Aucune candidature enregistrée.</div></div>
+          <button id="clearHistory" class="text-action" type="button">Effacer l'historique de cet appareil</button>
+        </section>
+      </div>
+    </div>
+  </div>
+</main>
+<footer class="studio-footer"><div class="container studio-footer-inner"><strong>NIKO EMPLOI<span>.</span></strong><span>Des offres réelles. Des candidatures qui vous ressemblent.</span><a href="/">Retour à la recherche d'emploi ↗</a></div></footer>
+</body>
+</html>
