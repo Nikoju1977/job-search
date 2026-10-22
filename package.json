@@ -1,11 +1,16 @@
 {
   "name": "niko-emploi",
-  "version": "1.0.0",
+  "version": "3.0.0",
   "private": true,
-  "description": "Moteur de recherche d'offres réelles multi-sources et dédoublonnées",
+  "description": "Niko Emploi : moteur autonome d'opportunités et copilote de candidature",
   "scripts": {
     "start": "node server.js",
     "test": "node --test tests/*.test.js"
   },
-  "engines": {"node": ">=20"}
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.2.0"
+  }
 }
