@@ -96,8 +96,8 @@
   if(!clean)return {category:'a_verifier',confidence:0,autoReplyAllowed:false,reason:'Message sans contenu exploitable'};
   if(/\b(noreply|no reply|mailer daemon|postmaster)\b/.test(sender)||/\b(auto generated|auto replied|bulk)\b/.test(auto))return {category:'automatique',confidence:1,autoReplyAllowed:false,reason:'Expéditeur ou message automatique'};
   const interview=/\b(entretien|interview|rendez vous|rdv|creneau|disponibilite|visioconference|rencontrer|echange telephonique|invitation)\b/.test(clean);
-  const negative=/\b(malheureusement|non retenue|pas retenu|non selectionne|pas donner suite|sans suite|refus|not selected|unsuccessful)\b/.test(clean);
-  const positive=/\b(retenu|selectionne|interesse|interessee|suite favorable|bonne nouvelle|felicitations|pleasure to invite)\b/.test(clean);
+  const negative=/\b(malheureusement|non retenu|non retenue|pas retenu|pas retenue|non selectionne|pas donner suite|sans suite|refus|not selected|unsuccessful)\b/.test(clean);
+  const positive=!negative&&/\b(retenu|retenue|selectionne|interesse|interessee|suite favorable|bonne nouvelle|felicitations|pleasure to invite)\b/.test(clean);
   const sensitive=/\b(contrat|signature|salaire|remuneration|piece d identite|rib|virement|paiement|urgent|disponibilites|date|horaire|offre ferme|promesse)\b/.test(clean);
   if(interview)return {category:'entretien',confidence:.88,autoReplyAllowed:false,reason:'Rendez-vous potentiel : validation humaine nécessaire'};
   if(positive&&negative)return {category:'a_verifier',confidence:.25,autoReplyAllowed:false,reason:'Signaux contradictoires'};
