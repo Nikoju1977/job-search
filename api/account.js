@@ -36,7 +36,7 @@ module.exports=async function handler(req,res){
   const cv=clean(profile.cvText,23000);
   if(cv.length>22000)throw new ApiError(413,'CV trop long pour cet espace.');
   const payload={user_id:user.id,full_name:clean(profile.fullName,100),target_role:clean(profile.targetRole,120),target_location:clean(profile.targetLocation,120),cv_ciphertext:cv?encrypt(cv,user.id+':cv'):null,updated_at:new Date().toISOString()};
-  await database('profiles',{method:'POST',query:'on_conflict=user_id',value:payload});
+  await database('profiles',{method:'POST',query:'on_conflict=user_id',upsert:true,value:payload});
   return res.status(200).json({saved:true});
  }catch(e){return sendError(res,e);}
 };
