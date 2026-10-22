@@ -122,3 +122,54 @@
 @media(max-width:1100px){.studio-layout{grid-template-columns:215px minmax(0,1fr);gap:18px}.studio-panel{padding:25px}.studio-hero-grid{gap:30px}}
 @media(max-width:850px){.studio-hero-grid{grid-template-columns:1fr;padding-top:45px;padding-bottom:50px}.hero-metrics{display:none}.studio-layout{grid-template-columns:1fr}.studio-sidebar{position:static;display:flex;gap:7px;padding:10px;overflow:auto}.step-intro,.privacy-note{display:none}.step-item{flex:1;min-width:135px}.step-item small{font-size:10px}.studio-header .studio-nav{display:none}}
 @media(max-width:620px){.studio-header{height:67px}.studio-header-inner{gap:5px}.studio-brand{font-size:14px}.studio-logo{height:34px;width:34px}.header-back{font-size:10px;padding:9px}.studio-hero h1{font-size:38px;letter-spacing:-1.6px}.studio-hero-copy>p{font-size:13px}.studio-hero-points{gap:9px}.studio-layout{padding-top:20px;padding-bottom:45px}.studio-panel{padding:22px 17px}.panel-icon,.topline-accent{display:none}.form-grid,.studio-search,.send-grid{grid-template-columns:1fr}.studio-job{grid-template-columns:1fr}.job-match{flex-direction:row;align-items:center;justify-content:space-between}.offers-toolbar{align-items:start;flex-direction:column}.cv-actions,.panel-bottom{align-items:flex-start;flex-direction:column}.panel-bottom .button-primary,.studio-search .button-primary,.send-grid .button-primary{width:100%}.studio-sidebar{gap:2px}.step-item{padding:10px 7px;min-width:110px;gap:7px}.step-item>span{width:30px;height:30px}.step-item strong{font-size:10px}.step-item small{font-size:9px}.sending-title{align-items:flex-start;flex-direction:column}.letter-actions .button-secondary{flex:1}.studio-footer-inner{display:grid}.chosen-job{font-size:11px}}
+
+/* Inclusion, panier de candidatures, agent de suivi */
+.rqth-filter{border:1px solid #dedbee;background:#f9f7ff;border-radius:11px;padding:14px 15px;margin-bottom:15px}
+.rqth-filter label{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:12px;line-height:1.55;cursor:pointer}
+.rqth-filter input{accent-color:#d64479}
+.rqth-filter label strong{color:#3c2c62}
+.rqth-filter label span,.rqth-filter>small{color:#8c869d;font-size:11px}
+.rqth-filter>small{display:block;margin-left:24px;margin-top:4px}
+.inclusive-resources{margin-top:22px;border-radius:13px;padding:22px;background:#f9f6ff;border:1px solid #e9e4fb}
+.inclusive-resources h3{margin:0;font:800 14px 'Manrope',sans-serif;color:#33254c}
+.inclusive-resources p{color:#89809c;font-size:11px;line-height:1.8}
+.resource-links{display:flex;flex-wrap:wrap;gap:9px;margin-top:15px}
+.resource-links a{padding:9px 12px;background:#fff;border:1px solid #e7e0f3;border-radius:9px;font-size:11px;font-weight:800;color:#55447e}
+.resource-links a:hover{border-color:#b5a2dd}
+.rqth-signal{color:#7552b5!important;font-weight:800}
+.matched-terms,.missed-terms{display:block;margin-top:9px;font-size:10px!important;line-height:1.6}
+.matched-terms{color:#239168!important}.missed-terms{color:#aa7b45!important}
+.queue-add{background:#fff!important;border:1px solid #e4d7e1!important;color:#bb4772!important}
+.job-open-link{font-size:10px;font-weight:800;color:#a6a0ae;text-align:right}
+.letter-privacy{margin-top:16px;display:grid;gap:12px;background:#f8f9fc;border:1px solid #e7e9f0;border-radius:12px;padding:15px}
+.queue-list{display:grid;gap:10px}
+.queue-entry{display:grid;grid-template-columns:minmax(0,1fr) minmax(160px,220px) auto;gap:12px;align-items:center;border:1px solid #e9eaf0;border-radius:11px;padding:13px}
+.queue-title strong{display:block;font-size:11px;color:#303448}
+.queue-title small{display:block;color:#9b9ead;font-size:10px;margin-top:3px}
+.queue-entry input{border:1px solid #e0e2ed;border-radius:9px;min-width:0;font-size:11px;padding:11px}
+.queue-row-actions{display:flex;gap:8px;align-items:center}
+.queue-actions{display:flex;gap:10px;margin:17px 0;flex-wrap:wrap}
+.batch-consent{margin-top:14px}
+.batch-note{color:#999eae;font-size:11px;line-height:1.7}
+.agent-features{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 20px}
+.agent-features span{border-radius:20px;background:#f5effb;padding:7px 10px;color:#72558e;font-size:10px;font-weight:800}
+.agent-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.agent-settings{background:#f7f7fc;border:1px solid #e7e7f1;border-radius:11px;padding:16px;margin:18px 0}
+.agent-settings .check-line{color:#626778;font-size:12px}
+.agent-status{padding:12px 0;font-size:11px;color:#7f8596}
+.agent-replies{display:grid;gap:13px}
+.agent-reply{border:1px solid #e7e8ef;background:#fff;border-radius:12px;padding:18px}
+.agent-reply-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:6px}
+.agent-reply-head strong{color:#282d41;font:800 13px 'Manrope',sans-serif}
+.agent-reply>small{color:#9ba0ac;font-size:10px}
+.agent-badge{border-radius:30px;padding:6px 9px;font-size:10px;white-space:nowrap;font-weight:800;background:#f2f1f6;color:#686779}
+.agent-badge.favorable{background:#e8f7ee;color:#228453}
+.agent-badge.defavorable{background:#fff0f2;color:#c44366}
+.agent-badge.entretien{background:#ecf3ff;color:#426aa9}
+.agent-message{border-left:3px solid #e9d9ec;background:#fcfafc;padding:14px;font-size:12px;color:#5a5f72;line-height:1.75;white-space:pre-wrap;max-height:200px;overflow:auto}
+.agent-label{display:block;font-size:11px;font-weight:800;color:#5b6172;margin:12px 0 7px}
+.agent-text{width:100%;border:1px solid #e4e6ec;border-radius:9px;padding:13px;font-size:12px;min-height:140px;resize:vertical}
+.agent-actions{margin-top:13px;display:flex;gap:10px;flex-wrap:wrap}
+.agent-disclaimer{font-size:11px;color:#9298a8;line-height:1.75;margin-top:18px}
+@media(max-width:940px){.queue-entry{grid-template-columns:minmax(0,1fr) auto}.queue-entry input{grid-column:1/-1;grid-row:2}}
+@media(max-width:630px){.queue-entry{grid-template-columns:1fr}.queue-entry input{grid-column:auto;grid-row:auto}.queue-row-actions{justify-content:flex-start}.agent-reply-head{align-items:flex-start;flex-direction:column}.rqth-filter label{align-items:flex-start}.resource-links a{flex:1;text-align:center}}
