@@ -20,7 +20,19 @@ function matchCard(item){
  const score=document.createElement('strong');score.className='na-match-score';score.textContent=item.score+'/100';
  const desc=document.createElement('p');const reasons=item.explanation||{};
  desc.textContent=[(reasons.skillsMatched||[]).length?'Compétences pertinentes : '+reasons.skillsMatched.slice(0,3).join(', '):'Compétences à comparer',reasons.location].filter(Boolean).join(' · ');
- const main=document.createElement('div');main.append(title,meta,desc);row.append(main,score);
+ const actions=document.createElement('div');actions.className='na-match-actions';
+ for(const [kind,label] of [['saved','Enregistrer'],['dismissed','Écarter']]){
+  const button=document.createElement('button');button.type='button';button.className='button-secondary';button.textContent=label;
+  button.setAttribute('aria-label',label+' '+item.title+' de '+item.company);
+  button.addEventListener('click',async()=>{
+   button.disabled=true;
+   try{await request('POST','/api/niko-agent',{action:'feedback',url:item.url,status:kind});status(kind==='saved'?'Offre enregistrée dans votre suivi.':'Offre écartée de vos suggestions.');
+    if(kind==='dismissed')row.remove();else {button.textContent='Enregistrée';button.disabled=true;}
+   }catch(e){status('Suivi impossible : '+e.message,true);button.disabled=false;}
+  });
+  actions.append(button);
+ }
+ const main=document.createElement('div');main.append(title,meta,desc,actions);row.append(main,score);
  return row;
 }
 function display(items){
