@@ -14,6 +14,8 @@ test('Himalayas: respects France-only and worldwide eligibility, not US/DE-only 
  assert.equal(eligibleHimalayas({...remote,locationRestrictions:[{alpha2:'DE',name:'Germany'}]}),false);
  assert.equal(eligibleHimalayas({...remote,locationRestrictions:['United States']}),false);
  assert.equal(eligibleHimalayas({...remote,locationRestrictions:null}),false);
+ assert.equal(eligibleHimalayas({...remote,timezoneRestrictions:['UTC-8']}),false);
+ assert.equal(eligibleHimalayas({...remote,timezoneRestrictions:['UTC+1']}),true);
  assert.equal(eligibleHimalayas({...remote,expiryDate:now-60}),false);
 });
 test('Himalayas: exact supplied applicationLink, source attribution, salary period and expiry',()=>{
