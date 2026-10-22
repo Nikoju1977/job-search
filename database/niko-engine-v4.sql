@@ -54,6 +54,7 @@ create index if not exists niko_applications_user on public.niko_applications(us
 create table if not exists public.niko_agent_policies (
  user_id uuid primary key references public.niko_users(id) on delete cascade,
  enabled boolean not null default false,
+ email_digest boolean not null default false,
  consent_at timestamptz,
  min_score integer not null default 50 check(min_score between 0 and 100),
  remote_only boolean not null default false,
@@ -88,3 +89,17 @@ create index if not exists niko_agent_runs_user on public.niko_agent_runs(user_i
 -- User data is isolated in every SQL query by the authenticated user_id.
 
 create unique index if not exists niko_agent_runs_one_daily on public.niko_agent_runs(user_id,run_day) where user_id is not null;
+
+-- Daily private notification log: conservatively at-most-once delivery per user/day.
+create table if not exists public.niko_agent_digests (
+ user_id uuid not null references public.niko_users(id) on delete cascade,
+ run_day date not null default (now() at time zone 'UTC')::date,
+ status text not null default 'pending' check(status in ('pending','sent','failed')),
+ new_matches integer not null default 0,
+ provider_id text,
+ created_at timestamptz not null default now(),
+ delivered_at timestamptz,
+ primary key(user_id,run_day)
+);
+-- Safe additive upgrade for databases that already ran a previous V4 schema.
+alter table public.niko_agent_policies add column if not exists email_digest boolean not null default false;
