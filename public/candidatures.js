@@ -233,6 +233,7 @@ async function init(){
  try{state.history=JSON.parse(localStorage.getItem(HKEY)||'[]');if(!Array.isArray(state.history))state.history=[];}catch{state.history=[];}
  try{state.handled=new Set(JSON.parse(localStorage.getItem(RKEY)||'[]'));}catch{}
  renderHistory();renderQueue();renderReplies();
+ try{const incoming=JSON.parse(sessionStorage.getItem('niko_selected_job')||'null');sessionStorage.removeItem('niko_selected_job');if(incoming && incoming.title && incoming.company && urlOf(incoming.url))selectJob(incoming);}catch{}
  $('cvFile').onchange=e=>loadCV(e.target.files?.[0]);
  const drop=$('dropZone');drop.ondragover=e=>{e.preventDefault();drop.classList.add('drag-over')};drop.ondragleave=()=>drop.classList.remove('drag-over');drop.ondrop=e=>{e.preventDefault();drop.classList.remove('drag-over');loadCV(e.dataTransfer.files?.[0]);};
  drop.onkeydown=e=>{if(e.target===drop && (e.key==='Enter'||e.key===' ')){e.preventDefault();$('cvFile').click();}};
