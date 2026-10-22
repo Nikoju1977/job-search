@@ -147,6 +147,7 @@ async function init(){
  };
  $('v2Feedback').onclick=feedback;$('v2SaveAnswer').onclick=saveAnswer;$('v2CalendarEvent').onclick=calendarEvent;
  renderQuestion();
+ setInterval(renderMetrics,5000);
  window.addEventListener('storage',renderMetrics);
  document.addEventListener('niko:history',renderMetrics);
 }
