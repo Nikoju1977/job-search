@@ -109,6 +109,16 @@
           <label class="check-line batch-consent"><input type="checkbox" id="batchConsent"><span>J'ai vérifié les destinataires et j'autorise l'envoi de toutes les candidatures sélectionnées avec mon compte Gmail.</span></label>
           <p class="batch-note">Maximum 5 envois par lot, avec confirmation. Aucun formulaire de recruteur n'est contourné et aucun e-mail n'est envoyé en arrière-plan.</p>
         </section>
+        <section id="agent" class="studio-panel">
+          <div class="panel-topline"><span>AGENT DE SUIVI</span><span class="topline-accent">VEILLE RECRUTEURS</span></div>
+          <div class="panel-heading"><div><h2>L’assistant qui suit vos réponses<span>.</span></h2><p>Il vérifie les fils Gmail de vos candidatures envoyées depuis Niko Emploi, détecte les retours et propose une réponse contextualisée.</p></div><span class="panel-icon">✦</span></div>
+          <div class="agent-features"><span>✓ Réponse favorable</span><span>✓ Réponse défavorable</span><span>✓ Invitation à un entretien</span><span>✓ Doute : validation humaine</span></div>
+          <div class="agent-toolbar"><button id="checkReplies" class="button-primary" type="button">Analyser mes réponses Gmail →</button><button id="stopAgent" class="button-secondary" type="button">Arrêter l’automatisation</button></div>
+          <div class="agent-settings"><label class="check-line"><input id="autoAcknowledgements" type="checkbox"><span><strong>Activer les accusés de réception automatiques.</strong> Sur les fils de candidature reconnus, en cas de réponse favorable ou défavorable clairement identifiée, l’agent peut envoyer un simple remerciement sans prendre d’engagement. Disponible uniquement quand cette page est ouverte.</span></label></div>
+          <div id="agentStatus" class="agent-status" role="status">Connexion Gmail et consentement requis pour contrôler les réponses.</div>
+          <div id="replies" class="agent-replies" aria-live="polite"><div class="studio-empty">Aucune réponse analysée.</div></div>
+          <p class="agent-disclaimer">Les décisions de rendez-vous, les négociations, les documents demandés et les réponses ambiguës nécessitent votre validation. L’agent ne peut pas surveiller Gmail lorsque le navigateur est fermé.</p>
+        </section>
         <section id="suivi" class="studio-panel">
           <div class="panel-topline"><span>VOTRE SUIVI</span><span class="topline-accent">ENREGISTRÉ DANS CE NAVIGATEUR</span></div>
           <div class="panel-heading"><div><h2>Mon tableau de bord<span>.</span></h2><p>Un historique local des lettres préparées et des envois confirmés. Aucun envoi n'est indiqué comme effectué avant confirmation du service.</p></div><span class="panel-icon">✓</span></div>
