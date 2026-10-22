@@ -49,7 +49,7 @@
       if(job.contract)meta.push(`<span>${icon('briefcase')}${escape(job.contract)}</span>`);
       if(job.date)meta.push(`<span>${icon('clock')}${escape(dateLabel(job.date))}</span>`);
       const badges=[job.remote?'<span class="job-badge remote">Télétravail</span>':'',job.salary?`<span class="job-badge salary">${escape(job.salary)}</span>`:''].filter(Boolean).join('');
-      return `<article class="job-card"><div class="job-head"><div class="company-avatar" aria-hidden="true">${escape(initials||'J')}</div><div class="job-title-col"><h3 class="job-title">${escape(job.title)}</h3><div class="job-company">${escape(job.company)}</div></div><button class="save-btn ${saved?'saved':''}" data-favorite="${escape(job.id)}" aria-label="${saved?'Retirer des favoris':'Ajouter aux favoris'}" title="${saved?'Retirer des favoris':'Ajouter aux favoris'}">${icon('heart')}</button></div><div class="job-detail">${meta.join('')}</div>${job.excerpt?`<p class="job-excerpt">${escape(job.excerpt)}</p>`:''}<div class="job-foot"><div class="job-badges">${badges}<span class="job-source">Source : ${escape(job.source)}</span></div><a class="studio-job-btn" href="/candidatures.html" data-prepare="${escape(job.id)}">✦ Préparer ma candidature</a><a class="apply-link" href="${escape(job.url)}" rel="noopener noreferrer nofollow" target="_blank">Voir l'offre originale ${icon('arrowup')}</a></div></article>`;
+      return `<article class="job-card"><div class="job-head"><div class="company-avatar" aria-hidden="true">${escape(initials||'J')}</div><div class="job-title-col"><h3 class="job-title">${escape(job.title)}</h3><div class="job-company">${escape(job.company)}</div></div><button class="save-btn ${saved?'saved':''}" data-favorite="${escape(job.id)}" aria-label="${saved?'Retirer des favoris':'Ajouter aux favoris'}" title="${saved?'Retirer des favoris':'Ajouter aux favoris'}">${icon('heart')}</button></div><div class="job-detail">${meta.join('')}</div>${job.excerpt?`<p class="job-excerpt">${escape(job.excerpt)}</p>`:''}<div class="job-foot"><div class="job-badges">${badges}<span class="job-source">Source : ${job.source==="Himalayas"?`<a href="https://himalayas.app" rel="noopener noreferrer" target="_blank">Himalayas ↗</a>`:escape(job.source)}</span></div><a class="studio-job-btn" href="/candidatures.html" data-prepare="${escape(job.id)}">✦ Préparer ma candidature</a><a class="apply-link" href="${escape(job.url)}" rel="noopener noreferrer nofollow" target="_blank">Voir l'offre originale ${icon('arrowup')}</a></div></article>`;
     }).join('');
     for(const button of target.querySelectorAll('[data-favorite]'))button.addEventListener('click',()=>{
       const id=button.dataset.favorite;
@@ -79,9 +79,10 @@
       if(!Array.isArray(data.jobs))throw new Error('Format de réponse invalide');
       state.jobs=data.jobs.filter(j=>j&&typeof j.url==='string'&&/^https?:\/\//.test(j.url));
       state.apiResponse=data;
-      const working=sourceNames.filter(n=>data.sources?.[n]?.ok);
+      const activeSources=Object.keys(data.sources||{});
+      const working=activeSources.filter(n=>data.sources[n]?.ok);
       $('liveText').textContent=working.length?`${working.length} source${working.length>1?'s':''} consultée${working.length>1?'s':''}`:'Aucune source disponible';
-      $('liveDot').className='live-dot '+(working.length===3?'':working.length?'error':'muted');
+      $('liveDot').className='live-dot '+(working.length===activeSources.length?'':working.length?'error':'muted');
       $('retrievedDate').textContent=data.retrievedAt?'Données reçues le '+new Date(data.retrievedAt).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short'}):'Dernière mise à jour indisponible';
       const removed=Number(data.duplicatesRemoved)||0;
       if(removed){$('dedupTag').hidden=false;$('dedupTag').textContent=`${number(removed)} doublon${removed>1?'s':''} écarté${removed>1?'s':''}`;}
@@ -89,7 +90,7 @@
         $('sourceNotice').hidden=false;
         $('sourceNotice').textContent=working.length?'Certaines sources ne répondent pas. Les résultats affichés sont partiels.':'Aucune API n’a répondu. Le compteur reste à zéro jusqu’à une réponse réelle.';
       }
-      $('providerList').innerHTML=sourceNames.map(name=>{
+      $('providerList').innerHTML=activeSources.map(name=>{
         const source=data.sources?.[name];
         const ok=source?.ok;
         return `<div class="provider-row"><span class="provider-left"><span class="provider-mark">${escape(name[0])}</span>${escape(name)}</span><span class="provider-stat ${ok?'':'offline'}">${ok?`${number(source.received||0)} reçues`:'Indisponible'}</span></div>`;
