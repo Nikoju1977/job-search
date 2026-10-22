@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/candidatures.css">
   <script src="/niko-engine.js" defer></script>
+  <script src="/niko-neuromatch-core.js" defer></script>
   <script src="/candidatures.js" defer></script>
 </head>
 <body class="studio-page">
@@ -121,6 +122,24 @@
     <label class="niko-watch-control"><input type="checkbox" id="nikoWatch"> Surveiller les nouvelles offres pendant cette session</label>
   </div>
   <div id="nikoRecommendations" class="niko-recommendations" aria-live="polite">Complétez votre profil et lancez une recherche pour obtenir une sélection expliquée.</div>
+  <section class="n5-lab" aria-labelledby="n5Title">
+    <div class="n5-lab-top">
+      <div><span class="n5-eyebrow">NIKO INTELLIGENCE 5.0 · ZÉRO API PAYANTE</span><h4 id="n5Title">NeuroMatch & passeport de compétences</h4><p>Un modèle multilingue gratuit peut comparer le sens des offres avec votre parcours. Vous gardez le contrôle : aucun chargement d’IA sans votre clic.</p></div>
+      <span class="n5-free-tag">IA sur votre appareil</span>
+    </div>
+    <div class="n5-actions">
+      <button class="button-secondary" type="button" id="n5Passport">Créer mon passeport local</button>
+      <button class="button-primary" type="button" id="n5Run">Lancer l’IA gratuite</button>
+      <button class="button-secondary" type="button" id="n5Cancel" hidden>Annuler le calcul</button>
+    </div>
+    <p class="n5-status" id="n5Status" role="status" aria-live="polite">Analyse facultative. Le radar classique reste entièrement disponible sans IA.</p>
+    <div class="n5-grid">
+      <div class="n5-pane"><div class="n5-pane-heading"><strong>Compétences repérées</strong><small>Preuves à vérifier, pas de diplôme inféré</small></div><div id="n5PassportList" class="n5-skills"><p class="n5-empty">Cliquez sur « Créer mon passeport local ».</p></div></div>
+      <div class="n5-pane"><div class="n5-pane-heading"><strong>Passerelles professionnelles</strong><small>Pistes à explorer, sans promesse d’embauche</small></div><div id="n5CareerPaths"><p class="n5-empty">Votre CV fera ressortir des métiers voisins possibles.</p></div></div>
+    </div>
+    <div class="n5-suggestions"><div class="n5-pane-heading"><strong>Offres comparées par IA locale</strong><small id="n5OfferCount">0 offre disponible</small></div><div id="n5Matches"><p class="n5-empty">Cherchez des offres, puis lancez l’IA gratuite à la demande.</p></div></div>
+    <p class="n5-privacy"><strong>Confidentialité et limites :</strong> le modèle et sa bibliothèque sont téléchargés depuis Hugging Face et un CDN tiers lors de la première utilisation (téléchargement potentiellement volumineux). Le texte du CV est traité sur votre appareil et non envoyé à une API d’inférence. Disponibilité selon le navigateur et la connexion. Les résultats ne garantissent ni la compatibilité réelle ni une embauche ; les données médicales explicitement repérées sont exclues de l’analyse. Aucun envoi automatique.</p>
+  </section>
   <p class="niko-ai-fineprint">Analyse réalisée sur cet appareil. La surveillance locale s’arrête à la fermeture de l’onglet. Aucune candidature ni réponse n’est envoyée automatiquement depuis ce radar. Un service permanent nécessite un stockage persistant et des autorisations sécurisées.</p>
 </div>
 <div class="rqth-filter"><label><input type="checkbox" id="rqthOnly"> <strong>Emploi inclusif / RQTH</strong> <span>Voir les annonces mentionnant explicitement le handicap, la RQTH ou les aménagements</span></label><small>Une absence de mention ne signifie pas qu'un poste est inaccessible.</small></div>
@@ -203,5 +222,6 @@
 <script src="/v2-dossiers.js" defer></script>
 <script src="/niko-agents.js" defer></script>
 <script src="/niko-autonomy.js" defer></script>
+<script src="/niko-neuromatch.js" defer></script>
 </body>
 </html>
