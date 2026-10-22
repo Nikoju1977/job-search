@@ -75,8 +75,10 @@
             <input id="jobLocation" type="search" placeholder="Ville ou toute la France" maxlength="120" aria-label="Localisation">
             <button class="button-primary" type="submit">Rechercher</button>
           </form>
-          <div class="offers-toolbar"><strong id="jobsCount">Lancez une recherche pour voir les offres.</strong><label><input type="checkbox" id="relevantOnly"> Prioriser les profils similaires</label></div>
+          <div class="offers-toolbar"><strong id="jobsCount">Lancez une recherche pour voir les offres.</strong><label><input type="checkbox" id="relevantOnly"> Prioriser par compatibilité</label></div>
+          <div class="rqth-filter"><label><input type="checkbox" id="rqthOnly"> <strong>Emploi inclusif / RQTH</strong> <span>Voir les annonces mentionnant explicitement le handicap, la RQTH ou les aménagements</span></label><small>Une absence de mention ne signifie pas qu'un poste est inaccessible.</small></div>
           <div id="jobResults" class="studio-jobs" aria-live="polite"><div class="studio-empty">Vos futures opportunités apparaîtront ici.</div></div>
+          <div class="inclusive-resources"><h3>Recherche d'emploi et handicap : ressources fiables</h3><p>Les offres restent ouvertes à tous. Ces partenaires diffusent des annonces d'entreprises engagées ou proposent un accompagnement spécialisé.</p><div class="resource-links"><a href="https://emploi.handicap.fr/" target="_blank" rel="noopener noreferrer">Handicap.fr ↗</a><a href="https://www.agefiph.fr/outils/espace-emploi-psh" target="_blank" rel="noopener noreferrer">Agefiph ↗</a><a href="https://www.hello-handicap.fr/" target="_blank" rel="noopener noreferrer">Hello Handicap ↗</a><a href="https://www.francetravail.fr/candidat/vos-services-en-ligne/favoriser-la-mise-en-relation-en.html" target="_blank" rel="noopener noreferrer">Handimatch ↗</a></div></div>
         </section>
         <section id="lettre" class="studio-panel">
           <div class="panel-topline"><span>ÉTAPE 03</span><span class="topline-accent">PERSONNALISEZ VOTRE APPROCHE</span></div>
@@ -86,7 +88,8 @@
             <label>Destinataire / entreprise<input id="letterCompany" type="text" placeholder="Nom de l'entreprise" maxlength="150"></label>
             <label>Poste visé<input id="letterPosition" type="text" placeholder="Intitulé du poste" maxlength="180"></label>
           </div>
-          <div class="letter-controls"><button id="generateBtn" class="button-primary" type="button">✦ Générer ma lettre</button><small id="generationMode">Rédaction personnalisée disponible même sans configuration IA.</small></div>
+          <div class="letter-privacy"><label class="check-line"><input type="checkbox" id="aiConsent"><span>J'autorise l'envoi du texte de mon CV et de l'offre au service d'IA pour générer ma lettre (optionnel).</span></label><label class="check-line"><input type="checkbox" id="discloseRqth"><span>Je souhaite mentionner volontairement ma RQTH dans cette candidature. <strong>Désactivé par défaut.</strong></span></label></div>
+          <div class="letter-controls"><button id="generateBtn" class="button-primary" type="button">✦ Générer ma lettre</button><small id="generationMode">Une proposition locale est disponible sans service d'IA.</small></div>
           <label class="full-label" for="letterText">Votre lettre de motivation <small>(entièrement modifiable)</small></label>
           <textarea id="letterText" class="letter-paper" rows="17" placeholder="Votre lettre de motivation personnalisée apparaîtra ici." maxlength="12000"></textarea>
           <div class="letter-actions"><button type="button" id="downloadLetter" class="button-secondary">↓ Télécharger la lettre</button><button type="button" id="copyLetter" class="button-secondary">Copier le texte</button><button type="button" id="openJob" class="button-secondary">Voir l'annonce ↗</button></div>
@@ -97,6 +100,14 @@
             <label class="check-line"><input type="checkbox" id="sendConsent"><span>Je valide le destinataire, le CV et la lettre et j'autorise cet envoi.</span></label>
             <div class="send-footer"><button id="emailFallback" class="text-action" type="button">Préparer un e-mail sans connexion Gmail ↗</button><span id="gmailStatus">Connexion Google requise pour l'envoi direct.</span></div>
           </div>
+        </section>
+        <section id="selection" class="studio-panel">
+          <div class="panel-topline"><span>VOTRE SÉLECTION</span><span class="topline-accent">PRÉPARATION GROUPÉE</span></div>
+          <div class="panel-heading"><div><h2>Mon panier de candidatures<span>.</span></h2><p>Ajoutez des offres et préparez vos lettres. Pour envoyer par Gmail, chaque destinataire doit être renseigné et validé.</p></div><span class="panel-icon">▤</span></div>
+          <div id="queue" class="queue-list"><div class="studio-empty">Ajoutez des offres depuis les résultats.</div></div>
+          <div class="queue-actions"><button id="prepareBatch" class="button-secondary" type="button">Préparer les lettres de ma sélection</button><button id="sendBatch" class="button-primary" type="button">Envoyer ma sélection avec Gmail →</button></div>
+          <label class="check-line batch-consent"><input type="checkbox" id="batchConsent"><span>J'ai vérifié les destinataires et j'autorise l'envoi de toutes les candidatures sélectionnées avec mon compte Gmail.</span></label>
+          <p class="batch-note">Maximum 5 envois par lot, avec confirmation. Aucun formulaire de recruteur n'est contourné et aucun e-mail n'est envoyé en arrière-plan.</p>
         </section>
         <section id="suivi" class="studio-panel">
           <div class="panel-topline"><span>VOTRE SUIVI</span><span class="topline-accent">ENREGISTRÉ DANS CE NAVIGATEUR</span></div>
