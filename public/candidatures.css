@@ -331,3 +331,8 @@
 .n5-privacy{margin:17px 0 0;color:#788099;font:500 10px/1.7 'DM Sans',sans-serif}
 .n5-privacy strong{color:#515e74}
 @media(max-width:720px){.n5-grid{grid-template-columns:1fr}.n5-lab-top{flex-wrap:wrap}.n5-lab{padding:14px}.n5-actions button{flex:1 1 180px}.n5-match{flex-direction:column}.n5-tag{max-width:100%}}
+
+.n5-match-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:7px}
+.n5-match-actions .button-secondary{font-size:10px;padding:7px 11px;min-height:30px;border-radius:8px}
+.n5-feedback-note{font:500 10px/1.7 'DM Sans',sans-serif;color:#72809b;margin:10px 0 0}
+.n5-match-main .n5-match-actions button:hover{border-color:#ad528d}
