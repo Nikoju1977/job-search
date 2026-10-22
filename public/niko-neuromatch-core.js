@@ -54,10 +54,27 @@
   if(!Number.isFinite(v))return 'Non évaluée';
   return v>=.57?'Proximité sémantique élevée':v>=.36?'Proximité à explorer':'Proximité limitée';
  }
+ function preferenceBoost(job,feedback) {
+  if(!Array.isArray(feedback))return 0;
+  const stop=new Set(['poste','emploi','travail','h','f','de','des','le','la','les','et','ou','avec','pour']);
+  const terms=new Set(normalize(job.title).split(' ').filter(t=>t.length>2&&!stop.has(t)));
+  if(!terms.size)return 0;
+  let best=0;
+  for(const f of feedback.slice(-100)){
+   if(f?.status!=='saved')continue;
+   const parts=new Set(normalize(f.title).split(' ').filter(t=>t.length>2&&!stop.has(t)));
+   if(!parts.size)continue;
+   const same=[...terms].filter(w=>parts.has(w)).length;
+   best=Math.max(best,same/Math.max(terms.size,parts.size));
+  }
+  return Math.min(.09,best*.09);
+ }
  function rank(jobs,similarities,profile,engine,options={}){
   if(!Array.isArray(jobs)||!Array.isArray(similarities)||!engine||typeof engine.screen!=='function')return [];
   const excluded=new Set(Array.isArray(options.sentUrls)?options.sentUrls:[]);
   const ignored=new Set(Array.isArray(options.ignoredUrls)?options.ignoredUrls:[]);
+  const feedback=Array.isArray(options.feedback)?options.feedback:[];
+  for(const entry of feedback){if(entry?.status==='dismissed'&&typeof entry.url==='string')ignored.add(entry.url);}
   const result=[];
   for(let i=0;i<Math.min(jobs.length,similarities.length,40);i++){
    const job=jobs[i];if(!validJob(job)||excluded.has(job.url)||ignored.has(job.url))continue;
@@ -65,10 +82,10 @@
    if(!Number.isFinite(semantic)||semantic< -1||semantic>1)continue;
    const fit=engine.screen({cvText:sanitizeCV(profile.cvText||''),targetRole:profile.targetRole||'',targetLocation:profile.targetLocation||''},job);
    if(fit.score===null||fit.watchouts?.some(x=>/demande financière/i.test(x)))continue;
-   const combined=(semantic+1)*.5*.6+(fit.score/100)*.4;
+   const combined=(semantic+1)*.5*.6+(fit.score/100)*.4+preferenceBoost(job,feedback);
    result.push({job,semantic,fit,rankScore:combined,semanticLabel:cosineLabel(semantic)});
   }
   return result.sort((a,b)=>b.rankScore-a.rankScore||String(a.job.url).localeCompare(String(b.job.url))).slice(0,10);
  }
- return {VERSION:'5.0.0',sanitizeCV,profileText,jobText,passport,rank,validJob,cosineLabel,normalize};
+ return {VERSION:'5.0.0',sanitizeCV,profileText,jobText,passport,rank,validJob,cosineLabel,normalize,preferenceBoost};
 });
