@@ -49,13 +49,14 @@
       if(job.contract)meta.push(`<span>${icon('briefcase')}${escape(job.contract)}</span>`);
       if(job.date)meta.push(`<span>${icon('clock')}${escape(dateLabel(job.date))}</span>`);
       const badges=[job.remote?'<span class="job-badge remote">Télétravail</span>':'',job.salary?`<span class="job-badge salary">${escape(job.salary)}</span>`:''].filter(Boolean).join('');
-      return `<article class="job-card"><div class="job-head"><div class="company-avatar" aria-hidden="true">${escape(initials||'J')}</div><div class="job-title-col"><h3 class="job-title">${escape(job.title)}</h3><div class="job-company">${escape(job.company)}</div></div><button class="save-btn ${saved?'saved':''}" data-favorite="${escape(job.id)}" aria-label="${saved?'Retirer des favoris':'Ajouter aux favoris'}" title="${saved?'Retirer des favoris':'Ajouter aux favoris'}">${icon('heart')}</button></div><div class="job-detail">${meta.join('')}</div>${job.excerpt?`<p class="job-excerpt">${escape(job.excerpt)}</p>`:''}<div class="job-foot"><div class="job-badges">${badges}<span class="job-source">Source : ${escape(job.source)}</span></div><a class="apply-link" href="${escape(job.url)}" rel="noopener noreferrer nofollow" target="_blank">Voir l'offre originale ${icon('arrowup')}</a></div></article>`;
+      return `<article class="job-card"><div class="job-head"><div class="company-avatar" aria-hidden="true">${escape(initials||'J')}</div><div class="job-title-col"><h3 class="job-title">${escape(job.title)}</h3><div class="job-company">${escape(job.company)}</div></div><button class="save-btn ${saved?'saved':''}" data-favorite="${escape(job.id)}" aria-label="${saved?'Retirer des favoris':'Ajouter aux favoris'}" title="${saved?'Retirer des favoris':'Ajouter aux favoris'}">${icon('heart')}</button></div><div class="job-detail">${meta.join('')}</div>${job.excerpt?`<p class="job-excerpt">${escape(job.excerpt)}</p>`:''}<div class="job-foot"><div class="job-badges">${badges}<span class="job-source">Source : ${escape(job.source)}</span></div><a class="studio-job-btn" href="/candidatures.html" data-prepare="${escape(job.id)}">✦ Préparer ma candidature</a><a class="apply-link" href="${escape(job.url)}" rel="noopener noreferrer nofollow" target="_blank">Voir l'offre originale ${icon('arrowup')}</a></div></article>`;
     }).join('');
     for(const button of target.querySelectorAll('[data-favorite]'))button.addEventListener('click',()=>{
       const id=button.dataset.favorite;
       if(state.saved.has(id))state.saved.delete(id);else state.saved.add(id);
       favoritesPersist();render();
     });
+    for(const link of target.querySelectorAll('[data-prepare]'))link.addEventListener('click',()=>{const job=state.jobs.find(j=>j.id===link.dataset.prepare);if(job)try{sessionStorage.setItem('niko_selected_job',JSON.stringify(job));}catch{}});
     $('listFooter').hidden=all.length<=state.shown;
     $('visibleCount').textContent=`${number(Math.min(all.length,state.shown))} sur ${number(all.length)} offres chargées`;
   }
