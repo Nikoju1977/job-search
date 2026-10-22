@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/candidatures.css">
+  <script src="/niko-engine.js" defer></script>
   <script src="/candidatures.js" defer></script>
 </head>
 <body class="studio-page">
@@ -80,14 +81,32 @@
         </section>
         <section id="offres-studio" class="studio-panel">
           <div class="panel-topline"><span>ÉTAPE 02</span><span class="topline-accent">OPPORTUNITÉS RÉELLES</span></div>
-          <div class="panel-heading"><div><h2>Des offres qui vous ressemblent<span>.</span></h2><p>Classement indicatif par mots-clés du CV et des annonces. Les offres proviennent du moteur Niko Emploi.</p></div><span class="panel-icon">⌕</span></div>
+          <div class="panel-heading"><div><h2>Des offres qui vous ressemblent<span>.</span></h2><p>Moteur NIKO Intelligence : analyse multicritère explicable, compétences équivalentes et adéquation au profil. Les offres sont issues de sources réelles.</p></div><span class="panel-icon">⌕</span></div>
           <form id="jobSearch" class="studio-search">
             <input id="jobKeyword" type="search" placeholder="Métier, compétence, mot-clé" maxlength="120" aria-label="Métier recherché">
             <input id="jobLocation" type="search" placeholder="Ville ou toute la France" maxlength="120" aria-label="Localisation">
             <button class="button-primary" type="submit">Rechercher</button>
           </form>
           <div class="offers-toolbar"><strong id="jobsCount">Lancez une recherche pour voir les offres.</strong><label><input type="checkbox" id="relevantOnly"> Prioriser par compatibilité</label></div>
-          <div class="rqth-filter"><label><input type="checkbox" id="rqthOnly"> <strong>Emploi inclusif / RQTH</strong> <span>Voir les annonces mentionnant explicitement le handicap, la RQTH ou les aménagements</span></label><small>Une absence de mention ne signifie pas qu'un poste est inaccessible.</small></div>
+          <div class="niko-ai" id="niko-intelligence">
+  <div class="niko-ai-head">
+    <div class="niko-ai-monogram" aria-hidden="true">N<span>·</span></div>
+    <div><span class="niko-ai-eyebrow">NIKO INTELLIGENCE ENGINE 3.0</span><h3>Votre radar d’opportunités<span>.</span></h3><p>Un moteur multi-critères intégré, avec des décisions explicables. Aucune IA externe n’est nécessaire pour cette analyse.</p></div>
+    <span class="niko-ai-signal" id="nikoEngineStatus">Local · prêt</span>
+  </div>
+  <div class="niko-ai-metrics" aria-label="Activité du moteur">
+    <div><strong id="nikoScanned">0</strong><small>offres examinées</small></div>
+    <div><strong id="nikoRecommended">0</strong><small>pertinentes</small></div>
+    <div><strong id="nikoScore">—</strong><small>meilleur score</small></div>
+  </div>
+  <div class="niko-ai-tools">
+    <button type="button" class="button-primary" id="nikoAnalyze"><span>✦</span> Lancer l’analyse avancée</button>
+    <label class="niko-watch-control"><input type="checkbox" id="nikoWatch"> Surveiller les nouvelles offres pendant cette session</label>
+  </div>
+  <div id="nikoRecommendations" class="niko-recommendations" aria-live="polite">Complétez votre profil et lancez une recherche pour obtenir une sélection expliquée.</div>
+  <p class="niko-ai-fineprint">Analyse réalisée sur cet appareil. La surveillance locale s’arrête à la fermeture de l’onglet. Aucune candidature ni réponse n’est envoyée automatiquement depuis ce radar. Un service permanent nécessite un stockage persistant et des autorisations sécurisées.</p>
+</div>
+<div class="rqth-filter"><label><input type="checkbox" id="rqthOnly"> <strong>Emploi inclusif / RQTH</strong> <span>Voir les annonces mentionnant explicitement le handicap, la RQTH ou les aménagements</span></label><small>Une absence de mention ne signifie pas qu'un poste est inaccessible.</small></div>
           <div id="jobResults" class="studio-jobs" aria-live="polite"><div class="studio-empty">Vos futures opportunités apparaîtront ici.</div></div>
           <div class="inclusive-resources"><h3>Recherche d'emploi et handicap : ressources fiables</h3><p>Les offres restent ouvertes à tous. Ces partenaires diffusent des annonces d'entreprises engagées ou proposent un accompagnement spécialisé.</p><div class="resource-links"><a href="https://emploi.handicap.fr/" target="_blank" rel="noopener noreferrer">Handicap.fr ↗</a><a href="https://www.agefiph.fr/outils/espace-emploi-psh" target="_blank" rel="noopener noreferrer">Agefiph ↗</a><a href="https://www.hello-handicap.fr/" target="_blank" rel="noopener noreferrer">Hello Handicap ↗</a><a href="https://www.francetravail.fr/candidat/vos-services-en-ligne/favoriser-la-mise-en-relation-en.html" target="_blank" rel="noopener noreferrer">Handimatch ↗</a></div></div>
         </section>
@@ -165,5 +184,6 @@
 <footer class="studio-footer"><div class="container studio-footer-inner"><strong>NIKO EMPLOI<span>.</span></strong><span>Des offres réelles. Des candidatures qui vous ressemblent.</span><a href="/confidentialite.html">Confidentialité ↗</a><a href="/">Retour à la recherche d'emploi ↗</a></div></footer>
 <script src="/v2.js" defer></script>
 <script src="/v2-dossiers.js" defer></script>
+<script src="/niko-agents.js" defer></script>
 </body>
 </html>
