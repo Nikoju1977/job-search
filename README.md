@@ -1,3 +1,19 @@
+# Niko Emploi — Intelligence 4.0
+
+**Une seule application autonome, sans Supabase et sans n8n.** La logique des agents est intégrée à ce dépôt Node/Vercel ; PostgreSQL/Neon assure uniquement le stockage persistant.
+
+- Radar de recherche et rapprochement des offres par cinq axes explicables, accessible sans compte dans le navigateur.
+- Comptes candidats natifs par lien e-mail à usage unique, sessions HTTP-only, CV/lettres chiffrés (lorsque Neon, Resend et les variables serveur sont configurés).
+- Agent personnel opt-in, seuil de score, filtres télétravail et inclusion, bouton arrêter, historique des recommandations et aperçu immédiat.
+- Vercel Cron quotidien : indexation des sources d'offres autorisées et veille personnalisée des candidats opt-in, même lorsque leur navigateur est fermé.
+- L'agent ne peut pas envoyer de candidatures ou répondre à un recruteur tout seul : les envois restent soumises aux autorisations et contrôles explicites du candidat. Les réponses Gmail de la version navigateur ne sont pas surveillées par le serveur.
+
+**Mise en service :** lire [docs/MISE_EN_SERVICE_V2.md](docs/MISE_EN_SERVICE_V2.md). Les migrations sont [database/niko-autonomy.sql](database/niko-autonomy.sql) puis [database/niko-engine-v4.sql](database/niko-engine-v4.sql). Sans DATABASE_URL, chiffrement, domaine expéditeur et authentification correctement configurés, les fonctions d'autonomie côté serveur restent volontairement inactives.
+
+Tests : `npm test`. Site : https://niko-emploi.vercel.app
+
+---
+
 # Niko Emploi — édition 1.0
 
 Moteur d'offres d'emploi **réelles** (jamais de faux résultats de démonstration) avec recherche, filtres, favoris et dédoublonnage intersources.
