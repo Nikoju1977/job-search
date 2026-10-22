@@ -7,29 +7,27 @@ let session=null,online={applications:[],replies:[],interviews:[]},lastStatus='l
 const empty=(s)=>typeof s==='string'?s:'';
 const formatDate=(d)=>{const date=new Date(d);return Number.isFinite(date.getTime())?date.toLocaleDateString('fr-FR',{day:'2-digit',month:'short'}):'';};
 function announce(s,error=false){const e=$('notice');if(!e)return;e.hidden=false;e.textContent=s;e.classList.toggle('error',error);}
-function sessionGet(){try{return JSON.parse(sessionStorage.getItem(authKey)||'null')}catch{return null}}
-function sessionSet(s){session=s;try{if(s)sessionStorage.setItem(authKey,JSON.stringify(s));else sessionStorage.removeItem(authKey);}catch{}}
-async function accountFetch(path,options={},attempt=0){
- if(!session?.access_token)throw Error('Connexion requise.');
- const response=await fetch(path,{...options,headers:{Authorization:'Bearer '+session.access_token,'Content-Type':'application/json',...(options.headers||{})},cache:'no-store'});
- if(response.status===401&&session.refresh_token&&attempt===0){
-  const r=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'refresh',refreshToken:session.refresh_token})});
-  if(r.ok){sessionSet(await r.json());return accountFetch(path,options,1);}
-  sessionSet(null);renderAuth();throw Error('Session expirée. Demandez un nouveau lien.');
- }
- const d=await response.json().catch(()=>({}));
- if(!response.ok)throw Error(d.error||'Service indisponible ('+response.status+')');
- return d;
+function sessionGet(){return null;}
+function sessionSet(s){session=s;}
+async function accountFetch(path,options={}){
+ if(!session?.authenticated)throw Error('Connexion requise.');
+ const response=await fetch(path,{credentials:'same-origin',...options,headers:{'Content-Type':'application/json',...(options.headers||{})},cache:'no-store'});
+ if(response.status===401){sessionSet(null);renderAuth();throw Error('Session expirée. Reconnectez-vous.');}
+ const data=await response.json().catch(()=>({}));
+ if(!response.ok)throw Error(data.error||'Service indisponible ('+response.status+')');
+ return data;
 }
 async function authRedirect(){
- const fragment=new URLSearchParams(location.hash.slice(1));
- const code=fragment.get('access_token'),refresh=fragment.get('refresh_token');
- if(code&&refresh){sessionSet({access_token:code,refresh_token:refresh,expires_at:Date.now()+3600000});history.replaceState({},'',location.pathname+location.search);return;}
  const params=new URLSearchParams(location.search);
- if(params.get('token_hash')&&params.get('type')){
-  history.replaceState({},'',location.pathname);
-  try{const r=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'verify',tokenHash:params.get('token_hash')})});if(!r.ok)throw Error('Le lien a expiré.');sessionSet(await r.json());}catch(e){announce(e.message,true);}
- }
+ const token=params.get('login_token');
+ if(!token)return;
+ history.replaceState({},'',location.pathname);
+ try{
+  const r=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'verify',token})});
+  const data=await r.json().catch(()=>({}));
+  if(!r.ok)throw Error(data.error||'Lien expiré.');
+  sessionSet(data);
+ }catch(e){announce('Connexion : '+e.message,true);}
 }
 function getLocalHistory(){try{const data=JSON.parse(localStorage.getItem('niko_history_v2')||'[]');return Array.isArray(data)?data:[]}catch{return []}}
 function eventsSorted(){
@@ -40,7 +38,7 @@ function eventsSorted(){
 function statusLabel(s){return ({draft:'Brouillon',sent:'Envoyée',reply:'Réponse reçue',interview:'Entretien',rejected:'Refus',hired:'Embauche',failed:'Échec'})[s]||s||'Suivi';}
 function renderMetrics(){
  const local=getLocalHistory();const remote=online.applications||[];
- const cloudSent=remote.filter(a=>a.status==='sent'||a.status==='reply'||a.status==='interview'||a.status==='rejected'||a.status==='hired').length;
+ const cloudSent=remote.filter(a=>['sent','reply','interview','rejected','hired'].includes(a.status)).length;
  const localSent=local.filter(a=>a.status==='Envoyée').length;
  $('v2Sent').textContent=String(session?Math.max(cloudSent,localSent):localSent);
  $('v2Replies').textContent=String((online.replies||[]).length);
@@ -52,23 +50,23 @@ function renderMetrics(){
 }
 function renderAuth(){
  const ready=lastStatus==='ready';
- $('v2LoginForm').hidden=!ready||Boolean(session?.access_token);
- $('v2AccountActions').hidden=!ready||!session?.access_token;
- $('v2CloudStatus').textContent=!ready?'Le service de comptes sécurisés n’est pas encore activé. Votre espace local continue de fonctionner.':session?'Compte connecté, stockage chiffré disponible sur demande.':'Un compte facultatif permet de retrouver votre profil et les candidatures enregistrées.';
+ $('v2LoginForm').hidden=!ready||Boolean(session?.authenticated);
+ $('v2AccountActions').hidden=!ready||!session?.authenticated;
+ $('v2CloudStatus').textContent=!ready?'Le service de comptes sécurisés n’est pas encore activé. Votre espace local continue de fonctionner.':session?.authenticated?'Compte connecté, stockage chiffré disponible sur demande.':'Un compte facultatif permet de retrouver votre profil et les candidatures enregistrées.';
  $('v2AccountIdentity').textContent=session?.email||'Session connectée';
  renderMetrics();
 }
 async function loadAccount(){
- if(!session?.access_token)return;
+ if(!session?.authenticated)return;
  try{
   const account=await accountFetch('/api/account');
-  session.email=account.email;sessionSet(session);
+  session.email=account.email;
   online={applications:account.applications||[],replies:account.replies||[],interviews:account.interviews||[]};
   const profile=account.profile||{};
   for(const [id,key] of [['fullName','fullName'],['targetRole','targetRole'],['targetLocation','targetLocation'],['cvText','cvText']]){
    const el=$(id);if(el&&!el.value&&profile[key])el.value=profile[key];
   }
-  renderAuth();
+  renderAuth();document.dispatchEvent(new Event('niko:session'));
  }catch(e){announce('Synchronisation : '+e.message,true);}
 }
 async function signin(e){
@@ -77,18 +75,18 @@ async function signin(e){
  try{const r=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'login',email:address})});const d=await r.json();if(!r.ok)throw Error(d.error||'Envoi impossible');announce('Consultez votre boîte e-mail : le lien de connexion vient d’être demandé.');}catch(e){announce(e.message,true)}finally{button.disabled=false;}
 }
 async function cloudSave(){
- if(!session)return announce('Connectez votre compte pour synchroniser.',true);
+ if(!session?.authenticated)return announce('Connectez votre compte pour synchroniser.',true);
  const profile={fullName:empty($('fullName').value),targetRole:empty($('targetRole').value),targetLocation:empty($('targetLocation').value),cvText:empty($('cvText').value)};
  if(!profile.cvText.trim())return announce('Importez ou collez votre CV avant la sauvegarde chiffrée.',true);
  if(!confirm('Enregistrer une copie chiffrée de ce CV dans votre compte personnel sécurisé ?'))return;
  try{await accountFetch('/api/account',{method:'POST',body:JSON.stringify({profile,dataConsent:true})});announce('Profil chiffré sauvegardé dans votre compte.');await loadAccount();}catch(e){announce('Sauvegarde impossible : '+e.message,true);}
 }
 async function wipeCloud(){
- if(!session)return;
+ if(!session?.authenticated)return;
  if(!confirm('Supprimer définitivement les CV, candidatures, événements et connexions Gmail stockés pour ce compte Niko Emploi ?'))return;
- try{await accountFetch('/api/account',{method:'DELETE'});online={applications:[],replies:[],interviews:[]};renderMetrics();announce('Données cloud de Niko Emploi supprimées. Votre compte e-mail reste intact.');}catch(e){announce(e.message,true);}
+ try{await accountFetch('/api/account',{method:'DELETE'});sessionSet(null);online={applications:[],replies:[],interviews:[]};renderAuth();announce('Compte Niko Emploi et données associées supprimés. Votre adresse e-mail personnelle reste intacte.');}catch(e){announce(e.message,true);}
 }
-function logout(){sessionSet(null);online={applications:[],replies:[],interviews:[]};renderAuth();announce('Déconnecté. Le profil conservé localement n’a pas été effacé.');}
+async function logout(){await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'logout'})}).catch(()=>{});sessionSet(null);online={applications:[],replies:[],interviews:[]};renderAuth();announce('Déconnecté de votre compte autonome. Le profil local n’a pas été effacé.');document.dispatchEvent(new Event('niko:session'));}
 
 const QUESTION_SETS={
  rh:['Présentez votre parcours et expliquez ce qui vous attire dans ce poste.','Qu’avez-vous appris de votre dernière expérience professionnelle ?','Racontez une situation où vous avez réussi à résoudre un problème.','Comment réagissez-vous lorsque plusieurs priorités se présentent en même temps ?','Quelles questions souhaitez-vous poser à votre futur employeur ?'],
@@ -135,7 +133,8 @@ async function init(){
  $('v2LoginForm').addEventListener('submit',signin);
  $('v2SyncProfile').onclick=cloudSave;$('v2ReloadAccount').onclick=loadAccount;$('v2Logout').onclick=logout;$('v2DeleteAccountData').onclick=wipeCloud;
  try{const d=await(await fetch('/api/account?public=true',{cache:'no-store'})).json();lastStatus=d.accountsAvailable?'ready':'local';}catch{lastStatus='local';}
- renderAuth();if(session)await loadAccount();
+ if(lastStatus==='ready'&&!session?.authenticated){try{const a=await(await fetch('/api/auth',{credentials:'same-origin',cache:'no-store'})).json();if(a.authenticated)sessionSet(a);}catch{}}
+ renderAuth();if(session?.authenticated)await loadAccount();
  $('v2InterviewRole').value=$('targetRole')?.value||'';
  $('v2InterviewType').onchange=()=>{questionIndex=0;renderQuestion();};
  $('v2InterviewRole').oninput=renderQuestion;
