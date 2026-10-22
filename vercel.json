@@ -18,6 +18,9 @@
     },
     "api/applications.js": {
       "maxDuration": 30
+    },
+    "api/engine-cron.js": {
+      "maxDuration": 30
     }
   },
   "headers": [
@@ -49,6 +52,12 @@
           "value": "same-origin-allow-popups"
         }
       ]
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/engine-cron",
+      "schedule": "0 6 * * *"
     }
   ]
 }
