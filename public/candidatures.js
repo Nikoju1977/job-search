@@ -101,6 +101,7 @@ async function gmail(path,opt={}){
 }
 function toB64(bytes){let s='';const stride=16384;for(let i=0;i<bytes.length;i+=stride)s+=String.fromCharCode(...bytes.subarray(i,i+stride));return btoa(s);}
 function textB64(s){return toB64(new TextEncoder().encode(s));}
+function foldedB64(b64){const chunks=[];for(let i=0;i<b64.length;i+=76)chunks.push(b64.slice(i,i+76));return chunks.join('\r\n');}
 function urlB64(s){return textB64(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
 function mimeName(name){return "=?UTF-8?B?"+textB64(name)+"?=";}
 function safeAddr(addr){if(!validEmail(addr))throw Error('Adresse e-mail invalide.');return addr.trim();}
@@ -111,11 +112,11 @@ function buildEmail(to,subject,body,file,thread={}){
  if(file){
   const name=file.name.replace(/[\r\n"\\]/g,'_').slice(0,100);
   return file.arrayBuffer().then(buf=>{
-   const raw=[...hdr,'Content-Type: multipart/mixed; boundary="'+boundary+'"','','--'+boundary,'Content-Type: text/plain; charset=UTF-8','Content-Transfer-Encoding: base64','',textB64(body),'--'+boundary,'Content-Type: application/octet-stream; name="'+name+'"','Content-Disposition: attachment; filename="'+name+'"','Content-Transfer-Encoding: base64','',toB64(new Uint8Array(buf)),'--'+boundary+'--'].join('\r\n');
+   const raw=[...hdr,'Content-Type: multipart/mixed; boundary="'+boundary+'"','','--'+boundary,'Content-Type: text/plain; charset=UTF-8','Content-Transfer-Encoding: base64','',foldedB64(textB64(body)),'--'+boundary,'Content-Type: application/octet-stream; name="'+name+'"','Content-Disposition: attachment; filename="'+name+'"','Content-Transfer-Encoding: base64','',foldedB64(toB64(new Uint8Array(buf))),'--'+boundary+'--'].join('\r\n');
    return toB64(new TextEncoder().encode(raw)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
   });
  }
- const raw=[...hdr,'Content-Type: text/plain; charset=UTF-8','Content-Transfer-Encoding: base64','',textB64(body)].join('\r\n');
+ const raw=[...hdr,'Content-Type: text/plain; charset=UTF-8','Content-Transfer-Encoding: base64','',foldedB64(textB64(body))].join('\r\n');
  return Promise.resolve(toB64(new TextEncoder().encode(raw)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''));
 }
 async function gmailSend(to,subject,body,file=null,thread={}){
