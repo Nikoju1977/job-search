@@ -1,42 +1,43 @@
 'use strict';
-const {authenticate,database,userQuery,eq,encrypt,decrypt,clean,secureOrigin,sendError,ApiError,publicConfig}=require('../lib/platform');
-module.exports=async function handler(req,res){
+const {ApiError,encrypt,decrypt,clean,sendError,secureOrigin}=require('../lib/platform');
+const {authReady,currentUser,cookieHeader}=require('../lib/niko-auth');
+const {query}=require('../lib/niko-db');
+module.exports=async(req,res)=>{
  res.setHeader('Cache-Control','private, no-store');
  try{
+  if(req.method==='GET'&&req.query?.public==='true'){
+   return res.status(200).json({accountsAvailable:authReady(),backgroundAvailable:Boolean(process.env.DATABASE_URL&&process.env.DATA_ENCRYPTION_KEY&&process.env.CRON_SECRET),supabase:false});
+  }
+  if(!['GET','POST','DELETE'].includes(req.method))throw new ApiError(405,'Méthode non autorisée.');
   secureOrigin(req);
-  if(req.method==='GET' && req.query?.public==='true')return res.status(200).json(publicConfig());
-  if(!['GET','POST','DELETE'].includes(req.method))throw new ApiError(405,'Méthode non autorisée');
-  const user=await authenticate(req);
+  const user=await currentUser(req);
   if(req.method==='GET'){
-   const [profiles,apps,interviews,events,connect]=await Promise.all([
-    database('profiles',{query:userQuery(user.id)+'&select=full_name,target_role,target_location,cv_ciphertext'}),
-    database('applications',{query:userQuery(user.id)+'&select=id,job_url,title,company,location,source,recipient_email,letter_ciphertext,status,gmail_thread_id,sent_at,updated_at&order=updated_at.desc&limit=200'}),
-    database('interviews',{query:userQuery(user.id)+'&select=id,application_id,company,title,scheduled_at,status,created_at&order=created_at.desc&limit=50'}),
-    database('agent_events',{query:userQuery(user.id)+'&select=id,application_id,category,draft_ciphertext,status,received_at&order=received_at.desc&limit=50'}),
-    database('gmail_connections',{query:userQuery(user.id)+'&select=email,auto_monitor,auto_ack'})
+   const [profileRows,appRows,policyRows]=await Promise.all([
+    query('select full_name,target_role,target_location,cv_ciphertext from public.niko_profiles where user_id=$1',[user.id]),
+    query('select id,job_url,title,company,location,source,recipient_email,letter_ciphertext,status,gmail_thread_id,sent_at,updated_at from public.niko_applications where user_id=$1 order by updated_at desc limit 150',[user.id]),
+    query('select enabled,min_score,remote_only,inclusive_only,max_results,updated_at from public.niko_agent_policies where user_id=$1',[user.id])
    ]);
-   const profile=profiles?.[0]||{};
+   const p=profileRows[0]||{},apps=appRows||[];
    return res.status(200).json({
-    profile:{fullName:profile.full_name||'',targetRole:profile.target_role||'',targetLocation:profile.target_location||'',cvText:profile.cv_ciphertext?decrypt(profile.cv_ciphertext,user.id+':cv'):''},
-    applications:(apps||[]).map(a=>({id:a.id,url:a.job_url,title:a.title,company:a.company,location:a.location,source:a.source,to:a.recipient_email,status:a.status,sentAt:a.sent_at,updatedAt:a.updated_at,letter:a.letter_ciphertext?decrypt(a.letter_ciphertext,user.id+':letter'):''})),
-    interviews:interviews||[],
-    replies:(events||[]).map(e=>({id:e.id,applicationId:e.application_id,category:e.category,status:e.status,receivedAt:e.received_at,draft:e.draft_ciphertext?decrypt(e.draft_ciphertext,user.id+':reply'):''})),
-    gmail:connect?.[0]?{connected:true,email:connect[0].email,monitor:connect[0].auto_monitor,autoAck:connect[0].auto_ack}:{connected:false},
-    email:user.email
+    email:user.email,
+    profile:{fullName:p.full_name||'',targetRole:p.target_role||'',targetLocation:p.target_location||'',cvText:p.cv_ciphertext?decrypt(p.cv_ciphertext,user.id+':cv'):''},
+    applications:apps.map(a=>({id:a.id,url:a.job_url,title:a.title,company:a.company,location:a.location,source:a.source,to:a.recipient_email,letter:a.letter_ciphertext?decrypt(a.letter_ciphertext,user.id+':letter'):'',status:a.status,sentAt:a.sent_at,updatedAt:a.updated_at})),
+    replies:[],interviews:[],gmail:{connected:false},agent:policyRows[0]||{enabled:false}
    });
   }
   if(req.method==='DELETE'){
-   // La suppression cascade de la connexion est explicite; aucune donnée
-   // du compte Google lui-même n'est effacée.
-   for(const t of ['agent_events','interviews','applications','gmail_connections','profiles'])await database(t,{method:'DELETE',query:userQuery(user.id)});
-   return res.status(200).json({deleted:true});
+   await query('delete from public.niko_login_links where email=$1',[user.email]);
+   await query('delete from public.niko_users where id=$1',[user.id]);
+   res.setHeader('Set-Cookie',cookieHeader('',0));
+   return res.status(200).json({deleted:true,accountDeleted:true});
   }
-  const {profile,dataConsent}=req.body||{};
-  if(dataConsent!==true||!profile||typeof profile!=='object')throw new ApiError(400,'Consentement explicite requis pour enregistrer le profil.');
-  const cv=clean(profile.cvText,23000);
-  if(cv.length>22000)throw new ApiError(413,'CV trop long pour cet espace.');
-  const payload={user_id:user.id,full_name:clean(profile.fullName,100),target_role:clean(profile.targetRole,120),target_location:clean(profile.targetLocation,120),cv_ciphertext:cv?encrypt(cv,user.id+':cv'):null,updated_at:new Date().toISOString()};
-  await database('profiles',{method:'POST',query:'on_conflict=user_id',upsert:true,value:payload});
+  if(req.body?.dataConsent!==true||!req.body?.profile||typeof req.body.profile!=='object')throw new ApiError(400,'Sauvegarde du profil sans consentement interdite.');
+  const p=req.body.profile,raw=clean(p.cvText,24000);
+  if(raw.length>22000)throw new ApiError(413,'CV trop long.');
+  const row={fullName:clean(p.fullName,100),targetRole:clean(p.targetRole,120),targetLocation:clean(p.targetLocation,120)};
+  await query('insert into public.niko_profiles(user_id,full_name,target_role,target_location,cv_ciphertext) values($1,$2,$3,$4,$5) on conflict(user_id) do update set full_name=excluded.full_name,target_role=excluded.target_role,target_location=excluded.target_location,cv_ciphertext=excluded.cv_ciphertext,updated_at=now()',[
+   user.id,row.fullName,row.targetRole,row.targetLocation,raw?encrypt(raw,user.id+':cv'):null
+  ]);
   return res.status(200).json({saved:true});
  }catch(e){return sendError(res,e);}
 };
