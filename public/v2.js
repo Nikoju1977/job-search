@@ -83,7 +83,7 @@ async function cloudSave(){
 }
 async function wipeCloud(){
  if(!session?.authenticated)return;
- if(!confirm('Supprimer définitivement les CV, candidatures, événements et connexions Gmail stockés pour ce compte Niko Emploi ?'))return;
+ if(!confirm('SUPPRESSION DÉFINITIVE : effacer votre compte Niko Emploi, votre CV et vos candidatures sauvegardées ? Cette action est irréversible.'))return;
  try{await accountFetch('/api/account',{method:'DELETE'});sessionSet(null);online={applications:[],replies:[],interviews:[]};renderAuth();announce('Compte Niko Emploi et données associées supprimés. Votre adresse e-mail personnelle reste intacte.');}catch(e){announce(e.message,true);}
 }
 async function logout(){await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'logout'})}).catch(()=>{});sessionSet(null);online={applications:[],replies:[],interviews:[]};renderAuth();announce('Déconnecté de votre compte autonome. Le profil local n’a pas été effacé.');document.dispatchEvent(new Event('niko:session'));}
