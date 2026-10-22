@@ -140,10 +140,10 @@ async function gmailSend(to,subject,body,file=null,thread={}){
 }
 async function syncConfirmedSend(job,to,letter,sent){
  if(!$('v2SyncSent')?.checked||!job?.url||!state.token)return;
- let session;try{session=JSON.parse(sessionStorage.getItem('niko_secure_session_v2')||'null')}catch{return}
- if(!session?.access_token)return;
+ const auth=await fetch('/api/auth',{credentials:'same-origin',cache:'no-store'}).then(r=>r.json()).catch(()=>({authenticated:false}));
+ if(!auth.authenticated)return;
  try{
-  const response=await fetch('/api/applications',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify({action:'sent',consent:true,job,to,letter,threadId:sent.threadId,messageId:sent.id,gmailAccessToken:state.token})});
+  const response=await fetch('/api/applications',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'sent',consent:true,job,to,letter,threadId:sent.threadId,messageId:sent.id,gmailAccessToken:state.token})});
   if(response.ok)return;
   const data=await response.json().catch(()=>({}));
   if(response.status!==409)show('E-mail envoyé. Synchronisation du suivi impossible : '+(data.error||response.status),true);
