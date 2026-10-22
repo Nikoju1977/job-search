@@ -47,6 +47,17 @@
         <div class="privacy-note"><span>♧</span><strong>Vos données, votre décision.</strong><p>Le CV est lu dans votre navigateur. L'IA ne le reçoit que lorsque vous demandez explicitement une lettre.</p></div>
       </aside>
       <div class="studio-main">
+        <section id="compte" class="studio-panel v2-account">
+          <div class="panel-topline"><span>VERSION 2.0</span><span class="topline-accent">ESPACE PERSONNEL SÉCURISÉ</span></div>
+          <div class="panel-heading"><div><h2>Votre carrière, votre cockpit<span>.</span></h2><p>Retrouvez les étapes importantes de vos candidatures. Les compteurs ci-dessous proviennent de votre historique, jamais de chiffres inventés.</p></div><span class="panel-icon">◫</span></div>
+          <div class="v2-stats"><div><small>Candidatures envoyées</small><strong id="v2Sent">0</strong></div><div><small>Réponses reçues</small><strong id="v2Replies">0</strong></div><div><small>Entretiens</small><strong id="v2Interviews">0</strong></div><div><small>À préparer</small><strong id="v2Prepared">0</strong></div></div>
+          <div class="v2-account-box"><div><strong>Synchronisation sécurisée et multi-appareils</strong><p id="v2CloudStatus">Vérification de la disponibilité du service de comptes…</p></div>
+            <form id="v2LoginForm" class="v2-login" hidden><label for="v2AccountEmail">Adresse e-mail</label><input type="email" id="v2AccountEmail" autocomplete="email" placeholder="vous@exemple.fr" required><button type="submit" class="button-primary">Recevoir mon lien de connexion</button></form>
+            <div id="v2AccountActions" class="v2-account-actions" hidden><span id="v2AccountIdentity"></span><button id="v2SyncProfile" type="button" class="button-primary">Chiffrer et sauvegarder mon profil</button><button id="v2ReloadAccount" type="button" class="button-secondary">Rafraîchir</button><button id="v2Logout" type="button" class="button-secondary">Déconnexion</button><button id="v2DeleteAccountData" type="button" class="text-action">Effacer mes données cloud</button></div>
+          </div>
+          <p class="v2-disclosure">L'enregistrement cloud du CV est facultatif et ne se déclenche qu'après votre confirmation. Par défaut, votre CV reste sur votre appareil. Aucune donnée RQTH n'est requise pour utiliser le cockpit.</p>
+          <div id="v2Activity" class="v2-activity" aria-live="polite"></div>
+        </section>
         <section id="cv" class="studio-panel">
           <div class="panel-topline"><span>ÉTAPE 01</span><span class="topline-accent">VOTRE POINT DE DÉPART</span></div>
           <div class="panel-heading"><div><h2>Construisons votre profil<span>.</span></h2><p>Un CV suffit pour commencer. Vous pouvez compléter ou corriger les informations détectées.</p></div><span class="panel-icon">◈</span></div>
@@ -120,6 +131,14 @@
           <div id="replies" class="agent-replies" aria-live="polite"><div class="studio-empty">Aucune réponse analysée.</div></div>
           <p class="agent-disclaimer">Les décisions de rendez-vous, les négociations, les documents demandés et les réponses ambiguës nécessitent votre validation. L’agent ne peut pas surveiller Gmail lorsque le navigateur est fermé.</p>
         </section>
+        <section id="entretien" class="studio-panel">
+          <div class="panel-topline"><span>COACH D’ENTRETIEN</span><span class="topline-accent">PRATIQUE ET PRÉPARATION</span></div>
+          <div class="panel-heading"><div><h2>Entraînez-vous avant l'entretien<span>.</span></h2><p>Questions métier, méthode STAR, préparation des arguments et organisation d’un rendez-vous, même sans compte IA.</p></div><span class="panel-icon">✧</span></div>
+          <div class="v2-interview-form"><label>Poste ou métier visé<input id="v2InterviewRole" type="text" maxlength="120" placeholder="Votre prochain poste"></label><label>Type d'entretien<select id="v2InterviewType"><option value="rh">Premier entretien RH</option><option value="metier">Entretien métier / technique</option><option value="inclusion">Échanger sur les aménagements, si vous le souhaitez</option></select></label></div>
+          <div class="v2-question-card"><span id="v2QuestionNumber">QUESTION 1 / 5</span><p id="v2Question">Présentez votre parcours et expliquez ce qui vous attire dans ce poste.</p><div class="v2-question-actions"><button class="button-secondary" id="v2PreviousQuestion" type="button">← Précédente</button><button class="button-secondary" id="v2ReadQuestion" type="button">Écouter la question</button><button class="button-primary" id="v2NextQuestion" type="button">Question suivante →</button></div></div>
+          <div class="v2-star"><strong>Structurer sa réponse avec la méthode STAR</strong><div class="v2-star-steps"><span><b>S</b> Situation</span><span><b>T</b> Tâche</span><span><b>A</b> Actions</span><span><b>R</b> Résultats</span></div><textarea id="v2PracticeAnswer" rows="5" placeholder="Préparez votre réponse : décrivez une situation réelle, vos actions et le résultat constaté."></textarea><div class="v2-coach-actions"><button id="v2Feedback" class="button-secondary" type="button">Analyser la structure de ma réponse</button><button id="v2SaveAnswer" class="button-secondary" type="button">Télécharger ma préparation</button></div><div id="v2FeedbackOutput" class="v2-feedback" aria-live="polite"></div></div>
+          <div class="v2-calendar"><h3>Préparer un rendez-vous</h3><div class="v2-interview-form"><label>Date et heure<input id="v2InterviewDate" type="datetime-local"></label><label>Entreprise<input id="v2InterviewCompany" type="text" maxlength="120" placeholder="Nom du recruteur ou entreprise"></label></div><button id="v2CalendarEvent" class="button-secondary" type="button">Ajouter l'entretien à mon calendrier (.ics)</button><p>Le fichier calendrier est créé sur votre appareil. Aucun événement n'est ajouté à votre agenda sans votre action.</p></div>
+        </section>
         <section id="suivi" class="studio-panel">
           <div class="panel-topline"><span>VOTRE SUIVI</span><span class="topline-accent">ENREGISTRÉ DANS CE NAVIGATEUR</span></div>
           <div class="panel-heading"><div><h2>Mon tableau de bord<span>.</span></h2><p>Un historique local des lettres préparées et des envois confirmés. Aucun envoi n'est indiqué comme effectué avant confirmation du service.</p></div><span class="panel-icon">✓</span></div>
@@ -131,5 +150,6 @@
   </div>
 </main>
 <footer class="studio-footer"><div class="container studio-footer-inner"><strong>NIKO EMPLOI<span>.</span></strong><span>Des offres réelles. Des candidatures qui vous ressemblent.</span><a href="/confidentialite.html">Confidentialité ↗</a><a href="/">Retour à la recherche d'emploi ↗</a></div></footer>
+<script src="/v2.js" defer></script>
 </body>
 </html>
