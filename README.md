@@ -10,6 +10,16 @@
 
 **Mise en service :** lire [docs/MISE_EN_SERVICE_V2.md](docs/MISE_EN_SERVICE_V2.md). Les migrations sont [database/niko-autonomy.sql](database/niko-autonomy.sql) puis [database/niko-engine-v4.sql](database/niko-engine-v4.sql). Sans DATABASE_URL, chiffrement, domaine expéditeur et authentification correctement configurés, les fonctions d'autonomie côté serveur restent volontairement inactives.
 
+## Niko Intelligence 5.0 — IA réellement gratuite dans le navigateur
+
+**Nouveau dans le Studio :** un module NeuroMatch facultatif, exécuté sur l'appareil du candidat, pour explorer les offres avec un modèle de langue multilingue, plus un **passeport de compétences** et des **pistes de métiers voisins**. Les modèles gratuits sont téléchargés uniquement sur action du candidat ; les préférences « utile/écarté » restent stockées localement et peuvent être effacées.
+
+Le passeport fonctionne immédiatement sans téléchargement d'IA. Le classement sémantique utilise Transformers.js et le modèle quantifié **paraphrase-multilingual-MiniLM-L12-v2** (~118 Mo de poids, autres ressources supplémentaires) ; il ne dépend d'aucune clé IA payante. L'application conserve le radar classique lorsque l'IA locale échoue. Aucun appel à un serveur d'inférence n'est effectué pour analyser le CV.
+
+**Limite honnête :** les tests unitaires passent, mais le chargement réel du modèle doit encore être vérifié sur navigateurs et appareils représentatifs. L'IA locale n'active pas les agents serveur sans base de données.
+
+[Guide complet de l'IA locale gratuite](docs/IA_LOCALE_GRATUITE.md).
+
 ## Sources d'emplois étendues (API)
 
 Le moteur interroge maintenant **EasyJobs, Jobicy, Arbeitnow et Himalayas**, avec attribution visible, validation des liens, contrôle des annonces expirées, filtrage de l'éligibilité France et dédoublonnage. L'API publique Himalayas fonctionne sans clé ; une clé serveur facultative augmente ses quotas.
