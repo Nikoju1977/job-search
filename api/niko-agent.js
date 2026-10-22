@@ -49,7 +49,10 @@ module.exports=async(req,res)=>{
    if(!profiles.length||!profiles[0].target_role&&!profiles[0].cv_ciphertext)throw new ApiError(400,'Sauvegardez votre profil avant d’activer l’agent.');
   }
   const digest=enabled&&body.emailDigest===true;
-  if(digest&&body.digestConsent!==true)throw new ApiError(400,'Autorisation distincte nécessaire pour recevoir des alertes e-mail.');
+  if(digest&&body.digestConsent!==true){
+   const previous=await query('select email_digest from public.niko_agent_policies where user_id=$1',[user.id]);
+   if(previous[0]?.email_digest!==true)throw new ApiError(400,'Autorisation distincte nécessaire pour recevoir des alertes e-mail.');
+  }
   const policy={enabled,emailDigest:digest,minScore:number(body.minScore,50,0,100),remoteOnly:body.remoteOnly===true,inclusiveOnly:body.inclusiveOnly===true,maxResults:number(body.maxResults,20,1,50)};
   await query('insert into public.niko_agent_policies(user_id,enabled,consent_at,min_score,remote_only,inclusive_only,max_results,email_digest) values($1,$2,$3,$4,$5,$6,$7,$8) '+
    'on conflict(user_id) do update set enabled=excluded.enabled,consent_at=excluded.consent_at,min_score=excluded.min_score,remote_only=excluded.remote_only,inclusive_only=excluded.inclusive_only,max_results=excluded.max_results,email_digest=excluded.email_digest,updated_at=now()',[
