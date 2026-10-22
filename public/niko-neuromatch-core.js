@@ -6,7 +6,8 @@
  if(root)root.NikoNeuroCore=value;
 })(typeof globalThis!=='undefined'?globalThis:null,function(){
  'use strict';
- const PRIVATE=/\b(rqth|boeth|mdph|handicap|invalidit[eé]|diagnostic|maladie|pathologie|m[eé]dical|sant[eé]|traitement m[eé]dical|grossesse|religion|syndicat|orientation sexuelle)\b/i;
+ const PRIVATE=/\b(rqth|boeth|mdph|invalidit[eé]|diagnostic|maladie|pathologie|traitement m[eé]dical|grossesse|religion|syndicat|orientation sexuelle)\b/i;
+ const PERSONAL_HEALTH=/\b(je suis (?:en situation de handicap|handicap[eé])|j.ai un handicap|reconnu[e]? travailleur handicap[eé])\b/i;
  const ROLES=[
   {name:'Coordination administrative',skill:['administration','gestion de projet','bureautique','excel'],needs:2,why:'organisation et suivi des dossiers'},
   {name:'Relation clients / support',skill:['relation client','accueil','crm','bureautique'],needs:2,why:'communication et accompagnement des clients'},
@@ -19,7 +20,7 @@
  function normalize(value){return safeText(value,2600).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();}
  function sanitizeCV(cv) {
   return safeText(cv,22000).split(/\r?\n/)
-   .filter(line=>!PRIVATE.test(line))
+   .filter(line=>!PRIVATE.test(line)&&!PERSONAL_HEALTH.test(line))
    .join('\n')
    .replace(/[^\s@]+@[^\s@]+\.[^\s@]+/g,' ')
    .replace(/(?:\+33|0)[1-9](?:[ .-]?\d{2}){4}/g,' ')
