@@ -9,6 +9,15 @@
     },
     "api/reply-agent.js": {
       "maxDuration": 30
+    },
+    "api/account.js": {
+      "maxDuration": 30
+    },
+    "api/auth.js": {
+      "maxDuration": 30
+    },
+    "api/applications.js": {
+      "maxDuration": 30
     }
   },
   "headers": [
@@ -22,6 +31,22 @@
         {
           "key": "Referrer-Policy",
           "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin-allow-popups"
         }
       ]
     }
