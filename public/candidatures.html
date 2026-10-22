@@ -105,7 +105,19 @@
           <textarea id="letterText" class="letter-paper" rows="17" placeholder="Votre lettre de motivation personnalisée apparaîtra ici." maxlength="12000"></textarea>
           <div class="letter-actions"><button type="button" id="downloadLetter" class="button-secondary">↓ Télécharger la lettre</button><button type="button" id="copyLetter" class="button-secondary">Copier le texte</button><button type="button" id="openJob" class="button-secondary">Voir l'annonce ↗</button></div>
           
-          <div class="sending-block">
+          <div class="v2-dossier">
+  <div><strong>Sauvegarder ce dossier</strong><p>Enregistrez la lettre et l'offre dans votre compte chiffré, uniquement à votre demande.</p></div>
+  <label for="v2DossierUrl">Lien original de l'offre</label>
+  <input id="v2DossierUrl" type="url" placeholder="https://site-recruteur.fr/offre" maxlength="1600">
+  <div class="v2-dossier-actions"><button id="v2DossierSave" class="button-secondary" type="button">Enregistrer mon brouillon</button><span id="v2DossierStatus" role="status">Connexion au compte nécessaire.</span></div>
+</div>
+<div class="v2-fraud">
+  <strong>Vérification des signaux de risque</strong>
+  <p>Repérez les demandes d'argent, les coordonnées douteuses et les données sensibles demandées trop tôt. Ce contrôle ne certifie pas l'authenticité de l'employeur.</p>
+  <button id="v2FraudCheck" class="button-secondary" type="button">Vérifier cette offre</button>
+  <div id="v2FraudFindings" aria-live="polite"></div>
+</div>
+<div class="sending-block">
             <div class="sending-title"><h3>Envoyer votre candidature</h3><span>Avec votre accord uniquement</span></div>
             <p>Si vous disposez de l'adresse du recruteur, l'envoi Gmail peut inclure automatiquement votre CV et votre lettre. Les formulaires d'autres plateformes restent accessibles depuis leur annonce.</p>
             <div class="send-grid"><label>Adresse e-mail du recruteur<input id="recruiterEmail" type="email" placeholder="recrutement@entreprise.fr" maxlength="180"></label><button id="sendBtn" type="button" class="button-primary">Envoyer avec Gmail →</button></div>
@@ -152,5 +164,6 @@
 </main>
 <footer class="studio-footer"><div class="container studio-footer-inner"><strong>NIKO EMPLOI<span>.</span></strong><span>Des offres réelles. Des candidatures qui vous ressemblent.</span><a href="/confidentialite.html">Confidentialité ↗</a><a href="/">Retour à la recherche d'emploi ↗</a></div></footer>
 <script src="/v2.js" defer></script>
+<script src="/v2-dossiers.js" defer></script>
 </body>
 </html>
