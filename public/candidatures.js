@@ -175,7 +175,7 @@ function renderReplies(){const target=$('replies');if(!target)return;target.repl
  for(const item of state.replies){
  const card=el('article','agent-reply'),head=el('div','agent-reply-head');
  head.append(el('strong','',item.company+' · '+item.title),el('span','agent-badge '+item.kind,item.kind==='entretien'?'Entretien proposé':item.kind==='favorable'?'Réponse favorable':item.kind==='defavorable'?'Réponse défavorable':'À examiner'));card.append(head,el('small','',item.from+' · '+new Date(item.date).toLocaleString('fr-FR')));
- const quote=el('p','agent-message',item.body||'Message sans texte extrait.');card.append(quote);
+ const quote=el('p','agent-message',item.body||'Message sans texte extrait.');card.append(quote);if(item.summary)card.append(el('p','agent-summary','Analyse IA : '+item.summary));
  const label=el('label','agent-label','Réponse proposée (modifiable)');const area=el('textarea','agent-text');area.rows=5;area.value=item.draft;area.setAttribute('aria-label','Réponse au recruteur');area.oninput=()=>item.draft=area.value;card.append(label,area);
  const controls=el('div','agent-actions');
  const send=el('button','button-primary','Valider et répondre');send.type='button';send.onclick=()=>sendReply(item);
@@ -197,10 +197,15 @@ async function checkReplies(fromTimer=false){
    if((state.userEmail&&from.toLowerCase().includes(state.userEmail.toLowerCase()))||isRobot(from,headers))continue;
    if(Number(msg.internalDate)<Date.parse(h.date))continue;
    const body=bodyOf(msg),kind=classification(body);const entry={id:msg.id,threadId:msg.threadId,from,subject,messageId:header(msg,'Message-ID'),company:h.company,title:h.title,body,kind,date:Number(msg.internalDate),draft:replyText(kind,prof().fullName)};
+   if($('aiReplyConsent')?.checked && state.config.aiConfigured && body.length>15){
+    try{const result=await fetch('/api/reply-agent',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:{body,subject,from},job:{company:h.company,title:h.title},profile:{fullName:prof().fullName},aiConsent:true}),signal:AbortSignal.timeout(20000)});
+      if(result.ok){const analysis=await result.json();if(analysis.category && typeof analysis.draft==='string'){entry.kind=analysis.category;entry.draft=analysis.draft;entry.summary=analysis.summary;}}
+    }catch{/* Le tri local reste utilisable même sans IA. */}
+   }
    state.replies.push(entry);found++;
-   if($('autoAcknowledgements')?.checked && ['favorable','defavorable'].includes(kind) && body.length>25 && body.length<1500 && validEmail(parseAddr(from)) && !/(contrat|salaire|date de debut|confirme|proposition|signature|urgent|avant le)/i.test(body)){
-    // Automatisation limitée aux accusés de réception, jamais aux négociations ni rendez-vous.
-    try{await gmailSend(parseAddr(from),subjectReply(subject),entry.draft,null,{threadId:entry.threadId,messageId:entry.messageId});
+   if($('autoAcknowledgements')?.checked && kind===entry.kind && ['favorable','defavorable'].includes(kind) && body.length>25 && body.length<1500 && validEmail(parseAddr(from)) && !/(contrat|salaire|date de debut|confirme|proposition|signature|urgent|avant le)/i.test(body)){
+    // Jamais de génération IA envoyée sans relecture; automatisme limité à un texte constant.
+    try{await gmailSend(parseAddr(from),subjectReply(subject),replyText(kind,prof().fullName),null,{threadId:entry.threadId,messageId:entry.messageId});
       state.handled.add(entry.id);persistHandled();state.replies=state.replies.filter(x=>x.id!==entry.id);history(h,'Réponse automatique envoyée');
     }catch{/* Garder la réponse à relire si l’automatisme échoue. */}
    }
