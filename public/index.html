@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#f6f7fb" />
+  <meta name="theme-color" content="#171d35" />
   <meta name="description" content="Niko Emploi : retrouvez des offres d'emploi réelles issues de plusieurs sources, recherchées en un endroit, sans doublons détectés." />
   <title>Niko Emploi — Vos opportunités, sans doublons</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/premium-2026.css" />
 </head>
 <body>
 <svg class="icon-defs" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
@@ -53,6 +54,11 @@
           <h1>Le bon job.<br /><span class="heading-highlight">Au bon endroit<span class="dot">.</span></span></h1>
           <p class="hero-intro">Des opportunités authentiques, plusieurs plateformes réunies et les doublons éliminés. Trouvez plus facilement l'emploi qui vous ressemble.</p>
           <div class="hero-trust"><span class="trust-icon"><svg class="ico"><use href="#i-shield"/></svg></span><span><strong>Zéro annonce inventée.</strong><br/>Chaque résultat renvoie à sa source.</span></div>
+          <div class="hero-capabilities" aria-label="Les atouts de Niko Emploi">
+            <span>Offres sourcées</span>
+            <span>IA gratuite à la demande</span>
+            <span>Envois sous votre contrôle</span>
+          </div>
         </div>
         <div class="search-card" id="searchPanel">
           <div class="search-card-top"><span class="search-dash">RECHERCHE D'EMPLOI</span><span class="search-icon-deco"><svg class="ico"><use href="#i-search"/></svg></span></div>
@@ -74,7 +80,7 @@
 
     <section class="quick-section">
       <div class="container quick-row">
-        <span class="quick-title">RECHERCHES POPULAIRES</span>
+        <span class="quick-title">EXPLORER PAR MÉTIER</span>
         <div class="quick-chips">
           <button class="quick-chip" data-search="Développeur">Développeur <svg class="ico"><use href="#i-arrowup"/></svg></button>
           <button class="quick-chip" data-search="Designer">Designer <svg class="ico"><use href="#i-arrowup"/></svg></button>
@@ -120,5 +126,10 @@
 </div>
 <dialog class="source-dialog" id="sourceDialog" aria-labelledby="dialogTitle"><div class="dialog-top"><div class="section-kicker">TRANSPARENCE</div><button id="closeDialog" aria-label="Fermer"><svg class="ico"><use href="#i-x"/></svg></button></div><h2 id="dialogTitle">D'où viennent les offres ?</h2><p>Niko Emploi ne fabrique aucune annonce. Les annonces affichées sont fournies par des API externes : EasyJobs (France), Jobicy (télétravail européen), Arbeitnow et Himalayas (offres de télétravail ouvertes depuis la France). Les annonces Adzuna France et les offres directes Greenhouse peuvent également apparaître lorsque leurs intégrations sont configurées.</p><p><a href="https://himalayas.app" target="_blank" rel="noopener noreferrer">Himalayas ↗</a> est crédité comme source ; le lien de candidature fourni par son API est conservé. Les annonces expirées sont ignorées. Le service est rafraîchi quotidiennement et peut limiter les requêtes.</p><p>Chaque fiche conserve son lien et le nom de sa source. Les liens identiques ou les annonces ayant le même employeur, le même intitulé et la même localisation sont dédoublonnés. Des annonces presque identiques peuvent encore exister : aucun algorithme ne garantit un taux parfait.</p><p>Le nombre affiché correspond strictement aux résultats reçus dans les pages interrogées et filtrés, pas au nombre total de postes en France. L'existence d'une annonce chez un agrégateur ne garantit pas qu'elle soit encore ouverte sur le site de recrutement.</p><p><strong>France Travail :</strong> son API officielle est actuellement soumise à une demande d'accès. Nous ne la contournons pas et nous n'affichons pas ses offres sous un faux partenariat.</p><p>Les favoris et le profil du studio candidature sont conservés localement selon vos choix. La génération IA exige votre consentement et les envois Gmail requièrent une autorisation OAuth explicite.</p><div class="dialog-links"><a href="https://api.easyjobs.fr/public/docs/" target="_blank" rel="noopener noreferrer">EasyJobs ↗</a><a href="https://jobicy.com/jobs-rss-feed" target="_blank" rel="noopener noreferrer">Jobicy ↗</a><a href="https://www.arbeitnow.com/terms" target="_blank" rel="noopener noreferrer">Arbeitnow ↗</a></div></dialog>
 <script src="/app.js" defer></script>
+<nav class="mobile-dock" aria-label="Navigation rapide mobile">
+  <a href="#offres" aria-current="page"><span class="dock-ico" aria-hidden="true">⌕</span>Offres</a>
+  <a href="/candidatures.html"><span class="dock-ico" aria-hidden="true">✦</span>Mon Studio</a>
+  <a href="#comment"><span class="dock-ico" aria-hidden="true">◇</span>Comment ça marche</a>
+</nav>
 </body>
 </html>
