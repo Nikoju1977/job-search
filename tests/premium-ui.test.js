@@ -22,6 +22,7 @@ test('Mobile navigation anchors link only to actual sections',()=>{
    assert.ok(html.includes('id="'+anchor+'"'),page+' has broken anchor #'+anchor);
   }
   assert.match(section,/href="\/candidatures\.html"|href="#cv"/);
+  assert.match(html,/<a class="skip-link" href="#[^"]+">Aller directement/);
  }
 });
 test('Premium layout has explicit mobile and accessibility fallbacks',()=>{
