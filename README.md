@@ -114,3 +114,17 @@ Pour le passage à grande échelle, ajouter une base PostgreSQL avec identifiant
 Le moteur d'offres n'enregistre pas les données candidats. Le Studio candidature traite le CV dans le navigateur et le conserve localement sur choix explicite ; les lettres générées par IA font appel à l'API externe seulement avec consentement. Les candidatures Gmail passent par l'API Google avec autorisation OAuth. L'historique local peut être effacé.
 
 Projet indépendant : pas d'affiliation institutionnelle à France Travail.
+
+## Application PWA installable (Android, iOS, ordinateur)
+
+Site public : https://niko-emploi.vercel.app. Le manifeste \`/manifest.webmanifest\`,
+les icônes PNG (192, 512 et Apple 180 px), le service worker \`/sw.js\`
+et un bouton « Installer Niko Emploi » sont intégrés au moteur d'offres et au Studio.
+
+- **Android** (Chrome / Samsung Internet) : « Installer Niko Emploi » puis confirmer, ou menu du navigateur > Installer l'application.
+- **iPhone / iPad** : menu Partager > Ajouter à l'écran d'accueil > Ajouter.
+- **Ordinateur** (Chrome / Edge) : « Installer Niko Emploi » ou menu du navigateur ; macOS Safari : Fichier > Ajouter au Dock.
+- **Hors connexion** : seule l'interface publique de base et la page d'explication restent disponibles. Les offres, CV, jetons, données de compte, réponses d'agents et candidatures ne sont **jamais** stockés dans le cache PWA. Aucun résultat n'est inventé.
+- Le navigateur actualise le service worker sur déploiement; pour publier une nouvelle version du shell, incrémenter \`CACHE_NAME\` dans \`public/sw.js\`.
+
+Tests : \`npm test\` inclut les contrôles structurels PWA.
