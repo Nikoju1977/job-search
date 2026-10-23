@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#191d32">
+  <meta name="theme-color" content="#171d35">
   <meta name="description" content="Studio de candidature Niko Emploi : CV, offres compatibles et lettres de motivation personnalisées.">
   <title>Studio candidature — Niko Emploi</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/candidatures.css">
+  <link rel="stylesheet" href="/premium-2026.css">
   <script src="/niko-engine.js" defer></script>
   <script src="/niko-neuromatch-core.js" defer></script>
   <script src="/candidatures.js" defer></script>
@@ -46,6 +47,13 @@
         <a href="#cv" class="step-item active" data-step="cv"><span>01</span><div><strong>Votre CV</strong><small>Importer et compléter</small></div></a>
         <a href="#offres-studio" class="step-item" data-step="offres-studio"><span>02</span><div><strong>Offres ciblées</strong><small>Recherche et pertinence</small></div></a>
         <a href="#lettre" class="step-item" data-step="lettre"><span>03</span><div><strong>Candidature</strong><small>Rédiger et envoyer</small></div></a>
+        <nav class="studio-quick-links" aria-label="Accès rapide au Studio">
+          <span>ACCÈS RAPIDE</span>
+          <a href="#compte">◫ Vue d’ensemble</a>
+          <a href="#niko-intelligence">✦ IA gratuite & NeuroMatch</a>
+          <a href="#autonomie">◎ Veille autonome</a>
+          <a href="#suivi">✓ Historique et suivi</a>
+        </nav>
         <div class="privacy-note"><span>♧</span><strong>Vos données, votre décision.</strong><p>Le CV est lu dans votre navigateur. L'IA ne le reçoit que lorsque vous demandez explicitement une lettre.</p></div>
       </aside>
       <div class="studio-main">
@@ -225,5 +233,11 @@
 <script src="/niko-agents.js" defer></script>
 <script src="/niko-autonomy.js" defer></script>
 <script src="/niko-neuromatch.js" defer></script>
+<nav class="mobile-dock" aria-label="Navigation rapide mobile">
+  <a href="#cv"><span class="dock-ico" aria-hidden="true">▤</span>Mon CV</a>
+  <a href="#offres-studio"><span class="dock-ico" aria-hidden="true">⌕</span>Offres</a>
+  <a href="#niko-intelligence" aria-current="page"><span class="dock-ico" aria-hidden="true">✦</span>IA gratuite</a>
+  <a href="#suivi"><span class="dock-ico" aria-hidden="true">✓</span>Suivi</a>
+</nav>
 </body>
 </html>
