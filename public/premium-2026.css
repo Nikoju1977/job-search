@@ -252,3 +252,13 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
  html{scroll-behavior:auto}
  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
+
+/* Keyboard-first navigation and native in-page discoverability. */
+.skip-link{
+ position:fixed;top:-110px;left:18px;z-index:150;
+ padding:12px 18px;border-radius:0 0 12px 12px;
+ background:#fff;color:#202a46;border:2px solid #554fd8;font-size:14px;font-weight:800;
+ box-shadow:0 8px 24px rgba(11,19,48,.19)
+}
+.skip-link:focus,.skip-link:focus-visible{top:0;outline:3px solid #554fd8;outline-offset:2px}
+:where(.studio-panel,.niko-ai,.n5-lab,.results-section){scroll-margin-top:100px}
