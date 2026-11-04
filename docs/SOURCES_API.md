@@ -59,3 +59,19 @@ Référence : https://docs.greenhouse.io/job-board
 Tests de connecteurs : `npm test` (en particulier `tests/jobs-new-sources.test.js`).
 
 **Important :** des tests simulés réussis ne garantissent pas qu'une API externe réponde au moment de la recherche. Surveiller la rubrique « Sources consultées » et les quotas des fournisseurs.
+
+### EasyJobs — accès public et partenaire (diagnostic 403)
+
+La recherche EasyJobs utilise par défaut le mode anonyme documenté, avec les en-têtes `Accept: application/json` et un `User-Agent` identifié. **Un HTTP 403 est un refus du fournisseur**, et non une offre vide ; Niko Emploi continue alors à consulter les autres sources, sans inventer de résultats.
+
+Si EasyJobs valide un accès partenaire, ajouter dans les variables serveur Vercel (production) :
+
+```text
+EASYJOBS_PARTNER_ID=identifiant_officiel_fourni
+EASYJOBS_PARTNER_KEY=cle_partenaire_privee
+```
+
+Les deux valeurs doivent être présentes ensemble. Le serveur transmet alors les en-têtes officiels `X-EasyJobs-Partner` et `X-EasyJobs-Partner-Key` **uniquement à api.easyjobs.fr**, jamais au navigateur. Ne pas ajouter ces secrets dans GitHub ni dans `public/`.
+
+Une erreur `401` ou `403` reste affichée comme refus de la source. En cas de blocage persistant, demander une vérification à EasyJobs (sans contourner les protections d'accès). Sources : [documentation de l'API](https://api.easyjobs.fr/public/docs/) et [diagnostic User-Agent/403](https://api.easyjobs.fr/ui/error-403.html).
+
