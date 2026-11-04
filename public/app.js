@@ -96,7 +96,8 @@
       $('providerList').innerHTML=activeSources.map(name=>{
         const source=data.sources?.[name];
         const ok=source?.ok;
-        return `<div class="provider-row"><span class="provider-left"><span class="provider-mark">${escape(name[0])}</span>${escape(name)}</span><span class="provider-stat ${ok?'':'offline'}">${ok?`${number(source.received||0)} reçues`:'Indisponible'}</span></div>`;
+        const unavailable=escape(source?.error||'Indisponible');
+        return `<div class="provider-row"><span class="provider-left"><span class="provider-mark">${escape(name[0])}</span>${escape(name)}</span><span class="provider-stat ${ok?'':'offline'}">${ok?`${number(source.received||0)} reçues`:`${unavailable}`}</span></div>`;
       }).join('');
     }catch(error){
       if (requestId !== latestRequestId) return;
