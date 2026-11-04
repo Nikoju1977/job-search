@@ -4,6 +4,7 @@
   const $ = id => document.getElementById(id);
   const state = {jobs:[], shown:10, savedOnly:false, saved:new Set(), apiResponse:null, loading:false};
   const storageKey = 'niko_emploi_favoris_v1';
+  let latestRequestId = 0;
   try { const saved = JSON.parse(localStorage.getItem(storageKey) || '[]'); if (Array.isArray(saved)) state.saved = new Set(saved.filter(x=>typeof x==='string')); } catch (_) {}
   const escape = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const icon = name => `<svg class="ico" aria-hidden="true"><use href="#i-${name}"></use></svg>`;
@@ -61,6 +62,7 @@
     $('visibleCount').textContent=`${number(Math.min(all.length,state.shown))} sur ${number(all.length)} offres chargées`;
   }
   async function load(){
+    const requestId = ++latestRequestId;
     state.shown=10;state.loading=true;state.savedOnly=false;
     $('sourceNotice').hidden=true;$('dedupTag').hidden=true;
     $('liveDot').className='live-dot muted';$('liveText').textContent='Chargement des sources';
@@ -76,6 +78,7 @@
       const result=await fetch(url,{headers:{'Accept':'application/json'},signal:AbortSignal.timeout(32000)});
       if(!result.ok)throw new Error('HTTP '+result.status);
       const data=await result.json();
+      if (requestId !== latestRequestId) return;
       if(!Array.isArray(data.jobs))throw new Error('Format de réponse invalide');
       state.jobs=data.jobs.filter(j=>j&&typeof j.url==='string'&&/^https?:\/\//.test(j.url));
       state.apiResponse=data;
@@ -96,12 +99,15 @@
         return `<div class="provider-row"><span class="provider-left"><span class="provider-mark">${escape(name[0])}</span>${escape(name)}</span><span class="provider-stat ${ok?'':'offline'}">${ok?`${number(source.received||0)} reçues`:'Indisponible'}</span></div>`;
       }).join('');
     }catch(error){
+      if (requestId !== latestRequestId) return;
       state.jobs=[];state.apiResponse=null;
       $('liveDot').className='live-dot muted';$('liveText').textContent='Service momentanément indisponible';
       $('retrievedDate').textContent='Aucune donnée chargée';
       $('providerList').innerHTML='<p class="loading-label">La connexion aux sources a échoué.</p>';
       $('sourceNotice').hidden=false;$('sourceNotice').textContent='Impossible de joindre le moteur de recherche. Aucune offre fictive n’est affichée.';
-    }finally {state.loading=false;render();}
+    }finally {
+      if (requestId === latestRequestId) {state.loading=false;render();}
+    }
   }
   function openDialog(){$('sourceDialog').showModal();}
   $('searchForm').addEventListener('submit',e=>{e.preventDefault();load();$('offres').scrollIntoView({behavior:'smooth'});});
