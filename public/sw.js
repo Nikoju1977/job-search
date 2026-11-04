@@ -51,7 +51,15 @@ self.addEventListener('fetch', event => {
   // Serve versioned static public assets only. Bypass cache for URLs with search params.
   if (url.search) return;
   event.respondWith((async () => {
-    const cached = await caches.match(request);
-    return cached || fetch(request);
+    const cache = await caches.open(CACHE_NAME);
+    try {
+      // Network first: a new deployment must not be hidden by the previous JS/CSS cache.
+      const fresh = await fetch(request);
+      if (fresh.ok) await cache.put(request, fresh.clone()).catch(() => {});
+      return fresh;
+    } catch (_) {
+      // Offline fallback is limited to public, previously cached static assets.
+      return (await cache.match(request)) || Response.error();
+    }
   })());
 });
