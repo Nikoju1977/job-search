@@ -20,14 +20,22 @@ Le passeport fonctionne immédiatement sans téléchargement d'IA. Le classement
 
 [Guide complet de l'IA locale gratuite](docs/IA_LOCALE_GRATUITE.md).
 
-## Sources d'emplois étendues (API)
+## Recherche étendue — 11 connecteurs possibles
 
-Le moteur interroge maintenant **EasyJobs, Jobicy, Arbeitnow et Himalayas**, avec attribution visible, validation des liens, contrôle des annonces expirées, filtrage de l'éligibilité France et dédoublonnage. L'API publique Himalayas fonctionne sans clé ; une clé serveur facultative augmente ses quotas.
+Le moteur dispose de **11 adaptateurs** avec attribution et dédoublonnage. **5 sont tentés sans configuration** : EasyJobs, Jobicy, Arbeitnow, Himalayas et Remotive. **6 sont optionnels** et nécessitent des variables d'environnement ou des listes d'entreprises : Adzuna France, Greenhouse, Jooble France, Lever, Ashby et SmartRecruiters. Ce chiffre correspond aux intégrations codées, **pas à 11 fournisseurs vérifiés simultanément en production**. Le diagnostic d'API indique les sources réellement consultées, les échecs et les résultats reçus.
 
-Deux connecteurs supplémentaires sont prêts à être activés depuis les **variables Vercel**, sans modifier le code :
+La recherche fournit désormais des filtres plateforme / ancienneté, un tri de pertinence lexicale explicable, une interface responsive enrichie et des accès directs à des plateformes françaises. Ces derniers sont des liens externes, pas des connexions automatisées.
+
+Les idées d'interface et de traçabilité ont été comparées avec les projets GitHub open source freehire, Openings et stillopen ; aucun code tiers n'a été repris. Les tests automatiques et la mise en production doivent être vérifiés séparément.
+
+Six connecteurs conditionnels peuvent être activés depuis les **variables Vercel**, sans modifier le code :
 
 - **Adzuna France** : `ADZUNA_APP_ID` et `ADZUNA_APP_KEY`.
-- **Greenhouse Job Board** : `GREENHOUSE_BOARDS=jeton-du-tableau:Entreprise réelle` (plusieurs entreprises séparées par `;`, quatre maximum).
+- **Greenhouse Job Board** : `GREENHOUSE_BOARDS=jeton-du-tableau:Entreprise réelle` (quatre maximum).
+- **Jooble France** : `JOOBLE_FR_API_KEY` (clé propre au domaine français).
+- **Lever** : `LEVER_BOARDS=nom-du-site:Entreprise réelle` (six maximum).
+- **Ashby** : `ASHBY_BOARDS=nom-du-site:Entreprise réelle` (huit maximum).
+- **SmartRecruiters** : `SMARTRECRUITERS_BOARDS=identifiant:Entreprise réelle` (huit maximum).
 
 Ces deux sources **ne sont pas activées sans la configuration correspondante**. Les règles des fournisseurs, leurs limites, la provenance et les exemples de configuration figurent dans [docs/SOURCES_API.md](docs/SOURCES_API.md). Aucun nombre de postes additionnels n'est garanti avant une interrogation réussie des API.
 

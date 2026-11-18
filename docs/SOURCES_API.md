@@ -75,3 +75,54 @@ Les deux valeurs doivent être présentes ensemble. Le serveur transmet alors le
 
 Une erreur `401` ou `403` reste affichée comme refus de la source. En cas de blocage persistant, demander une vérification à EasyJobs (sans contourner les protections d'accès). Sources : [documentation de l'API](https://api.easyjobs.fr/public/docs/) et [diagnostic User-Agent/403](https://api.easyjobs.fr/ui/error-403.html).
 
+
+
+## Extension du 18 novembre 2026 — sources additionnelles
+
+**Nouveaux connecteurs : Remotive, Jooble France, Lever, Ashby, SmartRecruiters.** Le moteur peut maintenant appeler 11 plateformes, mais uniquement 5 sont tentées par défaut (EasyJobs, Jobicy, Arbeitnow, Himalayas et Remotive). Les 6 autres nécessitent une configuration serveur. Une source « prévue » n'est pas une source « opérationnelle » : seuls les fournisseurs qui répondent effectivement sont comptés dans /api/jobs.
+
+### Remotive — actif sans identifiants
+
+Source : https://remotive.com/remote-jobs/api
+
+Les annonces proviennent du flux officiel et renvoient toujours au lien Remotive, avec attribution visible. Le fournisseur retarde les annonces de 24 heures et recommande un maximum de 4 consultations par jour. Le moteur utilise un cache de 24 h *par instance* ; plusieurs instances Vercel peuvent encore générer plus de requêtes, ce qui impose un cache persistant centralisé en cas de trafic important. Les annonces sont filtrées pour une éligibilité explicite France/Europe/monde. Interdiction de transmettre le contenu Remotive à un agrégateur tiers ou de le bloquer derrière une inscription.
+
+### Jooble France — nécessite une clé
+
+Portail pour la clé régionale : https://fr.jooble.org/api/about
+
+    JOOBLE_FR_API_KEY=cle_fr_obtenue_aupres_de_jooble
+
+L'API est interrogée en POST à fr.jooble.org côté serveur uniquement. Aucun identifiant n'est renvoyé au navigateur. Documentation : https://help.jooble.org/fr/support/solutions/articles/60001448238-documentation-de-la-jooble-rest-api
+
+### Lever — sites carrières publics
+
+    LEVER_BOARDS=site-entreprise:Vrai nom de l'entreprise;eu/site-europe:Entreprise Europe
+
+Au plus 6 tableaux configurés. Les données sont demandées exclusivement à api.lever.co / api.eu.lever.co. Les postes réservés hors France/Europe sont exclus. Documentation : https://github.com/lever/postings-api
+
+### Ashby — sites carrières publics
+
+    ASHBY_BOARDS=nom-du-board:Vrai nom de l'entreprise
+
+Au plus 8 tableaux configurés. Source publique : https://api.ashbyhq.com/posting-api/job-board/{board}?includeCompensation=true . Les offres non listées sont exclues. Le statut de télétravail repose sur workplaceType=Remote : dans cette API le champ isRemote est vrai pour certains emplois hybrides. Les salaires ne sont affichés que s'ils sont fournis. Documentation : https://developers.ashbyhq.com/docs/public-job-posting-api
+
+### SmartRecruiters — offres publiques FR
+
+    SMARTRECRUITERS_BOARDS=identifiant-entreprise:Vrai nom de l'entreprise
+
+Au plus 8 tableaux configurés. Requête sur api.smartrecruiters.com avec country=FR et destination=PUBLIC. Aucune offre interne n'est demandée. Les liens vers les offres doivent être vérifiés sur des résultats réels avant d'affirmer que toutes les pages sont accessibles. Documentation : https://developers.smartrecruiters.com/docs/endpoints
+
+## Références open source et bonnes pratiques
+
+- freehire (licence MIT) : https://github.com/strelov1/freehire — recherche à facettes et transparence des fournisseurs.
+- Openings (licence MIT) : https://github.com/openings-dev/web — traçabilité des annonces et préférences locales.
+- stillopen (licence Apache-2.0) : https://github.com/Druvo/stillopen — suivi des candidatures et respect de la republication.
+
+Ces projets ont servi de références d'architecture, sans copie de leur code source. Aucun d'eux ne doit être compté comme une API d'offres disponible dans Niko Emploi.
+
+## Validation de la version
+
+Les tests automatisés et la validation sur navigateur sont distincts des appels réels aux API. Exécuter npm test et vérifier /api/jobs, ses champs sources / received / partial, les erreurs 401/403/429, le nombre de résultats pertinents, les liens et l'affichage PC/mobile. La présence d'une source dans cette documentation ne garantit jamais son activation en production.
+
+France Travail, HelloWork, Apec, Welcome to the Jungle, La bonne alternance et Agefiph sont proposés **uniquement sous forme de liens externes**, sans importation de leurs annonces.

@@ -1,0 +1,57 @@
+/* Niko Emploi | Search experience 2026-11 | additive, keeps existing pages intact */
+:root{--niko-accent:#d83475;--niko-blue:#1b2547;--niko-line:#e0e6f0}
+.results-section{background:linear-gradient(180deg,#f7f9fd 0%,#f4f7fc 100%)}
+.section-intro{align-items:flex-end}
+.list-container{min-width:0}
+.list-top{gap:16px;flex-wrap:wrap}
+.filters{border:1px solid var(--niko-line);box-shadow:0 12px 36px rgba(25,37,70,.05)}
+.filters select{width:100%;max-width:100%;min-height:46px;border:1px solid #dce3ef;border-radius:10px;background:#fff;color:#253451;padding:10px 12px}
+.filters select:focus-visible{outline:3px solid #8270d0;outline-offset:2px}
+.niko-clear-filters{width:100%;min-height:42px;border:1px solid #e6c7d5;border-radius:10px;background:#fff7fa;color:#a6225a;font-weight:800;font-size:12px}
+.niko-clear-filters:hover{background:#ffeaf2}
+.niko-search-overview{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px;padding:13px 17px;background:#fff;border:1px solid var(--niko-line);border-radius:13px;color:#50607b;font-size:13px}
+.niko-search-overview #searchSummary{font-weight:750}
+.niko-refresh-btn{border:1px solid #d7ddea;border-radius:10px;padding:8px 13px;background:#f7f9fe;color:#223459;font-size:12px;font-weight:800}
+.niko-refresh-btn:hover{border-color:#bd6c94;color:#ac245d}
+.niko-refresh-btn:disabled{opacity:.5;cursor:wait}
+.job-card{border:1px solid #e0e6f2;border-radius:18px;box-shadow:0 10px 34px rgba(17,29,60,.045);transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.job-card:hover{border-color:#d5aac9;box-shadow:0 17px 42px rgba(34,26,71,.09);transform:translateY(-2px)}
+.job-source{font-weight:800}
+.provider-row{gap:8px}
+.provider-stat{overflow-wrap:anywhere;text-align:right}
+.provider-stat.offline{font-size:10px}
+.niko-other-sources{padding:68px 0 82px;background:#fff;border-top:1px solid #e8edf4}
+.niko-portals-head{max-width:760px;margin-bottom:26px}
+.niko-portals-head h2{font:800 clamp(25px,3.5vw,39px)/1.2 'Manrope',sans-serif;letter-spacing:-1.3px;color:#1f2b49;margin:12px 0}
+.niko-portals-head p{color:#65738b;line-height:1.8;font-size:14px;margin:0}
+.niko-portals-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.niko-portals-grid>a{display:flex;flex-direction:column;min-height:115px;gap:9px;padding:20px 22px;border:1px solid #e2e7f0;background:#fbfcfe;border-radius:17px;transition:border-color .18s ease,transform .18s ease}
+.niko-portals-grid>a:hover{border-color:#df94b3;transform:translateY(-2px)}
+.niko-portals-grid strong{font-size:16px;color:#233251;font-family:'Manrope',sans-serif}
+.niko-portals-grid span{font-size:12px;color:#63718a;line-height:1.5}
+.niko-source-icon{display:inline-flex;gap:5px;align-items:center}
+.niko-source-state{font-size:11px;opacity:.9}
+@media(max-width:950px){.niko-portals-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){
+ .hero-layout{gap:32px}
+ .results-section{padding-top:44px}
+ .niko-search-overview{align-items:flex-start}
+ .niko-refresh-btn{width:100%}
+ .niko-other-sources{padding:43px 0 94px}
+ .niko-portals-grid{grid-template-columns:1fr;gap:10px}
+ .niko-portals-grid>a{min-height:88px;padding:17px}
+ .filters{border-radius:15px}
+ .job-card:hover{transform:none}
+}
+@media(prefers-reduced-motion:reduce){.job-card,.niko-portals-grid>a{transition:none}.job-card:hover,.niko-portals-grid>a:hover{transform:none}}
+
+.job-badge.relevance{display:inline-flex;background:#f0ebff;color:#4c4087;border:1px solid #ded4fb;border-radius:6px;font-size:11px;font-weight:750;padding:4px 8px}
+
+.niko-saved-search{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;align-items:center;gap:8px;margin-top:12px}
+.niko-saved-search button,.niko-saved-search select{min-height:40px;border-radius:9px;font-size:11px;font-weight:800;max-width:100%;padding:9px 10px}
+.niko-save-search-btn{color:#75254c;background:#fff2f7;border:1px solid #e8cada}
+.niko-saved-search select{background:#fafbff;color:#283656;border:1px solid #dbe2ed;min-width:0}
+.niko-delete-search-btn{background:#fff;color:#8b5571;border:1px solid #e3dce4}
+.niko-saved-search #searchSavedStatus{grid-column:1/-1;font-size:11px;color:#596883;min-height:0}
+.niko-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:650px){.niko-saved-search{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.niko-save-search-btn{grid-column:1/-1}.niko-delete-search-btn{grid-column:2}.niko-saved-search select{grid-column:1;grid-row:2}}

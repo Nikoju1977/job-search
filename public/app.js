@@ -10,6 +10,30 @@
   const icon = name => `<svg class="ico" aria-hidden="true"><use href="#i-${name}"></use></svg>`;
   const sourceNames = ['EasyJobs','Jobicy','Arbeitnow'];
   const number = n => new Intl.NumberFormat('fr-FR').format(n);
+  const searchesKey='niko_emploi_recherches_v1';
+  let savedSearches=[], requestedSavedSource=null;
+  try{
+    const stored=JSON.parse(localStorage.getItem(searchesKey)||'[]');
+    if(Array.isArray(stored))savedSearches=stored.filter(x=>x&&typeof x.id==='string'&&typeof x.keyword==='string'&&typeof x.location==='string').slice(0,10);
+  }catch(_){}
+  function renderSavedSearches(){
+    const selected=$('savedSearches').value;
+    $('savedSearches').innerHTML='<option value="">Mes recherches</option>'+
+      savedSearches.map(item=>'<option value="'+escape(item.id)+'">'+escape(item.label)+'</option>').join('');
+    $('savedSearches').value=savedSearches.some(x=>x.id===selected)?selected:'';
+  }
+  function persistSearches(){
+    try{localStorage.setItem(searchesKey,JSON.stringify(savedSearches));}catch(_){}
+    renderSavedSearches();
+  }
+  function currentCriteria(){
+    return {keyword:$('keyword').value.trim(),location:$('location').value.trim()||'Toute la France',
+      remote:!!$('remote').checked,contract:$('filterContract').value||'Tous',
+      source:$('filterSource').value||'Toutes',age:$('filterAge').value||'all',
+      sort:$('sortOrder').value||'recent'};
+  }
+  function setSearchStatus(message){$('searchSavedStatus').textContent=message;}
+
   function dateLabel(iso){
     if (!iso) return 'Date non communiquée';
     const d = new Date(iso); if (!Number.isFinite(d.getTime())) return 'Date non communiquée';
@@ -28,12 +52,23 @@
   function favoritesPersist(){try{localStorage.setItem(storageKey,JSON.stringify([...state.saved]));}catch(_){}redrawSavedCounts();}
   function getVisible(){
     let items=state.savedOnly ? state.jobs.filter(j=>state.saved.has(j.id)) : [...state.jobs];
+    const chosenSource=$('filterSource')?.value||'Toutes';
+    if(chosenSource!=='Toutes')items=items.filter(j=>j.source===chosenSource);
+    const days=$('filterAge')?.value||'all';
+    if(days!=='all'){
+      const cutoff=Date.now()-Number(days)*24*60*60*1000;
+      items=items.filter(j=>j.date&&Number.isFinite(Date.parse(j.date))&&Date.parse(j.date)>=cutoff);
+    }
+    if($('sortOrder').value==='relevance') items.sort((a,b)=>(Number(b.relevanceScore)||0)-(Number(a.relevanceScore)||0)||((Date.parse(b.date||'')||0)-(Date.parse(a.date||'')||0)));
     if($('sortOrder').value==='company') items.sort((a,b)=>a.company.localeCompare(b.company,'fr'));
     return items;
   }
   function render(){
     redrawSavedCounts();
     const all=getVisible(), display=all.slice(0,state.shown);
+    $('searchSummary').textContent=state.loading?'Consultation des sources en cours…':`${number(all.length)} offre${all.length===1?'':'s'} après filtres · ${number(state.jobs.length)} récupérée${state.jobs.length===1?'':'s'}`;
+    $('refreshSearch').disabled=state.loading;
+    $('jobList').setAttribute?.('aria-busy',String(state.loading));
     $('resultNumber').textContent = state.loading ? '—' : number(all.length);
     const target=$('jobList');
     if(state.loading){target.innerHTML='<div class="loading-state"><span class="loader"></span><h3>Nous interrogeons les plateformes…</h3><p>Seules les annonces réellement reçues seront affichées.</p></div>'; $('listFooter').hidden=true;return;}
@@ -49,8 +84,8 @@
       const meta=[`<span>${icon('pin')}${escape(loc)}</span>`];
       if(job.contract)meta.push(`<span>${icon('briefcase')}${escape(job.contract)}</span>`);
       if(job.date)meta.push(`<span>${icon('clock')}${escape(dateLabel(job.date))}</span>`);
-      const badges=[job.remote?'<span class="job-badge remote">Télétravail</span>':'',job.salary?`<span class="job-badge salary">${escape(job.salary)}</span>`:''].filter(Boolean).join('');
-      return `<article class="job-card"><div class="job-head"><div class="company-avatar" aria-hidden="true">${escape(initials||'J')}</div><div class="job-title-col"><h3 class="job-title">${escape(job.title)}</h3><div class="job-company">${escape(job.company)}</div></div><button class="save-btn ${saved?'saved':''}" data-favorite="${escape(job.id)}" aria-label="${saved?'Retirer des favoris':'Ajouter aux favoris'}" title="${saved?'Retirer des favoris':'Ajouter aux favoris'}">${icon('heart')}</button></div><div class="job-detail">${meta.join('')}</div>${job.excerpt?`<p class="job-excerpt">${escape(job.excerpt)}</p>`:''}<div class="job-foot"><div class="job-badges">${badges}<span class="job-source">Source : ${job.source==="Himalayas"?`<a href="https://himalayas.app" rel="noopener noreferrer" target="_blank">Himalayas ↗</a>`:escape(job.source)}</span></div><a class="studio-job-btn" href="/candidatures.html" data-prepare="${escape(job.id)}">✦ Préparer ma candidature</a><a class="apply-link" href="${escape(job.url)}" rel="noopener noreferrer nofollow" target="_blank">Voir l'offre originale ${icon('arrowup')}</a></div></article>`;
+      const badges=[Number.isFinite(job.relevanceScore)?`<span class="job-badge relevance" title="Indice lexical, pas une probabilité de recrutement">Pertinence texte : ${number(job.relevanceScore)}/100</span>`:'',job.remote?'<span class="job-badge remote">Télétravail</span>':'',job.salary?`<span class="job-badge salary">${escape(job.salary)}</span>`:''].filter(Boolean).join('');
+      return `<article class="job-card"><div class="job-head"><div class="company-avatar" aria-hidden="true">${escape(initials||'J')}</div><div class="job-title-col"><h3 class="job-title">${escape(job.title)}</h3><div class="job-company">${escape(job.company)}</div></div><button class="save-btn ${saved?'saved':''}" data-favorite="${escape(job.id)}" aria-label="${saved?'Retirer des favoris':'Ajouter aux favoris'}" title="${saved?'Retirer des favoris':'Ajouter aux favoris'}">${icon('heart')}</button></div><div class="job-detail">${meta.join('')}</div>${job.excerpt?`<p class="job-excerpt">${escape(job.excerpt)}</p>`:''}<div class="job-foot"><div class="job-badges">${badges}<span class="job-source">Source : ${job.source==="Himalayas"?`<a href="https://himalayas.app" rel="noopener noreferrer" target="_blank">Himalayas ↗</a>`:job.source==="Remotive"?`<a href="https://remotive.com" rel="noopener noreferrer" target="_blank">Remotive ↗</a>`:escape(job.source)}</span></div><a class="studio-job-btn" href="/candidatures.html" data-prepare="${escape(job.id)}">✦ Préparer ma candidature</a><a class="apply-link" href="${escape(job.url)}" rel="noopener noreferrer nofollow" target="_blank">Voir l'offre originale ${icon('arrowup')}</a></div></article>`;
     }).join('');
     for(const button of target.querySelectorAll('[data-favorite]'))button.addEventListener('click',()=>{
       const id=button.dataset.favorite;
@@ -82,6 +117,11 @@
       if(!Array.isArray(data.jobs))throw new Error('Format de réponse invalide');
       state.jobs=data.jobs.filter(j=>j&&typeof j.url==='string'&&/^https?:\/\//.test(j.url));
       state.apiResponse=data;
+      const sourceFilter=$('filterSource'),selectedSource=requestedSavedSource||sourceFilter.value;
+      requestedSavedSource=null;
+      const availableSources=[...new Set(state.jobs.map(j=>j.source))].sort((a,b)=>a.localeCompare(b,'fr'));
+      sourceFilter.innerHTML='<option value="Toutes">Toutes les sources</option>'+availableSources.map(n=>`<option value="${escape(n)}">${escape(n)}</option>`).join('');
+      sourceFilter.value=availableSources.includes(selectedSource)?selectedSource:'Toutes';
       const activeSources=Object.keys(data.sources||{});
       const working=activeSources.filter(n=>data.sources[n]?.ok);
       $('liveText').textContent=working.length?`${working.length} source${working.length>1?'s':''} consultée${working.length>1?'s':''}`:'Aucune source disponible';
@@ -113,6 +153,50 @@
   function openDialog(){$('sourceDialog').showModal();}
   $('searchForm').addEventListener('submit',e=>{e.preventDefault();load();$('offres').scrollIntoView({behavior:'smooth'});});
   $('filterContract').addEventListener('change',load);
+  $('filterSource').addEventListener('change',()=>{state.shown=10;render();});
+  $('filterAge').addEventListener('change',()=>{state.shown=10;render();});
+  $('refreshSearch').addEventListener('click',load);
+  $('clearFilters').addEventListener('click',()=>{$('keyword').value='';$('location').value='Toute la France';$('remote').checked=false;$('filterContract').value='Tous';$('filterSource').value='Toutes';$('filterAge').value='all';$('sortOrder').value='recent';$('savedSearches').value='';state.savedOnly=false;load();});
+  $('saveSearch').addEventListener('click',()=>{
+    const criteria=currentCriteria(),fingerprint=JSON.stringify(criteria);
+    const existing=savedSearches.find(x=>JSON.stringify(currentOf(x))===fingerprint);
+    if(existing){
+      $('savedSearches').value=existing.id;
+      setSearchStatus('Ces critères sont déjà enregistrés.');
+      return;
+    }
+    const stamp=String(Date.now());
+    const label=((criteria.keyword||'Toutes les offres')+' · '+criteria.location).slice(0,75);
+    const entry={id:stamp,label,...criteria};
+    savedSearches=[entry,...savedSearches.filter(x=>x.id!==stamp)].slice(0,10);
+    persistSearches();
+    $('savedSearches').value=stamp;
+    setSearchStatus('Recherche enregistrée uniquement sur cet appareil.');
+  });
+  function currentOf(entry){
+    const {keyword,location,remote,contract,source,age,sort}=entry;
+    return {keyword,location,remote,contract,source,age,sort};
+  }
+  $('savedSearches').addEventListener('change',()=>{
+    const entry=savedSearches.find(x=>x.id===$('savedSearches').value);
+    if(!entry)return;
+    $('keyword').value=entry.keyword;
+    $('location').value=entry.location;
+    $('remote').checked=entry.remote;
+    $('filterContract').value=entry.contract;
+    $('filterAge').value=entry.age;
+    $('sortOrder').value=entry.sort;
+    requestedSavedSource=entry.source;
+    setSearchStatus('Recherche restaurée.');
+    load();$('offres').scrollIntoView({behavior:'smooth'});
+  });
+  $('deleteSavedSearch').addEventListener('click',()=>{
+    const id=$('savedSearches').value;
+    if(!id){setSearchStatus('Choisissez une recherche à supprimer.');return;}
+    savedSearches=savedSearches.filter(x=>x.id!==id);
+    persistSearches();
+    setSearchStatus('Recherche supprimée de cet appareil.');
+  });
   $('sortOrder').addEventListener('change',render);
   $('allBtn').addEventListener('click',()=>{state.savedOnly=false;state.shown=10;render();});
   $('savedBtn').addEventListener('click',()=>{state.savedOnly=true;state.shown=10;render();});
@@ -122,5 +206,6 @@
   for(const id of ['sourcesLink','sourceExplain','footerSources'])$(id).addEventListener('click',openDialog);
   $('closeDialog').addEventListener('click',()=>$('sourceDialog').close());
   $('sourceDialog').addEventListener('click',e=>{if(e.target===$('sourceDialog'))$('sourceDialog').close();});
+  renderSavedSearches();
   redrawSavedCounts();load();
 })();
