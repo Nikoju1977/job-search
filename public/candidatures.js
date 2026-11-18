@@ -209,6 +209,20 @@ function renderReplies(){const target=$('replies');if(!target)return;target.repl
  controls.append(send,skip);card.append(controls);target.append(card);
  }
 }
+function rememberTrackerReply(entry,h){
+ if(!$('trackerInboxConsent')?.checked)return;
+ const key='niko_tracker_inbox_v1';
+ try{
+   const stored=JSON.parse(localStorage.getItem(key)||'[]');
+   const list=Array.isArray(stored)?stored:[];
+   if(list.some(x=>x.id===entry.id))return;
+   const when=Number(entry.date),receivedAt=Number.isFinite(when)?new Date(when).toISOString():new Date().toISOString();
+   // Métadonnées minimales, sans corps de message ni adresse de recruteur.
+   list.unshift({id:entry.id,threadId:entry.threadId,title:h.title,company:h.company,
+     jobUrl:h.url||'',kind:entry.kind,receivedAt});
+   localStorage.setItem(key,JSON.stringify(list.slice(0,200)));
+ }catch{/* Facultatif, ne perturbe pas Gmail. */}
+}
 function persistHandled(){try{localStorage.setItem(RKEY,JSON.stringify([...state.handled].slice(-500)))}catch{}}
 async function checkReplies(fromTimer=false){
  if(state.busy)return;if(!state.history.some(h=>h.status==='Envoyée'&&h.threadId)){if(!fromTimer)show('Envoyez une candidature avec Gmail pour pouvoir suivre son fil de discussion.',true);return;}
@@ -228,13 +242,8 @@ async function checkReplies(fromTimer=false){
       if(result.ok){const analysis=await result.json();if(analysis.category && typeof analysis.draft==='string'){entry.kind=analysis.category;entry.draft=analysis.draft;entry.summary=analysis.summary;}}
     }catch{/* Le tri local reste utilisable même sans IA. */}
    }
+   rememberTrackerReply(entry,h);
    state.replies.push(entry);found++;
-   if($('autoAcknowledgements')?.checked && kind===entry.kind && ['favorable','defavorable'].includes(kind) && body.length>25 && body.length<1500 && validEmail(parseAddr(from)) && !/(contrat|salaire|date de debut|confirme|proposition|signature|urgent|avant le)/i.test(body)){
-    // Jamais de génération IA envoyée sans relecture; automatisme limité à un texte constant.
-    try{await gmailSend(parseAddr(from),subjectReply(subject),replyText(kind,prof().fullName),null,{threadId:entry.threadId,messageId:entry.messageId});
-      state.handled.add(entry.id);persistHandled();state.replies=state.replies.filter(x=>x.id!==entry.id);history(h,'Réponse automatique envoyée');
-    }catch{/* Garder la réponse à relire si l’automatisme échoue. */}
-   }
   }
  }
  renderReplies();$('agentStatus').textContent=found?found+' nouvelle(s) réponse(s) trouvée(s).':'Aucune nouvelle réponse détectée.';
@@ -279,8 +288,8 @@ async function init(){
  $('sendBatch').onclick=sendBatch;
  $('clearHistory').onclick=()=>{if(confirm('Effacer l’historique local des candidatures ?')){state.history=[];persistHistory();renderHistory();}};
  $('checkReplies').onclick=()=>checkReplies(false);
- $('autoAcknowledgements').onchange=()=>{if($('autoAcknowledgements').checked&&!confirm('Activer les accusés de réception automatiques pour les réponses favorables ou défavorables clairement identifiées ? Ce mode fonctionne uniquement lorsque cette page reste ouverte.')){$('autoAcknowledgements').checked=false;}autoLoop();};
- $('stopAgent').onclick=()=>{$('autoAcknowledgements').checked=false;autoLoop();show('Envoi automatique désactivé.');};
+ $('autoAcknowledgements').onchange=()=>{if($('autoAcknowledgements').checked&&!confirm('Activer la vérification périodique des fils Gmail pendant que l’onglet reste ouvert ? Aucun e-mail ne sera envoyé automatiquement.')){$('autoAcknowledgements').checked=false;}autoLoop();};
+ $('stopAgent').onclick=()=>{$('autoAcknowledgements').checked=false;autoLoop();show('Vérification périodique désactivée.');};
  $('agentStatus').textContent='Prêt à examiner les réponses aux candidatures envoyées via Niko Emploi.';
 }
 init();
