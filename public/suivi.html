@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#151c37">
+  <meta name="description" content="Suivi de candidatures Niko Emploi : tableau Kanban, relances, entretiens, statistiques et journal de suivi.">
+  <title>Mes candidatures — Niko Emploi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/suivi.css">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icons/icon-192.png" type="image/png">
+  <script src="/suivi.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#pipeline">Aller au suivi de candidatures</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="wordmark" href="/" aria-label="Niko Emploi, accueil"><span class="wordmark-mark">N<span>·</span></span><span>NIKO<strong>EMPLOI</strong></span></a>
+    <nav aria-label="Navigation principale"><a href="/">Rechercher des offres</a><a href="/candidatures.html">Studio candidature</a><a class="active" href="/suivi.html" aria-current="page">Mon suivi</a></nav>
+    <a class="nav-back" href="/candidatures.html">Mon Studio ↗</a>
+  </div>
+</header>
+<main>
+  <section class="hero">
+    <div class="shell hero-main">
+      <div>
+        <div class="overline"><span class="pulse"></span> CENTRE DE PILOTAGE · NIKO EMPLOI</div>
+        <h1>Mes candidatures.<br><span>Un suivi sans rien oublier.</span></h1>
+        <p>De la première candidature à l'entretien, retrouvez les bonnes informations et les prochaines étapes. Aucune réponse recruteur ni candidature envoyée n'est inventée.</p>
+        <div class="hero-actions"><button type="button" id="addApplication" class="primary">+ Nouvelle candidature</button><a class="secondary-link" href="/candidatures.html">Préparer une candidature ↗</a></div>
+      </div>
+      <aside class="trust-box"><strong>Votre candidature, votre décision.</strong><p>Relances et réponses préparées, jamais envoyées sans vous. Les données de ce navigateur restent locales tant que vous ne choisissez pas la synchronisation.</p><div id="syncStatus" role="status" aria-live="polite">Vérification du stockage…</div></aside>
+    </div>
+  </section>
+
+  <section class="shell cockpit" aria-labelledby="cockpitTitle">
+    <div class="section-head">
+      <div><span class="eyebrow">VUE D'ENSEMBLE</span><h2 id="cockpitTitle">Tableau de bord</h2></div>
+      <div class="toolbar"><button id="refreshTracker" type="button" class="quiet">Actualiser</button><a href="#settings" class="quiet-link">Réglages et sauvegarde ↓</a></div>
+    </div>
+    <div class="stat-grid" aria-live="polite">
+      <div class="stat"><span>Candidatures</span><strong id="mTotal">0</strong><small>Dossiers non archivés</small></div>
+      <div class="stat"><span>Envoyées / déclarées</span><strong id="mSent">0</strong><small>Avec suivi de leur provenance</small></div>
+      <div class="stat"><span>Réponses</span><strong id="mReplies">0</strong><small>Indiquées dans le suivi</small></div>
+      <div class="stat"><span>Entretiens</span><strong id="mInterviews">0</strong><small>Proposés ou réalisés</small></div>
+      <div class="stat highlight"><span>Relances dues</span><strong id="mDue">0</strong><small>Échéances atteintes</small></div>
+    </div>
+
+    <div class="content-head">
+      <div><span class="eyebrow">CYCLE DE RECRUTEMENT</span><h2 id="pipelineTitle">Mon pipeline</h2><p id="resultStatus" role="status" aria-live="polite">Chargement des dossiers…</p></div>
+      <div class="filters">
+        <label class="sr-only" for="filterQuery">Chercher une candidature</label>
+        <input id="filterQuery" type="search" placeholder="Poste, employeur, ville…" maxlength="120">
+        <label class="sr-only" for="filterStage">Filtrer par état</label>
+        <select id="filterStage"><option value="all">Tous les statuts</option><option value="active">En cours</option><option value="due">Relances dues</option><option value="archived">Archivées</option></select>
+      </div>
+    </div>
+    <div id="trackerError" class="notice error" role="alert" hidden></div>
+    <div class="board-scroller" id="pipeline" role="region" aria-label="Tableau Kanban des candidatures" tabindex="0">
+      <div class="board" id="board" aria-live="polite"></div>
+    </div>
+    <p class="microcopy">Les cartes peuvent être déplacées à la souris ; sur mobile ou au clavier, sélectionnez une carte pour changer son statut. Le déplacement ne contacte aucun recruteur.</p>
+
+    <div class="lower-grid">
+      <section class="panel" aria-labelledby="dueTitle">
+        <div class="panel-title"><div><span class="eyebrow">PROCHAINES ÉTAPES</span><h3 id="dueTitle">Agenda &amp; relances</h3></div><span class="small-icon">◷</span></div>
+        <div id="dueList" class="due-list"><p class="muted">Aucune relance enregistrée.</p></div>
+      </section>
+      <section class="panel" aria-labelledby="analyticsTitle">
+        <div class="panel-title"><div><span class="eyebrow">ANALYSE PERSONNELLE</span><h3 id="analyticsTitle">Statistiques réelles</h3></div><span class="small-icon">◫</span></div>
+        <div class="analytics">
+          <div><span>Taux de réponse observé</span><strong id="rateReply">—</strong><div class="progress"><div id="rateFill"></div></div><small>Calcul sur vos candidatures déclarées, non sur tout le marché.</small></div>
+          <div><span>En cours</span><strong id="mActive">0</strong><small>Candidatures suivies et non closes</small></div>
+          <div><span>Prochain entretien</span><strong id="nextInterview">Aucun</strong><small>Uniquement les rendez-vous que vous avez enregistrés</small></div>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <section class="shell settings-section" id="settings" aria-labelledby="settingsTitle">
+    <div class="section-head"><div><span class="eyebrow">CONFIDENTIALITÉ ET AUTONOMIE</span><h2 id="settingsTitle">Mes données, mes choix</h2></div></div>
+    <div class="settings-grid">
+      <div class="settings-box">
+        <h3>Sauvegarde et migration</h3>
+        <p>Le suivi peut fonctionner localement sans connexion. Les données locales ne sont pas chiffrées : évitez de saisir des informations sensibles sur un appareil partagé.</p>
+        <div class="settings-actions">
+          <button id="importHistory" type="button" class="quiet">Importer mon ancien historique</button>
+          <button id="syncLocal" type="button" class="quiet">Synchroniser mes dossiers locaux</button>
+          <button id="exportCsv" type="button" class="quiet">Exporter CSV</button>
+          <button id="exportJson" type="button" class="quiet">Sauvegarder JSON</button>
+        </div>
+        <p id="migrationStatus" role="status" class="microcopy">Aucune synchronisation automatique non autorisée.</p>
+      </div>
+      <div class="settings-box">
+        <h3>Alertes et rappels</h3>
+        <p>Les rappels apparaissent dans le tableau. Les e-mails quotidiens ne sont possibles que sur un compte configuré avec votre accord.</p>
+        <label class="toggle-setting"><input type="checkbox" id="emailReminders"> Recevoir un récapitulatif des relances dues par e-mail</label>
+        <button id="saveReminderSettings" type="button" class="quiet">Enregistrer mon choix</button>
+        <p id="reminderStatus" role="status" class="microcopy">Désactivé par défaut.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<dialog id="applicationDialog" class="dialog" aria-labelledby="dialogTitle">
+  <form id="caseForm" class="case-form">
+    <div class="dialog-head"><div><span class="eyebrow">DOSSIER INDIVIDUEL</span><h2 id="dialogTitle">Nouvelle candidature</h2></div><button type="button" id="closeDialog" aria-label="Fermer" class="close">✕</button></div>
+    <div class="dialog-body">
+      <p class="data-hint" id="dialogEvidence">Les statuts choisis manuellement reflètent votre déclaration, pas une confirmation du recruteur.</p>
+      <div class="form-row">
+        <label>Intitulé du poste <span aria-hidden="true">*</span><input id="caseTitle" name="title" required maxlength="180" placeholder="Ex. Agent administratif"></label>
+        <label>Entreprise <span aria-hidden="true">*</span><input id="caseCompany" name="company" required maxlength="150" placeholder="Nom de l'employeur"></label>
+      </div>
+      <div class="form-row">
+        <label>Lieu<input id="caseLocation" name="location" maxlength="150" placeholder="Ex. Châteaubriant"></label>
+        <label>Canal de candidature<select id="caseChannel"><option value="unspecified">Non renseigné</option><option value="portal">Site emploi</option><option value="email">E-mail</option><option value="direct">Site de l'entreprise</option><option value="phone">Téléphone</option><option value="other">Autre</option></select></label>
+      </div>
+      <label>Lien de l'annonce (facultatif)<input id="caseUrl" name="url" type="url" maxlength="1600" placeholder="https://…"></label>
+      <div class="form-row">
+        <label>Étape<select id="caseStatus"><option value="draft">À préparer</option><option value="sent">Envoyée (déclarée)</option><option value="reply">Réponse reçue</option><option value="interview">Entretien</option><option value="offer">Proposition</option><option value="hired">Embauche</option><option value="rejected">Non retenue</option><option value="withdrawn">Retirée</option></select></label>
+        <label>Prochaine action / relance<input id="caseNextAction" type="datetime-local"></label>
+      </div>
+      <div class="form-row">
+        <label>Contact recruteur<input id="caseRecruiter" maxlength="120" placeholder="Nom, service RH…"></label>
+        <label>Adresse recruteur<input id="caseEmail" type="email" maxlength="254" placeholder="recrutement@entreprise.fr"></label>
+      </div>
+      <div class="form-row">
+        <label>Date de l'entretien<input id="caseInterview" type="datetime-local"></label>
+        <label>Format<select id="caseInterviewFormat"><option value="">Non précisé</option><option value="presentiel">Présentiel</option><option value="telephone">Téléphone</option><option value="visio">Visio</option><option value="autre">Autre</option></select></label>
+      </div>
+      <div class="form-row">
+        <label>Lieu / lien d'entretien<input id="caseInterviewPlace" maxlength="180" placeholder="Adresse ou lien communiqué"></label>
+        <label>Version du CV utilisée<input id="caseCvVersion" maxlength="100" placeholder="Ex. CV agent-entretien v2"></label>
+      </div>
+      <label>Notes personnelles (max. 4 000 caractères)<textarea id="caseNotes" rows="4" maxlength="4000" placeholder="Compte rendu, actions à prévoir, questions…"></textarea></label>
+      <label class="check-line"><input id="caseArchived" type="checkbox"> Archiver ce dossier (sans le supprimer)</label>
+      <div id="caseTimelineSection" class="timeline-section" hidden><h3>Historique de ce dossier</h3><div id="caseTimeline" class="timeline"></div></div>
+      <div class="draft-section" id="draftSection" hidden>
+        <h3>Préparer une relance, sans envoi automatique</h3>
+        <textarea id="followupDraft" rows="5" aria-label="Texte de relance proposé et modifiable"></textarea>
+        <div class="dialog-tools"><button id="copyDraft" type="button" class="quiet">Copier la relance</button><button id="openMail" type="button" class="quiet">Ouvrir ma messagerie</button><button id="scheduleWeek" type="button" class="quiet">Suggérer une relance à J+7</button><button id="calendarCase" type="button" class="quiet">Exporter l'entretien (.ics)</button></div>
+      </div>
+    </div>
+    <div class="dialog-foot"><button id="deleteCase" type="button" class="danger" hidden>Supprimer le dossier</button><span id="saveCaseStatus" role="status" aria-live="polite"></span><button id="cancelCase" type="button" class="quiet">Annuler</button><button id="saveCase" type="submit" class="primary">Enregistrer</button></div>
+  </form>
+</dialog>
+<footer class="footer"><div class="shell"><strong>NIKO EMPLOI</strong> · Des candidatures authentiques, un suivi transparent. <a href="/confidentialite.html">Confidentialité</a> · <a href="/">Rechercher un emploi</a></div></footer>
+</body>
+</html>
