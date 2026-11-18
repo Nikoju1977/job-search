@@ -44,3 +44,5 @@
  .job-card:hover{transform:none}
 }
 @media(prefers-reduced-motion:reduce){.job-card,.niko-portals-grid>a{transition:none}.job-card:hover,.niko-portals-grid>a:hover{transform:none}}
+
+.job-badge.relevance{display:inline-flex;background:#f0ebff;color:#4c4087;border:1px solid #ded4fb;border-radius:6px;font-size:11px;font-weight:750;padding:4px 8px}
