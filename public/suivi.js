@@ -114,6 +114,12 @@ function renderMetrics(){
  $('mDue').textContent=m.due;$('mActive').textContent=m.active;
  $('rateReply').textContent=m.rate===null?'—':m.rate+' %';
  $('rateFill').style.width=(m.rate||0)+'%';
+ const interviewRate=m.sent?Math.round(100*m.interviews/m.sent):null;
+ $('rateInterviews').textContent=interviewRate===null?'—':interviewRate+' %';
+ const lags=state.items.filter(x=>!x.archived&&dateOf(x.sentAt)&&dateOf(x.firstReplyAt)&&dateOf(x.firstReplyAt)>=dateOf(x.sentAt))
+  .map(x=>(dateOf(x.firstReplyAt)-dateOf(x.sentAt))/86400000).sort((a,b)=>a-b);
+ const median=lags.length?(lags[Math.floor((lags.length-1)/2)]+lags[Math.floor(lags.length/2)])/2:null;
+ $('medianReply').textContent=median===null?'—':median.toLocaleString('fr-FR',{maximumFractionDigits:1})+' j';
  const future=state.items.filter(x=>!x.archived&&x.interviewAt&&dateOf(x.interviewAt)>=Date.now())
   .sort((a,b)=>dateOf(a.interviewAt)-dateOf(b.interviewAt));
  $('nextInterview').textContent=future.length?fmt(future[0].interviewAt):'Aucun';
@@ -366,8 +372,9 @@ function calendarCase(){
  statusMessage('Fichier calendrier téléchargé. Aucune invitation envoyée.');
 }
 function scheduleWeek(){
- const date=new Date(Date.now()+7*86400000);
- $('caseNextAction').value=localInput(date);statusMessage('Relance proposée dans 7 jours. Enregistrez le dossier pour confirmer.');
+ const days=Number($('reminderDays').value)||7;
+ const date=new Date(Date.now()+days*86400000);
+ $('caseNextAction').value=localInput(date);statusMessage('Relance proposée dans '+days+' jours. Enregistrez le dossier pour confirmer.');
 }
 async function copyDraft(){
  const content=$('followupDraft').value;
