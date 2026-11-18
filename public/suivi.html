@@ -85,6 +85,12 @@
         <div class="panel-title"><div><span class="eyebrow">MESSAGES RECRUTEURS</span><h3 id="inboxTitle">Réponses détectées dans le Studio</h3></div><a href="/candidatures.html#agent" class="quiet-link">Ouvrir la veille Gmail ↗</a></div>
         <p class="microcopy">Uniquement si vous avez autorisé le partage local des métadonnées depuis le Studio. Le type de réponse reste à confirmer, aucun statut n'est changé automatiquement.</p>
         <div id="replyInbox" class="due-list" aria-live="polite"><p class="muted">Aucune réponse détectée.</p></div>
+        <div class="inbox-import">
+          <label for="importEml">Importer manuellement un message Gmail / Outlook (.eml)</label>
+          <input id="importEml" type="file" accept=".eml,message/rfc822" aria-describedby="emlPrivacy">
+          <small id="emlPrivacy">Le fichier est lu localement. Seules les métadonnées utiles sont conservées sur cet appareil, jamais le contenu ni les pièces jointes.</small>
+          <p id="emlStatus" role="status" class="microcopy"></p>
+        </div>
       </section>
     </div>
   </section>
