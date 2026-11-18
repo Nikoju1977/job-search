@@ -457,7 +457,10 @@ async function syncLocal(){
     to:item.to||'',recruiterName:item.recruiterName||'',notes:item.notes||'',
     nextActionAt:item.nextActionAt||null,interviewAt:item.interviewAt||null,
     interviewFormat:item.interviewFormat||'',interviewPlace:item.interviewPlace||'',
-    cvVersion:item.cvVersion||'',archived:item.archived
+    cvVersion:item.cvVersion||'',archived:item.archived,
+    history:state.localEvents.filter(ev=>ev.applicationId===item.id).slice(-20).map(ev=>({
+      kind:ev.kind,oldStatus:ev.oldStatus||null,status:ev.status||null,date:ev.date,note:ev.note||''
+    }))
    })});
    state.local=state.local.filter(x=>x.id!==item.id);state.localEvents=state.localEvents.filter(x=>x.applicationId!==item.id);
    copied++;
