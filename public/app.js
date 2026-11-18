@@ -43,7 +43,7 @@
     const all=getVisible(), display=all.slice(0,state.shown);
     $('searchSummary').textContent=state.loading?'Consultation des sources en cours…':`${number(all.length)} offre${all.length===1?'':'s'} après filtres · ${number(state.jobs.length)} récupérée${state.jobs.length===1?'':'s'}`;
     $('refreshSearch').disabled=state.loading;
-    $('jobList').setAttribute('aria-busy',String(state.loading));
+    $('jobList').setAttribute?.('aria-busy',String(state.loading));
     $('resultNumber').textContent = state.loading ? '—' : number(all.length);
     const target=$('jobList');
     if(state.loading){target.innerHTML='<div class="loading-state"><span class="loader"></span><h3>Nous interrogeons les plateformes…</h3><p>Seules les annonces réellement reçues seront affichées.</p></div>'; $('listFooter').hidden=true;return;}
@@ -94,7 +94,7 @@
       state.apiResponse=data;
       const sourceFilter=$('filterSource'),selectedSource=sourceFilter.value;
       const availableSources=[...new Set(state.jobs.map(j=>j.source))].sort((a,b)=>a.localeCompare(b,'fr'));
-      sourceFilter.replaceChildren(new Option('Toutes les sources','Toutes'),...availableSources.map(n=>new Option(n,n)));
+      sourceFilter.innerHTML='<option value="Toutes">Toutes les sources</option>'+availableSources.map(n=>`<option value="${escape(n)}">${escape(n)}</option>`).join('');
       sourceFilter.value=availableSources.includes(selectedSource)?selectedSource:'Toutes';
       const activeSources=Object.keys(data.sources||{});
       const working=activeSources.filter(n=>data.sources[n]?.ok);
