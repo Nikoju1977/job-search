@@ -2,7 +2,7 @@
 (() => {
 'use strict';
 const $=id=>document.getElementById(id);
-const KEY='niko_tracker_local_v6',HISTORY_KEY='niko_history_v2';
+const KEY='niko_tracker_local_v6',HISTORY_KEY='niko_history_v2',INBOX_KEY='niko_tracker_inbox_v1';
 const STAGES=[
  {id:'draft',label:'À préparer',statuses:['draft']},
  {id:'sent',label:'Envoyées',statuses:['sent']},
@@ -13,7 +13,7 @@ const STAGES=[
 ];
 const LABELS={draft:'À préparer',sent:'Envoyée',reply:'Réponse reçue',interview:'Entretien',offer:'Proposition',hired:'Embauche',rejected:'Non retenue',withdrawn:'Retirée',failed:'Échec technique'};
 const ACTIVE=new Set(['draft','sent','reply','interview','offer']);
-const state={local:[],localEvents:[],cloud:[],cloudEvents:[],items:[],events:[],cloudReady:false,selected:null,busy:false,settings:{emailReminders:false}};
+const state={local:[],localEvents:[],cloud:[],cloudEvents:[],items:[],events:[],cloudReady:false,selected:null,busy:false,inbox:[],settings:{emailReminders:false}};
 const norm=x=>String(x||'').toLocaleLowerCase('fr').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();
 const dateOf=x=>{const t=Date.parse(x||'');return Number.isFinite(t)?t:0;};
 const safeURL=x=>{try{const u=new URL(x);return /^https?:$/.test(u.protocol)&&!u.username&&!u.password?u.toString():null}catch{return null}};
@@ -37,6 +37,17 @@ function readLocal(){
   state.local=data.records.slice(0,300).filter(x=>x&&typeof x.id==='string'&&typeof x.title==='string'&&typeof x.company==='string');
   state.localEvents=Array.isArray(data.events)?data.events.slice(-1500):[];
  }}catch{notice('Les dossiers locaux enregistrés sont illisibles. Ils n’ont pas été écrasés.',true);}
+}
+function readInbox(){
+ try{const rows=JSON.parse(localStorage.getItem(INBOX_KEY)||'[]');
+   state.inbox=Array.isArray(rows)?rows.filter(x=>x&&typeof x.id==='string'&&typeof x.title==='string'&&typeof x.company==='string').slice(0,200):[];
+ }catch{state.inbox=[];}
+}
+function removeInbox(id){
+ state.inbox=state.inbox.filter(x=>x.id!==id);
+ try{localStorage.setItem(INBOX_KEY,JSON.stringify(state.inbox));}
+ catch{notice('Impossible de supprimer les métadonnées des réponses.',true);}
+ renderInbox();
 }
 function persistLocal(){
  try{localStorage.setItem(KEY,JSON.stringify({version:6,records:state.local.slice(0,300),events:state.localEvents.slice(-1500)}));return true}
@@ -179,7 +190,34 @@ function renderDue(){
   left.append(name,sub);b.append(left,when);b.addEventListener('click',()=>openCase(item));target.append(b);
  }
 }
-function render(){unify();renderMetrics();renderBoard();renderDue();}
+function renderInbox(){
+ const target=$('replyInbox');if(!target)return;target.replaceChildren();
+ if(!state.inbox.length){
+  target.append(elt('p','muted','Aucune réponse transférée depuis le Studio. Le suivi Gmail est facultatif.'));
+  return;
+ }
+ const labels={entretien:'Entretien possible',favorable:'Réponse potentiellement favorable',
+  defavorable:'Réponse potentiellement défavorable',incertain:'À examiner',a_verifier:'À examiner'};
+ for(const message of [...state.inbox].sort((a,b)=>dateOf(b.receivedAt)-dateOf(a.receivedAt)).slice(0,30)){
+  const item=state.items.find(x=>message.threadId&&x.gmailThreadId===message.threadId)||
+   state.items.find(x=>message.jobUrl&&x.url===message.jobUrl)||
+   state.items.find(x=>norm(x.title)===norm(message.title)&&norm(x.company)===norm(message.company));
+  const row=elt('div','inbox-row');
+  const text=elt('div'),buttons=elt('div','inbox-actions');
+  text.append(elt('strong','',message.title+' · '+message.company),
+   elt('small','',(labels[message.kind]||'Réponse à vérifier')+' · '+datetime(message.receivedAt)));
+  const examine=elt('button','quiet',item?'Ouvrir la fiche':'Créer une fiche');examine.type='button';
+  examine.addEventListener('click',()=>{
+   openCase(item||null);
+   if(!item){$('caseTitle').value=message.title;$('caseCompany').value=message.company;$('caseUrl').value=safeURL(message.jobUrl)||'';}
+   statusMessage('Réponse Gmail détectée : vérifiez le message original avant de confirmer son statut.');
+  });
+  const dismiss=elt('button','quiet','Retirer du tableau');dismiss.type='button';
+  dismiss.addEventListener('click',()=>removeInbox(message.id));
+  buttons.append(examine,dismiss);row.append(text,buttons);target.append(row);
+ }
+}
+function render(){unify();renderMetrics();renderBoard();renderDue();renderInbox();}
 
 function statusMessage(message){$('saveCaseStatus').textContent=message;}
 function openCase(item=null){
@@ -435,8 +473,8 @@ function bind(){
  $('exportCsv').addEventListener('click',()=>exportData('csv'));
  $('exportJson').addEventListener('click',()=>exportData('json'));
  $('saveReminderSettings').addEventListener('click',saveReminderSettings);
- window.addEventListener('storage',event=>{if([KEY,HISTORY_KEY].includes(event.key)){readLocal();render();}});
+ window.addEventListener('storage',event=>{if([KEY,HISTORY_KEY,INBOX_KEY].includes(event.key)){readLocal();readInbox();render();}});
 }
-function init(){bind();readLocal();render();refresh(true);}
+function init(){bind();readLocal();readInbox();render();refresh(true);}
 document.addEventListener('DOMContentLoaded',init);
 })();
