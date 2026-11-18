@@ -62,7 +62,7 @@ async function patch(user,payload,res){
   'job_url=$16,title=$17,company=$18,location=$19,source=$20,',
   'archived_at=case when $14 then coalesce(a.archived_at,now()) else null end,',
   "submission_proof=case when a.submission_proof='gmail_verified' then 'gmail_verified'",
-  "when $4='draft' then 'not_sent' when a.submission_proof='legacy' then 'self_reported' else a.submission_proof end,",
+  "when $4='draft' then 'not_sent' when $4<>'draft' and a.submission_proof in ('not_sent','legacy') then 'self_reported' else a.submission_proof end,",
   "first_reply_at=case when a.first_reply_at is null and $4 in ('reply','interview','offer','hired')",
   'then now() else a.first_reply_at end,',
   "sent_at=case when a.sent_at is null and $4='sent' then now() else a.sent_at end,",
