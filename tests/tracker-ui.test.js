@@ -85,3 +85,17 @@ test('Gmail inbox metadata never modifies a job status without the user saving a
  assert.equal(current.records[0].status,'draft');
  assert.match(source,/Réponse Gmail détectée : vérifiez le message original/);
 });
+
+test('Outlook/Gmail EML metadata import does not save message body or change application status',async()=>{
+ const h=harness();await tick();
+ const input=h.get('importEml');
+ await input.listeners.change({target:{files:[{name:'recruteur.eml',size:320,
+  text:async()=> 'From: RH <rh@example.org>\r\nSubject: Entretien - Agent entretien\r\nDate: Wed, 18 Nov 2026 12:00:00 +0100\r\nMessage-ID: <abc@example.org>\r\n\r\nContenu privé à ne pas conserver'}],value:''}});
+ const inbox=JSON.parse(h.storage.get('niko_tracker_inbox_v1'));
+ assert.equal(inbox.length,1);
+ assert.equal(inbox[0].kind,'a_verifier');
+ assert.equal(inbox[0].company,'Message à associer');
+ assert.equal(inbox[0].receivedAt,'2026-11-18T11:00:00.000Z');
+ assert.doesNotMatch(JSON.stringify(inbox),/Contenu privé|rh@example\.org/);
+ assert.equal(h.get('mTotal').textContent,0);
+});
