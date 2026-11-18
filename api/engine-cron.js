@@ -3,6 +3,7 @@ const {timingSafeEqual}=require('node:crypto');
 const {getJobs}=require('../lib/jobs');
 const {ApiError,sendError}=require('../lib/platform');
 const {scanCandidates}=require('../lib/niko-runner');
+const {runTrackerReminders}=require('../lib/tracker-reminders');
 function authorized(req){
  const token=process.env.CRON_SECRET;
  if(typeof token!=='string'||token.length<16)return false;
@@ -36,9 +37,15 @@ module.exports=async function handler(req,res){
   if(!authorized(req))throw new ApiError(401,'Invocation non autorisée.');
   const {neon}=require('@neondatabase/serverless');
   const sql=neon(process.env.DATABASE_URL);
-  const catalog=await scanPublicCatalog(sql);
-  const agents=await scanCandidates({maxUsers:4});
-  return res.status(200).json({status:'completed',performed:true,catalog,agents,notes:'Recommandations autonomes uniquement. Aucune candidature ni réponse envoyée automatiquement.'});
+  const results=await Promise.allSettled([
+    scanPublicCatalog(sql),scanCandidates({maxUsers:4}),runTrackerReminders({maxUsers:4})
+  ]);
+  const pick=(r)=>r.status==='fulfilled'?r.value:{status:'error',reason:'Source indisponible'};
+  const [catalog,agents,trackerReminders]=results.map(pick);
+  const partial=results.some(r=>r.status!=='fulfilled');
+  return res.status(partial?207:200).json({status:partial?'partial':'completed',performed:true,
+    catalog,agents,trackerReminders,
+    notes:'Les rappels sont envoyés uniquement aux candidats ayant donné leur accord. Aucun message aux recruteurs.'});
  }catch(e){return sendError(res,e);}
 };
 module.exports.scanPublicCatalog=scanPublicCatalog;
