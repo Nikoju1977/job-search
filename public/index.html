@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/styles.css" />
   <link rel="stylesheet" href="/premium-2026.css" />
+  <link rel="stylesheet" href="/niko-emploi-search.css" />
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
@@ -67,6 +68,7 @@
             <span>Offres sourcées</span>
             <span>IA gratuite à la demande</span>
             <span>Envois sous votre contrôle</span>
+            <span>Filtres &amp; favoris avancés</span>
           </div>
         </div>
         <div class="search-card" id="searchPanel">
@@ -96,6 +98,8 @@
           <button class="quick-chip" data-search="Marketing">Marketing <svg class="ico"><use href="#i-arrowup"/></svg></button>
           <button class="quick-chip" data-search="Data">Data <svg class="ico"><use href="#i-arrowup"/></svg></button>
           <button class="quick-chip" data-search="Alternance">Alternance <svg class="ico"><use href="#i-arrowup"/></svg></button>
+          <button class="quick-chip" data-search="Assistant administratif">Administratif <svg class="ico"><use href="#i-arrowup"/></svg></button>
+          <button class="quick-chip" data-search="Agent entretien">Entretien <svg class="ico"><use href="#i-arrowup"/></svg></button>
         </div>
       </div>
     </section>
@@ -115,13 +119,17 @@
           <aside class="filters">
             <div class="filters-heading"><span>Affiner la recherche</span><svg class="ico"><use href="#i-filter"/></svg></div>
             <div class="filter-section"><label for="filterContract">TYPE DE CONTRAT</label><select id="filterContract"><option value="Tous">Tous les contrats</option><option value="CDI">CDI</option><option value="CDD">CDD</option><option value="Freelance">Freelance</option><option value="Full-Time">Temps plein</option></select></div>
+            <div class="filter-section"><label for="filterSource">PLATEFORME</label><select id="filterSource"><option value="Toutes">Toutes les sources</option></select></div>
+            <div class="filter-section"><label for="filterAge">DATE DE L'OFFRE</label><select id="filterAge"><option value="all">Toutes les dates</option><option value="7">7 derniers jours</option><option value="30">30 derniers jours</option></select></div>
+            <div class="filter-section"><button id="clearFilters" class="niko-clear-filters" type="button">Réinitialiser les filtres</button></div>
             <div class="filter-section"><span class="filter-label">AFFICHER</span><div class="filter-buttons"><button class="filter-btn active" id="allBtn">Toutes les offres</button><button class="filter-btn" id="savedBtn">Mes favoris <span id="favoritesInFilter">0</span></button></div></div>
             <div class="filter-section sources-side"><span class="filter-label">SOURCES CONSULTÉES</span><div class="provider-list" id="providerList"><p class="loading-label">Connexion…</p></div></div>
             <div class="filter-foot"><svg class="ico"><use href="#i-shield"/></svg><div><strong>Des données transparentes.</strong><p>Les offres sont récupérées depuis les plateformes citées, sans résultats fictifs.</p><button class="learn-link" id="sourceExplain">Comment ça marche ? <svg class="ico"><use href="#i-arrowup"/></svg></button></div></div>
           </aside>
           <div class="list-container">
             <div class="list-top"><div class="result-heading"><span id="resultNumber">—</span> <span>offres chargées</span> <span class="dedup-tag" id="dedupTag" hidden></span></div><div class="order-box"><svg class="ico"><use href="#i-clock"/></svg><label for="sortOrder">Trier</label><select id="sortOrder"><option value="recent">Plus récentes</option><option value="company">Entreprise (A-Z)</option></select></div></div>
-            <div class="notice" id="sourceNotice" hidden></div>
+            <div class="niko-search-overview" aria-live="polite"><span id="searchSummary">Recherche des annonces en cours</span><button type="button" id="refreshSearch" class="niko-refresh-btn">Actualiser la recherche</button></div>
+             <div class="notice" id="sourceNotice" role="status" hidden></div>
             <div class="job-list" id="jobList" aria-live="polite"><div class="loading-state"><span class="loader"></span><h3>Nous interrogeons les plateformes…</h3><p>Seules les annonces réellement reçues seront affichées.</p></div></div>
             <div class="list-footer" id="listFooter" hidden><span id="visibleCount"></span><button id="moreBtn">Voir plus d'offres <svg class="ico"><use href="#i-arrow"/></svg></button></div>
           </div>
@@ -129,11 +137,24 @@
       </div>
     </section>
 
+    <section class="niko-other-sources" aria-labelledby="niko-other-sources-title">
+      <div class="container">
+        <div class="niko-portals-head"><span class="section-kicker">ÉLARGIR LES RECHERCHES</span><h2 id="niko-other-sources-title">D'autres sites d'emploi, en accès direct.</h2><p>Les annonces de ces sites ne sont pas comptabilisées dans les résultats ci-dessus.</p></div>
+        <div class="niko-portals-grid">
+          <a href="https://candidat.francetravail.fr/offres/recherche" target="_blank" rel="noopener noreferrer"><strong>France Travail</strong><span>Emplois locaux et nationaux · site officiel ↗</span></a>
+          <a href="https://www.hellowork.com/fr-fr/" target="_blank" rel="noopener noreferrer"><strong>HelloWork</strong><span>Entreprises et métiers de proximité ↗</span></a>
+          <a href="https://www.apec.fr/candidat/recherche-emploi.html/emploi" target="_blank" rel="noopener noreferrer"><strong>Apec</strong><span>Emplois cadres ↗</span></a>
+          <a href="https://labonnealternance.apprentissage.beta.gouv.fr/" target="_blank" rel="noopener noreferrer"><strong>La bonne alternance</strong><span>Alternance et apprentissage ↗</span></a>
+          <a href="https://www.welcometothejungle.com/fr/jobs" target="_blank" rel="noopener noreferrer"><strong>Welcome to the Jungle</strong><span>Entreprises et métiers ↗</span></a>
+          <a href="https://www.agefiph.fr/" target="_blank" rel="noopener noreferrer"><strong>Agefiph</strong><span>Accompagnement emploi et handicap ↗</span></a>
+        </div>
+      </div>
+    </section>
     <section class="method-section" id="comment"><div class="container method-layout"><div class="method-copy"><div class="section-kicker">LA DIFFÉRENCE NIKO EMPLOI</div><h2>Moins de bruit.<br/><span>Plus d'opportunités.</span></h2><p>Un moteur transparent qui privilégie la qualité des annonces à des compteurs spectaculaires.</p></div><div class="method-grid"><div class="method-card"><div class="method-icon"><svg class="ico"><use href="#i-globe"/></svg></div><strong>Plusieurs sources</strong><p>Des offres publiques agrégées dans une interface unique.</p></div><div class="method-card"><div class="method-icon"><svg class="ico"><use href="#i-check"/></svg></div><strong>Anti-doublons</strong><p>Comparaison des liens, employeurs, intitulés et lieux.</p></div><div class="method-card"><div class="method-icon"><svg class="ico"><use href="#i-bolt"/></svg></div><strong>Recherche directe</strong><p>Postulez depuis le site d'origine, sans intermédiaire fictif.</p></div><div class="method-card"><div class="method-icon"><svg class="ico"><use href="#i-refresh"/></svg></div><strong>Fraîcheur visible</strong><p>Dernière récupération affichée et échecs de sources signalés.</p></div></div></div></section>
   </main>
   <footer class="footer"><div class="container footer-row"><div><a class="brand footer-brand" href="#"><span class="brand-symbol"><span></span><span></span><span></span></span><span>NIKO<span class="brand-light">EMPLOI</span><small>.</small></span></a><p>Votre futur commence par une vraie opportunité.</p></div><div class="footer-links"><button id="footerSources">Sources & transparence</button><a href="/confidentialite.html">Confidentialité</a><a href="https://www.francetravail.fr" target="_blank" rel="noopener noreferrer">France Travail ↗</a><a href="https://api.easyjobs.fr/public/docs/" target="_blank" rel="noopener noreferrer">Documentation EasyJobs ↗</a></div><span class="copyright">© 2026 Niko Emploi · Projet indépendant</span></div></footer>
 </div>
-<dialog class="source-dialog" id="sourceDialog" aria-labelledby="dialogTitle"><div class="dialog-top"><div class="section-kicker">TRANSPARENCE</div><button id="closeDialog" aria-label="Fermer"><svg class="ico"><use href="#i-x"/></svg></button></div><h2 id="dialogTitle">D'où viennent les offres ?</h2><p>Niko Emploi ne fabrique aucune annonce. Les annonces affichées sont fournies par des API externes : EasyJobs (France), Jobicy (télétravail européen), Arbeitnow et Himalayas (offres de télétravail ouvertes depuis la France). Les annonces Adzuna France et les offres directes Greenhouse peuvent également apparaître lorsque leurs intégrations sont configurées.</p><p><a href="https://himalayas.app" target="_blank" rel="noopener noreferrer">Himalayas ↗</a> est crédité comme source ; le lien de candidature fourni par son API est conservé. Les annonces expirées sont ignorées. Le service est rafraîchi quotidiennement et peut limiter les requêtes.</p><p>Chaque fiche conserve son lien et le nom de sa source. Les liens identiques ou les annonces ayant le même employeur, le même intitulé et la même localisation sont dédoublonnés. Des annonces presque identiques peuvent encore exister : aucun algorithme ne garantit un taux parfait.</p><p>Le nombre affiché correspond strictement aux résultats reçus dans les pages interrogées et filtrés, pas au nombre total de postes en France. L'existence d'une annonce chez un agrégateur ne garantit pas qu'elle soit encore ouverte sur le site de recrutement.</p><p><strong>France Travail :</strong> son API officielle est actuellement soumise à une demande d'accès. Nous ne la contournons pas et nous n'affichons pas ses offres sous un faux partenariat.</p><p>Les favoris et le profil du studio candidature sont conservés localement selon vos choix. La génération IA exige votre consentement et les envois Gmail requièrent une autorisation OAuth explicite.</p><div class="dialog-links"><a href="https://api.easyjobs.fr/public/docs/" target="_blank" rel="noopener noreferrer">EasyJobs ↗</a><a href="https://jobicy.com/jobs-rss-feed" target="_blank" rel="noopener noreferrer">Jobicy ↗</a><a href="https://www.arbeitnow.com/terms" target="_blank" rel="noopener noreferrer">Arbeitnow ↗</a></div></dialog>
+<dialog class="source-dialog" id="sourceDialog" aria-labelledby="dialogTitle"><div class="dialog-top"><div class="section-kicker">TRANSPARENCE</div><button id="closeDialog" aria-label="Fermer"><svg class="ico"><use href="#i-x"/></svg></button></div><h2 id="dialogTitle">D'où viennent les offres ?</h2><p>Niko Emploi ne fabrique aucune annonce. Les annonces affichées sont fournies par des API externes : EasyJobs (France), Jobicy (télétravail européen), Arbeitnow et Himalayas (offres de télétravail ouvertes depuis la France). Remotive est aussi interrogé pour le télétravail. Adzuna France, Greenhouse, Jooble France et Lever sont consultés uniquement lorsque leurs intégrations sont configurées côté serveur.</p><p><a href="https://himalayas.app" target="_blank" rel="noopener noreferrer">Himalayas ↗</a> est crédité comme source ; le lien de candidature fourni par son API est conservé. Les annonces expirées sont ignorées. Les délais de rafraîchissement dépendent des fournisseurs ; les annonces Remotive sont retardées d’au moins 24 heures par son API.</p><p>Chaque fiche conserve son lien et le nom de sa source. Les liens identiques ou les annonces ayant le même employeur, le même intitulé et la même localisation sont dédoublonnés. Des annonces presque identiques peuvent encore exister : aucun algorithme ne garantit un taux parfait.</p><p>Le nombre affiché correspond strictement aux résultats reçus dans les pages interrogées et filtrés, pas au nombre total de postes en France. L'existence d'une annonce chez un agrégateur ne garantit pas qu'elle soit encore ouverte sur le site de recrutement.</p><p><strong>France Travail :</strong> son API officielle est actuellement soumise à une demande d'accès. Nous ne la contournons pas et nous n'affichons pas ses offres sous un faux partenariat.</p><p>Les favoris et le profil du studio candidature sont conservés localement selon vos choix. La génération IA exige votre consentement et les envois Gmail requièrent une autorisation OAuth explicite.</p><div class="dialog-links"><a href="https://api.easyjobs.fr/public/docs/" target="_blank" rel="noopener noreferrer">EasyJobs ↗</a><a href="https://jobicy.com/jobs-rss-feed" target="_blank" rel="noopener noreferrer">Jobicy ↗</a><a href="https://www.arbeitnow.com/terms" target="_blank" rel="noopener noreferrer">Arbeitnow ↗</a></div></dialog>
 <script src="/app.js" defer></script>
 <nav class="mobile-dock" aria-label="Navigation rapide mobile">
   <a href="#offres" aria-current="page"><span class="dock-ico" aria-hidden="true">⌕</span>Offres</a>
