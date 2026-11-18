@@ -196,6 +196,40 @@ function renderDue(){
   left.append(name,sub);b.append(left,when);b.addEventListener('click',()=>openCase(item));target.append(b);
  }
 }
+async function importEml(event){
+ const file=event.target.files&&event.target.files[0];
+ if(!file)return;
+ const output=$('emlStatus');
+ if(!/\.eml$/i.test(file.name)||file.size>2*1024*1024){
+  output.textContent='Choisissez un fichier .eml de 2 Mo maximum.';event.target.value='';return;
+ }
+ try{
+  const source=await file.text();
+  const head=source.split(/\r?\n\r?\n/,1)[0].slice(0,32000),headers={};let current='';
+  for(const line of head.split(/\r?\n/)){
+   if(/^\s/.test(line)&&current){headers[current]+=' '+line.trim();continue;}
+   const pivot=line.indexOf(':');
+   if(pivot<=0)continue;
+   current=line.slice(0,pivot).toLowerCase().trim();
+   if(['subject','date','message-id'].includes(current))headers[current]=line.slice(pivot+1).trim();
+  }
+  const subject=String(headers.subject||'Message importé').slice(0,180);
+  const related=state.items.find(item=>{
+   const title=norm(item.title),company=norm(item.company),message=norm(subject);
+   return title.length>=5&&message.includes(title)||company.length>=6&&message.includes(company);
+  });
+  const uidValue='eml-'+uid();
+  const when=headers.date&&dateOf(headers.date)?new Date(headers.date).toISOString():null;
+  state.inbox.unshift({id:uidValue,threadId:'',title:related?.title||subject,
+   company:related?.company||'Message à associer',jobUrl:related?.url||'',
+   kind:'a_verifier',receivedAt:when,imported:true});
+  try{localStorage.setItem(INBOX_KEY,JSON.stringify(state.inbox.slice(0,200)));}
+  catch{throw Error('Stockage local indisponible');}
+  renderInbox();
+  output.textContent='Message importé localement, sans transmettre son contenu. Vérifiez l’e-mail original avant toute mise à jour.';
+ }catch(error){output.textContent='Import impossible : '+error.message;}
+ finally{event.target.value='';}
+}
 function renderInbox(){
  const target=$('replyInbox');if(!target)return;target.replaceChildren();
  if(!state.inbox.length){
@@ -215,7 +249,7 @@ function renderInbox(){
   const examine=elt('button','quiet',item?'Ouvrir la fiche':'Créer une fiche');examine.type='button';
   examine.addEventListener('click',()=>{
    openCase(item||null);
-   if(!item){$('caseTitle').value=message.title;$('caseCompany').value=message.company;$('caseUrl').value=safeURL(message.jobUrl)||'';}
+   if(!item){$('caseTitle').value=message.title;$('caseCompany').value=message.company==='Message à associer'?'':message.company;$('caseUrl').value=safeURL(message.jobUrl)||'';}
    statusMessage('Réponse Gmail détectée : vérifiez le message original avant de confirmer son statut.');
   });
   const dismiss=elt('button','quiet','Retirer du tableau');dismiss.type='button';
@@ -497,6 +531,7 @@ function bind(){
  $('clearLocal').addEventListener('click',clearLocal);
  $('clearInbox').addEventListener('click',clearInbox);
  $('saveReminderSettings').addEventListener('click',saveReminderSettings);
+ $('importEml').addEventListener('change',importEml);
  window.addEventListener('storage',event=>{if([KEY,HISTORY_KEY,INBOX_KEY].includes(event.key)){readLocal();readInbox();render();}});
 }
 function init(){bind();readLocal();readInbox();render();refresh(true);}
