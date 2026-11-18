@@ -82,6 +82,13 @@
             <div class="field"><svg class="ico"><use href="#i-pin"/></svg><input id="location" name="location" type="text" placeholder="Toute la France" value="Toute la France" maxlength="120" /></div>
             <label class="remote-toggle" for="remote"><input type="checkbox" id="remote" /><span class="toggle-track"></span><span>Uniquement en télétravail</span><svg class="ico"><use href="#i-globe"/></svg></label>
             <button class="search-submit" type="submit">Rechercher des offres <svg class="ico"><use href="#i-arrow"/></svg></button>
+            <div class="niko-saved-search" aria-label="Recherches enregistrées">
+              <button id="saveSearch" type="button" class="niko-save-search-btn">Enregistrer mes critères</button>
+              <label class="niko-sr-only" for="savedSearches">Choisir une recherche sauvegardée</label>
+              <select id="savedSearches"><option value="">Mes recherches</option></select>
+              <button id="deleteSavedSearch" type="button" class="niko-delete-search-btn" aria-label="Supprimer la recherche sélectionnée">Supprimer</button>
+              <span id="searchSavedStatus" role="status" aria-live="polite"></span>
+            </div>
           </form>
           <div class="search-bottom"><svg class="ico"><use href="#i-check"/></svg><span>Gratuit · Offres vérifiables · Assistant de candidature disponible</span></div>
         </div>
