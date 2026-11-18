@@ -75,6 +75,8 @@
           <div><span>Taux de réponse observé</span><strong id="rateReply">—</strong><div class="progress"><div id="rateFill"></div></div><small>Calcul sur vos candidatures déclarées, non sur tout le marché.</small></div>
           <div><span>En cours</span><strong id="mActive">0</strong><small>Candidatures suivies et non closes</small></div>
           <div><span>Prochain entretien</span><strong id="nextInterview">Aucun</strong><small>Uniquement les rendez-vous que vous avez enregistrés</small></div>
+          <div><span>Taux d’entretien observé</span><strong id="rateInterviews">—</strong><small>Sur les candidatures déclarées envoyées</small></div>
+          <div><span>Délai médian de réponse</span><strong id="medianReply">—</strong><small>Uniquement lorsque les dates sont connues</small></div>
         </div>
       </section>
       <section class="panel inbox-panel" aria-labelledby="inboxTitle">
@@ -146,7 +148,7 @@
       <div class="draft-section" id="draftSection" hidden>
         <h3>Préparer une relance, sans envoi automatique</h3>
         <textarea id="followupDraft" rows="5" aria-label="Texte de relance proposé et modifiable"></textarea>
-        <div class="dialog-tools"><button id="copyDraft" type="button" class="quiet">Copier la relance</button><button id="openMail" type="button" class="quiet">Ouvrir ma messagerie</button><button id="scheduleWeek" type="button" class="quiet">Suggérer une relance à J+7</button><button id="calendarCase" type="button" class="quiet">Exporter l'entretien (.ics)</button></div>
+        <div class="dialog-tools"><button id="copyDraft" type="button" class="quiet">Copier la relance</button><button id="openMail" type="button" class="quiet">Ouvrir ma messagerie</button><label class="reminder-choice" for="reminderDays">Relance à <select id="reminderDays"><option value="7">7 jours</option><option value="14">14 jours</option><option value="21">21 jours</option></select></label><button id="scheduleWeek" type="button" class="quiet">Proposer la date</button><button id="calendarCase" type="button" class="quiet">Exporter l'entretien (.ics)</button></div>
       </div>
     </div>
     <div class="dialog-foot"><button id="deleteCase" type="button" class="danger" hidden>Supprimer le dossier</button><span id="saveCaseStatus" role="status" aria-live="polite"></span><button id="cancelCase" type="button" class="quiet">Annuler</button><button id="saveCase" type="submit" class="primary">Enregistrer</button></div>
