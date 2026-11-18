@@ -2,7 +2,7 @@
 const {ApiError,encrypt,sendError,secureOrigin}=require('../lib/platform');
 const {currentUser}=require('../lib/niko-auth');
 const {query}=require('../lib/niko-db');
-const {normalizeJob,cleanUpdate,validId,validVersion,mapApplication,mapEvent}=require('../lib/tracker');
+const {normalizeJob,cleanUpdate,validId,validVersion,validStatus,optionalDate,mapApplication,mapEvent}=require('../lib/tracker');
 
 function migrationError(error){
  if(['42P01','42703','23514'].includes(error?.code))
@@ -30,6 +30,13 @@ async function create(user,payload,res){
  const values=cleanUpdate({...payload,status:payload.status||'draft'});
  if(values.status==='failed')throw new ApiError(400,'Statut réservé aux erreurs techniques.');
  const notes=values.notes?encrypt(values.notes,user.id+':tracker_note'):null;
+ const imports=Array.isArray(payload.history)?payload.history.slice(0,30).map(event=>{
+  if(!event||!['created','status','edited','imported'].includes(event.kind))throw new ApiError(400,'Événement importé invalide.');
+  return {kind:event.kind,old_status:event.oldStatus?validStatus(event.oldStatus):null,
+   status:event.status?validStatus(event.status):null,
+   message_ciphertext:event.note?encrypt(String(event.note).slice(0,500),user.id+':tracker_event'):null,
+   occurred_at:optionalDate(event.date)||new Date().toISOString()};
+ }):[];
  const stmt=[
   'with inserted as (',
   'insert into public.niko_applications(user_id,job_url,title,company,location,source,status,recipient_email,recruiter_name,',
@@ -40,12 +47,17 @@ async function create(user,payload,res){
   '), logged as (',
   "insert into public.niko_application_events(user_id,application_id,kind,next_status)",
   "select $1,id,'created',status from inserted returning id",
+  '), imported as (',
+  'insert into public.niko_application_events(user_id,application_id,kind,previous_status,next_status,message_ciphertext,occurred_at)',
+  'select $1,inserted.id,x.kind,x.old_status,x.status,x.message_ciphertext,x.occurred_at',
+  'from inserted cross join jsonb_to_recordset($19::jsonb) as x(kind text,old_status text,status text,message_ciphertext text,occurred_at timestamptz)',
+  'returning id',
   ') select id,status from inserted'
  ].join(' ');
  const result=await query(stmt,[user.id,job.url,job.title,job.company,job.location,job.source,values.status,
   values.recipientEmail,values.recruiterName,notes,values.nextActionAt,values.interviewAt,
   values.interviewFormat,values.interviewPlace,values.cvVersion,values.channel,
-  values.status==='draft'?'not_sent':'self_reported',values.archived]);
+  values.status==='draft'?'not_sent':'self_reported',values.archived,JSON.stringify(imports)]);
  if(!result.length)throw new ApiError(409,'Cette URL est déjà enregistrée. Ouvrez la candidature existante.');
  return res.status(201).json({saved:true,id:result[0].id,status:result[0].status});
 }
