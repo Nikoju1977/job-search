@@ -1,9 +1,9 @@
 /* Niko Emploi PWA: cache only the public application shell. Never cache applicant data, APIs or responses. */
 'use strict';
-const CACHE_NAME = 'niko-emploi-shell-v1-20261023';
+const CACHE_NAME = 'niko-emploi-shell-v6-20261118';
 const CACHE_PREFIX = 'niko-emploi-shell-';
 const APP_SHELL = [
-  '/', '/index.html', '/app.js', '/styles.css', '/premium-2026.css',
+  '/', '/index.html', '/app.js', '/styles.css', '/premium-2026.css', '/suivi.html', '/suivi.js', '/suivi.css',
   '/pwa.js', '/pwa.css', '/offline.html', '/manifest.webmanifest',
   '/icons/icon-192.png', '/icons/icon-512.png',
   '/icons/icon-maskable-512.png', '/icons/apple-touch-icon.png'
@@ -38,6 +38,10 @@ self.addEventListener('fetch', event => {
         return fresh;
       } catch (_) {
         const cache = await caches.open(CACHE_NAME);
+        if (url.pathname === '/suivi.html') {
+          const localTracker = await cache.match('/suivi.html');
+          if (localTracker) return localTracker;
+        }
         if (url.pathname === '/' || url.pathname === '/index.html') {
           const shell = await cache.match('/');
           if (shell) return shell;
