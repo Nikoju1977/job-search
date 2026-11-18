@@ -46,3 +46,12 @@
 @media(prefers-reduced-motion:reduce){.job-card,.niko-portals-grid>a{transition:none}.job-card:hover,.niko-portals-grid>a:hover{transform:none}}
 
 .job-badge.relevance{display:inline-flex;background:#f0ebff;color:#4c4087;border:1px solid #ded4fb;border-radius:6px;font-size:11px;font-weight:750;padding:4px 8px}
+
+.niko-saved-search{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;align-items:center;gap:8px;margin-top:12px}
+.niko-saved-search button,.niko-saved-search select{min-height:40px;border-radius:9px;font-size:11px;font-weight:800;max-width:100%;padding:9px 10px}
+.niko-save-search-btn{color:#75254c;background:#fff2f7;border:1px solid #e8cada}
+.niko-saved-search select{background:#fafbff;color:#283656;border:1px solid #dbe2ed;min-width:0}
+.niko-delete-search-btn{background:#fff;color:#8b5571;border:1px solid #e3dce4}
+.niko-saved-search #searchSavedStatus{grid-column:1/-1;font-size:11px;color:#596883;min-height:0}
+.niko-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:650px){.niko-saved-search{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.niko-save-search-btn{grid-column:1/-1}.niko-delete-search-btn{grid-column:2}.niko-saved-search select{grid-column:1;grid-row:2}}
