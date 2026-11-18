@@ -7,11 +7,12 @@ const {normalizeJob,cleanUpdate,validId,validVersion,mapApplication,mapEvent}=re
 function migrationError(error){
  if(['42P01','42703','23514'].includes(error?.code))
   return new ApiError(503,'Suivi cloud en attente de migration : exécuter database/niko-tracker-v6.sql sur Neon.');
+ if(error?.code==='23505')return new ApiError(409,'Cette URL appartient déjà à une autre candidature.');
  return error;
 }
 async function getAll(user,res){
  const [applications,events,settings]=await Promise.all([
-  query('select id,job_url,title,company,location,source,recipient_email,recruiter_name,notes_ciphertext,status,submission_proof,application_channel,next_action_at,interview_at,interview_format,interview_place,cv_version,first_reply_at,sent_at,status_updated_at,archived_at,updated_at,gmail_thread_id,version from public.niko_applications where user_id=$1 order by updated_at desc limit 250',[user.id]),
+  query('select id,job_url,title,company,location,source,recipient_email,recruiter_name,notes_ciphertext,status,submission_proof,application_channel,next_action_at,interview_at,interview_format,interview_place,cv_version,first_reply_at,sent_at,status_updated_at,archived_at,updated_at,gmail_thread_id,gmail_message_id,version from public.niko_applications where user_id=$1 order by updated_at desc limit 250',[user.id]),
   query('select id,application_id,kind,previous_status,next_status,message_ciphertext,occurred_at from public.niko_application_events where user_id=$1 order by occurred_at desc limit 1250',[user.id]),
   query('select email_reminders from public.niko_tracker_settings where user_id=$1',[user.id])
  ]);
@@ -51,12 +52,14 @@ async function create(user,payload,res){
 async function patch(user,payload,res){
  if(payload.consent!==true)throw new ApiError(400,'Modification soumise à votre autorisation.');
  const id=validId(payload.id),version=validVersion(payload.version),v=cleanUpdate(payload);
+ const job=normalizeJob(payload.job||payload);
  const notes=v.notes?encrypt(v.notes,user.id+':tracker_note'):null;
  const message=v.notes?encrypt(v.notes.slice(0,500),user.id+':tracker_event'):null;
  const sql=[
   'with previous as (select id,status from public.niko_applications where user_id=$1 and id=$2 and version=$3),',
   'updated as (update public.niko_applications a set status=$4,recipient_email=$5,recruiter_name=$6,notes_ciphertext=$7,',
   'next_action_at=$8,interview_at=$9,interview_format=$10,interview_place=$11,cv_version=$12,application_channel=$13,',
+  'job_url=$16,title=$17,company=$18,location=$19,source=$20,',
   'archived_at=case when $14 then coalesce(a.archived_at,now()) else null end,',
   "submission_proof=case when a.submission_proof='gmail_verified' then 'gmail_verified'",
   "when $4='draft' then 'not_sent' when a.submission_proof='legacy' then 'self_reported' else a.submission_proof end,",
@@ -72,7 +75,7 @@ async function patch(user,payload,res){
  ].join(' ');
  const result=await query(sql,[user.id,id,version,v.status,v.recipientEmail,v.recruiterName,
   notes,v.nextActionAt,v.interviewAt,v.interviewFormat,v.interviewPlace,v.cvVersion,
-  v.channel,v.archived,message]);
+  v.channel,v.archived,message,job.url,job.title,job.company,job.location,job.source]);
  if(!result.length)throw new ApiError(409,'Cette candidature a changé ou n’existe plus. Actualisez avant de modifier.');
  return res.status(200).json({saved:true,id:result[0].id,status:result[0].status,version:result[0].version});
 }
