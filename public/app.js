@@ -35,6 +35,7 @@
       const cutoff=Date.now()-Number(days)*24*60*60*1000;
       items=items.filter(j=>j.date&&Number.isFinite(Date.parse(j.date))&&Date.parse(j.date)>=cutoff);
     }
+    if($('sortOrder').value==='relevance') items.sort((a,b)=>(Number(b.relevanceScore)||0)-(Number(a.relevanceScore)||0)||((Date.parse(b.date||'')||0)-(Date.parse(a.date||'')||0)));
     if($('sortOrder').value==='company') items.sort((a,b)=>a.company.localeCompare(b.company,'fr'));
     return items;
   }
@@ -59,7 +60,7 @@
       const meta=[`<span>${icon('pin')}${escape(loc)}</span>`];
       if(job.contract)meta.push(`<span>${icon('briefcase')}${escape(job.contract)}</span>`);
       if(job.date)meta.push(`<span>${icon('clock')}${escape(dateLabel(job.date))}</span>`);
-      const badges=[job.remote?'<span class="job-badge remote">Télétravail</span>':'',job.salary?`<span class="job-badge salary">${escape(job.salary)}</span>`:''].filter(Boolean).join('');
+      const badges=[Number.isFinite(job.relevanceScore)?`<span class="job-badge relevance" title="Indice lexical, pas une probabilité de recrutement">Pertinence texte : ${number(job.relevanceScore)}/100</span>`:'',job.remote?'<span class="job-badge remote">Télétravail</span>':'',job.salary?`<span class="job-badge salary">${escape(job.salary)}</span>`:''].filter(Boolean).join('');
       return `<article class="job-card"><div class="job-head"><div class="company-avatar" aria-hidden="true">${escape(initials||'J')}</div><div class="job-title-col"><h3 class="job-title">${escape(job.title)}</h3><div class="job-company">${escape(job.company)}</div></div><button class="save-btn ${saved?'saved':''}" data-favorite="${escape(job.id)}" aria-label="${saved?'Retirer des favoris':'Ajouter aux favoris'}" title="${saved?'Retirer des favoris':'Ajouter aux favoris'}">${icon('heart')}</button></div><div class="job-detail">${meta.join('')}</div>${job.excerpt?`<p class="job-excerpt">${escape(job.excerpt)}</p>`:''}<div class="job-foot"><div class="job-badges">${badges}<span class="job-source">Source : ${job.source==="Himalayas"?`<a href="https://himalayas.app" rel="noopener noreferrer" target="_blank">Himalayas ↗</a>`:job.source==="Remotive"?`<a href="https://remotive.com" rel="noopener noreferrer" target="_blank">Remotive ↗</a>`:escape(job.source)}</span></div><a class="studio-job-btn" href="/candidatures.html" data-prepare="${escape(job.id)}">✦ Préparer ma candidature</a><a class="apply-link" href="${escape(job.url)}" rel="noopener noreferrer nofollow" target="_blank">Voir l'offre originale ${icon('arrowup')}</a></div></article>`;
     }).join('');
     for(const button of target.querySelectorAll('[data-favorite]'))button.addEventListener('click',()=>{
