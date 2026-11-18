@@ -72,3 +72,6 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .inbox-row strong{display:block;font-size:13px}.inbox-row small{display:block;color:#7b889c;font-size:11px;margin-top:3px}
 .inbox-actions{display:flex;gap:7px;flex-wrap:wrap}
 @media(max-width:740px){.inbox-panel{grid-column:auto}.inbox-row{align-items:stretch}.inbox-actions{width:100%}.inbox-actions button{flex:1}}
+
+.reminder-choice{display:inline-flex!important;align-items:center;gap:7px;margin:0!important;font-size:11px!important;color:#54627d!important}
+.reminder-choice select{width:auto;min-width:105px;padding:9px 8px}
