@@ -82,3 +82,20 @@ test('Owner-scoped data retrieval does not include other user records',async()=>
  assert.deepEqual(r.data.events,[]);
  assert.ok(statements.every(x=>x.sql.includes('user_id=$1')&&x.args[0]===uid));
 });
+
+test('Legacy event import uses source dates and encrypted notes within the atomic dossier create',async()=>{
+ const old=process.env.DATA_ENCRYPTION_KEY;process.env.DATA_ENCRYPTION_KEY=Buffer.alloc(32,21).toString('base64');
+ let statement='',parameters=[];
+ try{
+  const {call}=harness(async(sql,args)=>{statement=sql;parameters=args;return [{id,status:'draft'}];});
+  const response=await call('POST',{action:'create',consent:true,job:base,status:'draft',
+   channel:'portal',notes:'',nextActionAt:null,interviewAt:null,interviewFormat:'',
+   history:[{kind:'imported',status:'sent',date:'2026-10-10T09:00:00Z',note:'Note historique'}]});
+  assert.equal(response.statusCode,201);
+  assert.match(statement,/jsonb_to_recordset\(\$19::jsonb\)/);
+  const imported=JSON.parse(parameters[18]);
+  assert.equal(imported.length,1);
+  assert.equal(imported[0].occurred_at,'2026-10-10T09:00:00.000Z');
+  assert.notEqual(imported[0].message_ciphertext,'Note historique');
+ }finally{if(old===undefined)delete process.env.DATA_ENCRYPTION_KEY;else process.env.DATA_ENCRYPTION_KEY=old;}
+});
