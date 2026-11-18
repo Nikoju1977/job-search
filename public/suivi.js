@@ -406,6 +406,18 @@ function exportData(format){
  }
  $('migrationStatus').textContent='Sauvegarde téléchargée. Gardez ce fichier privé.';
 }
+function clearLocal(){
+ if(!state.local.length){$('migrationStatus').textContent='Aucun dossier local à supprimer.';return;}
+ if(!confirm('Supprimer définitivement les dossiers et événements enregistrés sur cet appareil ? Les dossiers cloud ne seront pas supprimés.'))return;
+ state.local=[];state.localEvents=[];persistLocal();render();
+ $('migrationStatus').textContent='Dossiers locaux supprimés. Le compte cloud est inchangé.';
+}
+function clearInbox(){
+ if(!state.inbox.length){$('migrationStatus').textContent='Aucune métadonnée Gmail à supprimer.';return;}
+ if(!confirm('Effacer les métadonnées Gmail locales ? Les messages de votre messagerie ne seront pas modifiés.'))return;
+ state.inbox=[];try{localStorage.removeItem(INBOX_KEY);}catch{}
+ renderInbox();$('migrationStatus').textContent='Métadonnées locales supprimées, sans modifier Gmail.';
+}
 function importHistory(){
  let legacy=[];try{legacy=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');}catch{}
  if(!Array.isArray(legacy)||!legacy.length){$('migrationStatus').textContent='Aucun ancien historique disponible sur cet appareil.';return;}
@@ -479,6 +491,8 @@ function bind(){
  $('syncLocal').addEventListener('click',syncLocal);
  $('exportCsv').addEventListener('click',()=>exportData('csv'));
  $('exportJson').addEventListener('click',()=>exportData('json'));
+ $('clearLocal').addEventListener('click',clearLocal);
+ $('clearInbox').addEventListener('click',clearInbox);
  $('saveReminderSettings').addEventListener('click',saveReminderSettings);
  window.addEventListener('storage',event=>{if([KEY,HISTORY_KEY,INBOX_KEY].includes(event.key)){readLocal();readInbox();render();}});
 }
