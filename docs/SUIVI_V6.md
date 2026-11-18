@@ -53,7 +53,7 @@ Le Studio peut déjà lire les fils Gmail associés à ses envois après OAuth G
 
 Une réponse détectée est **à vérifier**. Le candidat décide du statut et de l'envoi d'une réponse. La vérification périodique du Studio, si activée, reste en lecture seule : les anciens accusés de réception automatiques ont été retirés.
 
-Outlook n'est pas connecté via Microsoft Graph. La rédaction via le client e-mail par défaut fonctionne, mais un vrai connecteur Outlook nécessiterait application Azure, consentement OAuth Microsoft et tests dédiés. Il n'est pas présenté comme fonctionnel dans V6.
+Outlook n'est pas connecté via Microsoft Graph. **Un import manuel de fichiers .eml (2 Mo maximum)** permet néanmoins d'enregistrer localement la date et le sujet d'un message, sans son corps ni ses pièces jointes ; le candidat doit associer et confirmer la réponse dans sa fiche. La rédaction via le client e-mail par défaut fonctionne. Un vrai connecteur Outlook nécessiterait application Azure, consentement OAuth Microsoft et tests dédiés. Il n'est pas présenté comme fonctionnel dans V6.
 
 ## Rappels e-mail et limites d'exploitation
 
