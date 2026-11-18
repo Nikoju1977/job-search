@@ -10,6 +10,30 @@
   const icon = name => `<svg class="ico" aria-hidden="true"><use href="#i-${name}"></use></svg>`;
   const sourceNames = ['EasyJobs','Jobicy','Arbeitnow'];
   const number = n => new Intl.NumberFormat('fr-FR').format(n);
+  const searchesKey='niko_emploi_recherches_v1';
+  let savedSearches=[], requestedSavedSource=null;
+  try{
+    const stored=JSON.parse(localStorage.getItem(searchesKey)||'[]');
+    if(Array.isArray(stored))savedSearches=stored.filter(x=>x&&typeof x.id==='string'&&typeof x.keyword==='string'&&typeof x.location==='string').slice(0,10);
+  }catch(_){}
+  function renderSavedSearches(){
+    const selected=$('savedSearches').value;
+    $('savedSearches').innerHTML='<option value="">Mes recherches</option>'+
+      savedSearches.map(item=>'<option value="'+escape(item.id)+'">'+escape(item.label)+'</option>').join('');
+    $('savedSearches').value=savedSearches.some(x=>x.id===selected)?selected:'';
+  }
+  function persistSearches(){
+    try{localStorage.setItem(searchesKey,JSON.stringify(savedSearches));}catch(_){}
+    renderSavedSearches();
+  }
+  function currentCriteria(){
+    return {keyword:$('keyword').value.trim(),location:$('location').value.trim()||'Toute la France',
+      remote:!!$('remote').checked,contract:$('filterContract').value||'Tous',
+      source:$('filterSource').value||'Toutes',age:$('filterAge').value||'all',
+      sort:$('sortOrder').value||'recent'};
+  }
+  function setSearchStatus(message){$('searchSavedStatus').textContent=message;}
+
   function dateLabel(iso){
     if (!iso) return 'Date non communiquée';
     const d = new Date(iso); if (!Number.isFinite(d.getTime())) return 'Date non communiquée';
@@ -93,7 +117,8 @@
       if(!Array.isArray(data.jobs))throw new Error('Format de réponse invalide');
       state.jobs=data.jobs.filter(j=>j&&typeof j.url==='string'&&/^https?:\/\//.test(j.url));
       state.apiResponse=data;
-      const sourceFilter=$('filterSource'),selectedSource=sourceFilter.value;
+      const sourceFilter=$('filterSource'),selectedSource=requestedSavedSource||sourceFilter.value;
+      requestedSavedSource=null;
       const availableSources=[...new Set(state.jobs.map(j=>j.source))].sort((a,b)=>a.localeCompare(b,'fr'));
       sourceFilter.innerHTML='<option value="Toutes">Toutes les sources</option>'+availableSources.map(n=>`<option value="${escape(n)}">${escape(n)}</option>`).join('');
       sourceFilter.value=availableSources.includes(selectedSource)?selectedSource:'Toutes';
@@ -131,7 +156,47 @@
   $('filterSource').addEventListener('change',()=>{state.shown=10;render();});
   $('filterAge').addEventListener('change',()=>{state.shown=10;render();});
   $('refreshSearch').addEventListener('click',load);
-  $('clearFilters').addEventListener('click',()=>{$('keyword').value='';$('location').value='Toute la France';$('remote').checked=false;$('filterContract').value='Tous';$('filterSource').value='Toutes';$('filterAge').value='all';$('sortOrder').value='recent';state.savedOnly=false;load();});
+  $('clearFilters').addEventListener('click',()=>{$('keyword').value='';$('location').value='Toute la France';$('remote').checked=false;$('filterContract').value='Tous';$('filterSource').value='Toutes';$('filterAge').value='all';$('sortOrder').value='recent';$('savedSearches').value='';state.savedOnly=false;load();});
+  $('saveSearch').addEventListener('click',()=>{
+    const criteria=currentCriteria(),fingerprint=JSON.stringify(criteria);
+    const existing=savedSearches.find(x=>JSON.stringify(currentOf(x))===fingerprint);
+    if(existing){
+      $('savedSearches').value=existing.id;
+      setSearchStatus('Ces critères sont déjà enregistrés.');
+      return;
+    }
+    const stamp=String(Date.now());
+    const label=((criteria.keyword||'Toutes les offres')+' · '+criteria.location).slice(0,75);
+    const entry={id:stamp,label,...criteria};
+    savedSearches=[entry,...savedSearches.filter(x=>x.id!==stamp)].slice(0,10);
+    persistSearches();
+    $('savedSearches').value=stamp;
+    setSearchStatus('Recherche enregistrée uniquement sur cet appareil.');
+  });
+  function currentOf(entry){
+    const {keyword,location,remote,contract,source,age,sort}=entry;
+    return {keyword,location,remote,contract,source,age,sort};
+  }
+  $('savedSearches').addEventListener('change',()=>{
+    const entry=savedSearches.find(x=>x.id===$('savedSearches').value);
+    if(!entry)return;
+    $('keyword').value=entry.keyword;
+    $('location').value=entry.location;
+    $('remote').checked=entry.remote;
+    $('filterContract').value=entry.contract;
+    $('filterAge').value=entry.age;
+    $('sortOrder').value=entry.sort;
+    requestedSavedSource=entry.source;
+    setSearchStatus('Recherche restaurée.');
+    load();$('offres').scrollIntoView({behavior:'smooth'});
+  });
+  $('deleteSavedSearch').addEventListener('click',()=>{
+    const id=$('savedSearches').value;
+    if(!id){setSearchStatus('Choisissez une recherche à supprimer.');return;}
+    savedSearches=savedSearches.filter(x=>x.id!==id);
+    persistSearches();
+    setSearchStatus('Recherche supprimée de cet appareil.');
+  });
   $('sortOrder').addEventListener('change',render);
   $('allBtn').addEventListener('click',()=>{state.savedOnly=false;state.shown=10;render();});
   $('savedBtn').addEventListener('click',()=>{state.savedOnly=true;state.shown=10;render();});
@@ -141,5 +206,6 @@
   for(const id of ['sourcesLink','sourceExplain','footerSources'])$(id).addEventListener('click',openDialog);
   $('closeDialog').addEventListener('click',()=>$('sourceDialog').close());
   $('sourceDialog').addEventListener('click',e=>{if(e.target===$('sourceDialog'))$('sourceDialog').close();});
+  renderSavedSearches();
   redrawSavedCounts();load();
 })();
