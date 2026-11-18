@@ -30,7 +30,7 @@ function elt(tag,cl,text){const e=document.createElement(tag);if(cl)e.className=
 function notice(message,error=false){$('trackerError').hidden=!error;$('trackerError').textContent=error?message:'';$('resultStatus').textContent=message;}
 function status(message){$('saveCaseStatus').textContent=message;}
 function keyOf(item){
- return item.url?'url:'+norm(item.url.replace(/[?#].*$/,'')):'title:'+norm(item.title)+'|'+norm(item.company)+'|'+norm(item.location);
+ return item.url?'url:'+norm(item.url):'title:'+norm(item.title)+'|'+norm(item.company)+'|'+norm(item.location);
 }
 function readLocal(){
  try{const data=JSON.parse(localStorage.getItem(KEY)||'null');if(data&&Array.isArray(data.records)){
