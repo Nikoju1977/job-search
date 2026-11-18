@@ -38,13 +38,27 @@ function eventsSorted(){
 }
 function statusLabel(s){return ({draft:'Brouillon',sent:'Envoyée',reply:'Réponse reçue',interview:'Entretien',rejected:'Refus',hired:'Embauche',failed:'Échec'})[s]||s||'Suivi';}
 function renderMetrics(){
- const local=getLocalHistory();const remote=online.applications||[];
- const cloudSent=remote.filter(a=>['sent','reply','interview','rejected','hired'].includes(a.status)).length;
- const localSent=local.filter(a=>a.status==='Envoyée').length;
- $('v2Sent').textContent=String(session?Math.max(cloudSent,localSent):localSent);
- $('v2Replies').textContent=String((online.replies||[]).length);
- $('v2Interviews').textContent=String(remote.filter(x=>x.status==='interview').length+(online.interviews||[]).length);
- $('v2Prepared').textContent=String(local.filter(a=>a.status==='Préparée').length+remote.filter(a=>a.status==='draft').length);
+ const local=getLocalHistory(),remote=online.applications||[];
+ // Compter les candidatures uniques, pas le nombre d'événements de l'historique.
+ const identity=x=>x.url?'url:'+x.url:'titre:'+(x.title||'').toLowerCase()+'|'+(x.company||'').toLowerCase();
+ const cases=new Map();
+ for(const item of [...remote])cases.set(identity(item),{status:item.status,cloud:true});
+ for(const item of local){
+  const key=identity(item);
+  if(cases.has(key))continue;
+  const before=cases.get(key);
+  if(before)continue;
+  const value=String(item.status||'').toLowerCase();
+  const kind=value.includes('entretien')?'interview':
+    value.includes('réponse')||value.includes('reponse')?'reply':
+    value.includes('envoy')?'sent':value.includes('prépar')?'draft':'draft';
+  cases.set(key,{status:kind,cloud:false});
+ }
+ const all=[...cases.values()];
+ $('v2Sent').textContent=String(all.filter(x=>['sent','reply','interview','offer','rejected','hired'].includes(x.status)).length);
+ $('v2Replies').textContent=String(all.filter(x=>['reply','interview','offer','rejected','hired'].includes(x.status)).length);
+ $('v2Interviews').textContent=String(all.filter(x=>['interview','offer','hired'].includes(x.status)).length);
+ $('v2Prepared').textContent=String(all.filter(x=>x.status==='draft').length);
  const rows=$('v2Activity');rows.replaceChildren();
  const events=eventsSorted();if(!events.length){rows.textContent='Votre activité réelle apparaîtra ici après vos premières candidatures.';return;}
  for(const h of events){const row=document.createElement('div');row.className='v2-activity-row';const left=document.createElement('div'),title=document.createElement('strong'),stamp=document.createElement('span'),tag=document.createElement('span');title.textContent=h.label;stamp.textContent=formatDate(h.date)+(h.local?' · Cet appareil':' · Compte sécurisé');tag.textContent=h.type;tag.className='v2-activity-tag';left.append(title,stamp);row.append(left,tag);rows.append(row);}
