@@ -28,12 +28,22 @@
   function favoritesPersist(){try{localStorage.setItem(storageKey,JSON.stringify([...state.saved]));}catch(_){}redrawSavedCounts();}
   function getVisible(){
     let items=state.savedOnly ? state.jobs.filter(j=>state.saved.has(j.id)) : [...state.jobs];
+    const chosenSource=$('filterSource')?.value||'Toutes';
+    if(chosenSource!=='Toutes')items=items.filter(j=>j.source===chosenSource);
+    const days=$('filterAge')?.value||'all';
+    if(days!=='all'){
+      const cutoff=Date.now()-Number(days)*24*60*60*1000;
+      items=items.filter(j=>j.date&&Number.isFinite(Date.parse(j.date))&&Date.parse(j.date)>=cutoff);
+    }
     if($('sortOrder').value==='company') items.sort((a,b)=>a.company.localeCompare(b.company,'fr'));
     return items;
   }
   function render(){
     redrawSavedCounts();
     const all=getVisible(), display=all.slice(0,state.shown);
+    $('searchSummary').textContent=state.loading?'Consultation des sources en cours…':`${number(all.length)} offre${all.length===1?'':'s'} après filtres · ${number(state.jobs.length)} récupérée${state.jobs.length===1?'':'s'}`;
+    $('refreshSearch').disabled=state.loading;
+    $('jobList').setAttribute('aria-busy',String(state.loading));
     $('resultNumber').textContent = state.loading ? '—' : number(all.length);
     const target=$('jobList');
     if(state.loading){target.innerHTML='<div class="loading-state"><span class="loader"></span><h3>Nous interrogeons les plateformes…</h3><p>Seules les annonces réellement reçues seront affichées.</p></div>'; $('listFooter').hidden=true;return;}
@@ -50,7 +60,7 @@
       if(job.contract)meta.push(`<span>${icon('briefcase')}${escape(job.contract)}</span>`);
       if(job.date)meta.push(`<span>${icon('clock')}${escape(dateLabel(job.date))}</span>`);
       const badges=[job.remote?'<span class="job-badge remote">Télétravail</span>':'',job.salary?`<span class="job-badge salary">${escape(job.salary)}</span>`:''].filter(Boolean).join('');
-      return `<article class="job-card"><div class="job-head"><div class="company-avatar" aria-hidden="true">${escape(initials||'J')}</div><div class="job-title-col"><h3 class="job-title">${escape(job.title)}</h3><div class="job-company">${escape(job.company)}</div></div><button class="save-btn ${saved?'saved':''}" data-favorite="${escape(job.id)}" aria-label="${saved?'Retirer des favoris':'Ajouter aux favoris'}" title="${saved?'Retirer des favoris':'Ajouter aux favoris'}">${icon('heart')}</button></div><div class="job-detail">${meta.join('')}</div>${job.excerpt?`<p class="job-excerpt">${escape(job.excerpt)}</p>`:''}<div class="job-foot"><div class="job-badges">${badges}<span class="job-source">Source : ${job.source==="Himalayas"?`<a href="https://himalayas.app" rel="noopener noreferrer" target="_blank">Himalayas ↗</a>`:escape(job.source)}</span></div><a class="studio-job-btn" href="/candidatures.html" data-prepare="${escape(job.id)}">✦ Préparer ma candidature</a><a class="apply-link" href="${escape(job.url)}" rel="noopener noreferrer nofollow" target="_blank">Voir l'offre originale ${icon('arrowup')}</a></div></article>`;
+      return `<article class="job-card"><div class="job-head"><div class="company-avatar" aria-hidden="true">${escape(initials||'J')}</div><div class="job-title-col"><h3 class="job-title">${escape(job.title)}</h3><div class="job-company">${escape(job.company)}</div></div><button class="save-btn ${saved?'saved':''}" data-favorite="${escape(job.id)}" aria-label="${saved?'Retirer des favoris':'Ajouter aux favoris'}" title="${saved?'Retirer des favoris':'Ajouter aux favoris'}">${icon('heart')}</button></div><div class="job-detail">${meta.join('')}</div>${job.excerpt?`<p class="job-excerpt">${escape(job.excerpt)}</p>`:''}<div class="job-foot"><div class="job-badges">${badges}<span class="job-source">Source : ${job.source==="Himalayas"?`<a href="https://himalayas.app" rel="noopener noreferrer" target="_blank">Himalayas ↗</a>`:job.source==="Remotive"?`<a href="https://remotive.com" rel="noopener noreferrer" target="_blank">Remotive ↗</a>`:escape(job.source)}</span></div><a class="studio-job-btn" href="/candidatures.html" data-prepare="${escape(job.id)}">✦ Préparer ma candidature</a><a class="apply-link" href="${escape(job.url)}" rel="noopener noreferrer nofollow" target="_blank">Voir l'offre originale ${icon('arrowup')}</a></div></article>`;
     }).join('');
     for(const button of target.querySelectorAll('[data-favorite]'))button.addEventListener('click',()=>{
       const id=button.dataset.favorite;
@@ -82,6 +92,10 @@
       if(!Array.isArray(data.jobs))throw new Error('Format de réponse invalide');
       state.jobs=data.jobs.filter(j=>j&&typeof j.url==='string'&&/^https?:\/\//.test(j.url));
       state.apiResponse=data;
+      const sourceFilter=$('filterSource'),selectedSource=sourceFilter.value;
+      const availableSources=[...new Set(state.jobs.map(j=>j.source))].sort((a,b)=>a.localeCompare(b,'fr'));
+      sourceFilter.replaceChildren(new Option('Toutes les sources','Toutes'),...availableSources.map(n=>new Option(n,n)));
+      sourceFilter.value=availableSources.includes(selectedSource)?selectedSource:'Toutes';
       const activeSources=Object.keys(data.sources||{});
       const working=activeSources.filter(n=>data.sources[n]?.ok);
       $('liveText').textContent=working.length?`${working.length} source${working.length>1?'s':''} consultée${working.length>1?'s':''}`:'Aucune source disponible';
@@ -113,6 +127,10 @@
   function openDialog(){$('sourceDialog').showModal();}
   $('searchForm').addEventListener('submit',e=>{e.preventDefault();load();$('offres').scrollIntoView({behavior:'smooth'});});
   $('filterContract').addEventListener('change',load);
+  $('filterSource').addEventListener('change',()=>{state.shown=10;render();});
+  $('filterAge').addEventListener('change',()=>{state.shown=10;render();});
+  $('refreshSearch').addEventListener('click',load);
+  $('clearFilters').addEventListener('click',()=>{$('keyword').value='';$('location').value='Toute la France';$('remote').checked=false;$('filterContract').value='Tous';$('filterSource').value='Toutes';$('filterAge').value='all';$('sortOrder').value='recent';state.savedOnly=false;load();});
   $('sortOrder').addEventListener('change',render);
   $('allBtn').addEventListener('click',()=>{state.savedOnly=false;state.shown=10;render();});
   $('savedBtn').addEventListener('click',()=>{state.savedOnly=true;state.shown=10;render();});
