@@ -11,7 +11,7 @@ Nouvel écran : **/suivi.html**. Le Studio de préparation **/candidatures.html*
 - API privée et versionnée, chiffrement des notes et événements, synchronisation opt-in, rappels e-mail facultatifs pour les comptes actifs.
 - Nouvelle migration **database/niko-tracker-v6.sql** requise pour activer le cloud ; sans migration, la page fonctionne en local.
 
-**Mise en service et limites :** [Guide Niko Emploi V6](docs/SUIVI_V6.md). Les tests Node / CI ne garantissent pas à eux seuls un fonctionnement réel après déploiement. Outlook/Graph et stockage des fichiers CV ne sont pas encore connectés ; l'étiquette de version du CV n'est pas un fichier sauvegardé.
+**Mise en service et limites :** [Guide Niko Emploi V6](docs/SUIVI_V6.md). Les tests Node / CI ne garantissent pas à eux seuls un fonctionnement réel après déploiement. Outlook/Graph et stockage des fichiers CV ne sont pas encore connectés ; l'import manuel .eml est possible et l'étiquette de version du CV n'est pas un fichier sauvegardé.
 
 ---
 
