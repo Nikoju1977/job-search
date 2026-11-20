@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#171d35">
+<meta name="description" content="Radar Niko Emploi : identifier des entreprises réelles à contacter pour une candidature spontanée, sans inventer des offres d'emploi.">
+<title>Radar marché caché — Niko Emploi</title>
+<link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/marche-cache.css">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icons/icon-192.png" type="image/png">
+<script src="/marche-cache.js" defer></script><script src="/pwa.js" defer></script>
+</head>
+<body class="radar-page">
+<a class="skip-link" href="#results">Aller aux entreprises</a>
+<header class="radar-header"><div class="radar-shell radar-nav">
+<a class="radar-brand" href="/">NIKO <strong>EMPLOI</strong><span> / RADAR</span></a>
+<nav aria-label="Navigation"><a href="/">Offres publiées</a><a href="/candidatures.html">Studio candidature</a><a href="/marche-cache.html" aria-current="page">Marché caché</a></nav>
+</div></header>
+<main class="radar-shell">
+<section class="radar-hero">
+<div class="radar-eyebrow">EXPLORATION DES EMPLOYEURS · DONNÉES PUBLIQUES</div>
+<h1>Les opportunités avant <em>l'annonce.</em></h1>
+<p>Découvrez les entreprises réelles autour de vous et préparez une candidature spontanée. <strong>Une entreprise recensée ne signifie pas qu'elle recrute.</strong> Aucune offre ni probabilité d'embauche n'est inventée.</p>
+</section>
+<section class="radar-panel" aria-labelledby="radar-title">
+<div class="radar-panel-top"><div><h2 id="radar-title">Explorer un territoire</h2><p>Sans abonnement ni clé personnelle. Recherche dans les registres publics français.</p></div><span class="radar-chip">Source officielle</span></div>
+<form id="radarForm" class="radar-form">
+<label>Code postal<input type="text" id="zip" name="zip" inputmode="numeric" autocomplete="postal-code" pattern="[0-9]{5}" maxlength="5" value="44520" required aria-describedby="zipHelp"><small id="zipHelp">Le centre de la commune principale sert de point de départ.</small></label>
+<label>Rayon<select id="radius" name="radius"><option value="5">5 km</option><option value="10">10 km</option><option value="20" selected>20 km</option><option value="30">30 km</option><option value="50">50 km</option></select></label>
+<label>Secteur d'activité<select id="sector" name="sector">
+<option value="all">Tous les secteurs</option>
+<option value="N" selected>Services aux entreprises / nettoyage</option>
+<option value="F">Bâtiment et travaux publics</option>
+<option value="P">Enseignement</option>
+<option value="Q">Santé / action sociale</option>
+<option value="R">Culture / spectacle</option>
+<option value="J">Numérique / information</option>
+<option value="G">Commerce</option>
+<option value="H">Transport et logistique</option>
+<option value="I">Hôtellerie / restauration</option>
+<option value="C">Industrie manufacturière</option>
+<option value="M">Activités scientifiques / techniques</option>
+<option value="S">Autres services</option>
+</select></label>
+<label>Métier pour votre candidature<input id="role" name="role" type="text" maxlength="100" value="Agent d'entretien" placeholder="Ex. Agent d'entretien"></label>
+<button class="radar-primary" type="submit" id="searchButton">Repérer des entreprises</button>
+</form>
+</section>
+<div class="radar-disclaimer" role="note"><strong>Important :</strong> ce radar recense des employeurs potentiels, pas des emplois disponibles. Le code NAF de l'entreprise ne garantit aucun besoin dans le métier choisi. Vérifiez le site ou contactez l'employeur avant de postuler.</div>
+<section id="results" class="radar-results" aria-live="polite">
+<div class="radar-results-title"><div><h2>Entreprises repérées <span id="resultCount"></span></h2><p id="resultMeta">Lancez une recherche pour consulter les données officielles.</p></div><button type="button" id="exportButton" class="radar-secondary" disabled>Exporter la page en CSV</button></div>
+<div id="status" role="status">Aucune recherche effectuée.</div>
+<div id="companyList" class="radar-grid"></div>
+<div class="radar-pagination"><button type="button" id="prevPage" disabled>Page précédente</button><span id="pageNumber">Page 1</span><button type="button" id="nextPage" disabled>Page suivante</button></div>
+</section>
+<section class="radar-guides">
+<h2>Pour repérer les vrais besoins en recrutement</h2>
+<div class="radar-guide-grid">
+<article><h3>La Bonne Boîte</h3><p>France Travail identifie des entreprises présentant un potentiel d'embauche par métier et lieu. Ce service est distinct du registre présenté ci-dessus.</p><a href="https://labonneboite.francetravail.fr/" target="_blank" rel="noopener noreferrer">Consulter France Travail ↗</a></article>
+<article><h3>BMO 2026</h3><p>Consultez les intentions de recrutement par bassin d'emploi, métier et secteur. Les données BMO ne certifient pas qu'une entreprise précise embauche.</p><a href="https://statistiques.francetravail.org/bmo/" target="_blank" rel="noopener noreferrer">Voir l'étude BMO ↗</a></article>
+</div>
+</section>
+</main>
+<footer class="radar-footer"><div class="radar-shell"><p>Niko Emploi · Sources publiques : API Géo et Annuaire des entreprises · Aucun envoi automatique à un recruteur.</p><a href="/confidentialite.html">Confidentialité</a></div></footer>
+</body></html>
