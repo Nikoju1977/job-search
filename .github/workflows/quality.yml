@@ -13,6 +13,9 @@ jobs:
           node-version: '24'
       - name: Vérifier la syntaxe serveur et navigateur
         run: |
+          node --check api/hidden-market.js
+          node --check lib/hidden-market.js
+          node --check public/marche-cache.js
           node --check public/app.js
           node --check public/candidatures.js
           node --check server.js
