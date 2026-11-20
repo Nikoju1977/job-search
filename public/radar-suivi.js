@@ -21,7 +21,7 @@
    return e;
  };
  function validRecord(c){
-  if(!c||!/^\\d{9}$/.test(String(c.siren||'')))return false;
+  if(!c||!/^\d{9}$/.test(String(c.siren||'')))return false;
   if(typeof c.name!=='string'||!c.name.trim())return false;
   return true;
  }
