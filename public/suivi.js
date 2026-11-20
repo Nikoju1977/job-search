@@ -329,7 +329,13 @@ function localInsert(data){
    interviewAt:data.interviewAt,interviewFormat:data.interviewFormat||'',interviewPlace:data.interviewPlace||'',
    cvVersion:data.cvVersion||'',archived:data.archived||false,submissionProof:data.status==='draft'?'not_sent':'self_reported',
    sentAt:null,updatedAt:now,statusUpdatedAt:now,version:1};
- state.local.unshift(record);eventLocal(record,'created',null);persistLocal();render();return record;
+ const previousEventCount=state.localEvents.length;
+ state.local.unshift(record);eventLocal(record,'created',null);
+ if(!persistLocal()){
+  state.local.shift();state.localEvents.length=previousEventCount;
+  throw Error('Dossier non enregistré : espace local insuffisant ou stockage bloqué.');
+ }
+ render();return record;
 }
 function localPatch(item,data){
  const index=state.local.findIndex(x=>x.id===item.id);
@@ -341,9 +347,14 @@ function localPatch(item,data){
    submissionProof:old.submissionProof==='gmail_verified'?'gmail_verified':
      data.status==='draft'?'not_sent':old.submissionProof==='not_sent'?'self_reported':old.submissionProof};
  delete next.job;
+ const previousEventCount=state.localEvents.length;
  state.local[index]=next;
  eventLocal(next,old.status!==next.status?'status':'edited',old.status,old.notes===next.notes?'':next.notes);
- persistLocal();render();return next;
+ if(!persistLocal()){
+  state.local[index]=old;state.localEvents.length=previousEventCount;
+  throw Error('Modification non enregistrée : stockage local indisponible.');
+ }
+ render();return next;
 }
 async function saveExisting(item,data,fromDrag=false){
  const payload=data.job?data:{job:{title:item.title,company:item.company,url:item.url,location:item.location,source:item.source},
@@ -500,8 +511,8 @@ async function syncLocal(){
    copied++;
   }catch(error){if(error.code===409)duplicates++;else failed++;}
  }
- persistLocal();await refresh(true);$('syncLocal').disabled=false;
- $('migrationStatus').textContent=copied+' dossier(s) synchronisé(s), '+duplicates+' doublon(s) conservé(s) localement, '+failed+' échec(s). Maximum 20 dossiers par opération.';
+ const localUpdated=persistLocal();await refresh(true);$('syncLocal').disabled=false;
+ $('migrationStatus').textContent=(localUpdated?'':'Attention : transfert cloud effectué mais nettoyage local non enregistré. Rechargez et vérifiez les doublons. ')+copied+' dossier(s) transféré(s), '+duplicates+' doublon(s) conservé(s) localement, '+failed+' échec(s). Maximum 20 dossiers par opération.';
 }
 async function saveReminderSettings(){
  const enabled=$('emailReminders').checked;
