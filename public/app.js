@@ -4,8 +4,32 @@
   const $ = id => document.getElementById(id);
   const state = {jobs:[], shown:10, savedOnly:false, saved:new Set(), apiResponse:null, loading:false};
   const storageKey = 'niko_emploi_favoris_v1';
+  const snapshotsKey = 'niko_emploi_favoris_details_v2';
+  state.savedJobs = new Map();
   let latestRequestId = 0;
   try { const saved = JSON.parse(localStorage.getItem(storageKey) || '[]'); if (Array.isArray(saved)) state.saved = new Set(saved.filter(x=>typeof x==='string')); } catch (_) {}
+  // Preserve only public posting details. Never store a CV, candidate profile, or API token here.
+  function jobSnapshot(job) {
+    if(!job || typeof job.id!=='string' || !job.id || typeof job.url!=='string')return null;
+    try {
+      const address=new URL(job.url);
+      if(!['https:','http:'].includes(address.protocol)||address.username||address.password)return null;
+      const field=(key,max)=>typeof job[key]==='string'?job[key].trim().slice(0,max):'';
+      const title=field('title',180),company=field('company',150);
+      if(!title||!company)return null;
+      return {id:job.id.slice(0,128),title,company,location:field('location',160),
+        url:address.toString(),source:field('source',40),contract:field('contract',70),
+        salary:field('salary',90),date:field('date',40),excerpt:field('excerpt',360),
+        remote:job.remote===true};
+    }catch(_){return null;}
+  }
+  try {
+    const stored=JSON.parse(localStorage.getItem(snapshotsKey)||'[]');
+    if(Array.isArray(stored))for(const item of stored.slice(-200)){
+      const snapshot=jobSnapshot(item);
+      if(snapshot&&state.saved.has(snapshot.id))state.savedJobs.set(snapshot.id,snapshot);
+    }
+  }catch(_) {}
   const escape = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const icon = name => `<svg class="ico" aria-hidden="true"><use href="#i-${name}"></use></svg>`;
   const sourceNames = ['EasyJobs','Jobicy','Arbeitnow'];
@@ -25,9 +49,21 @@
     $('allBtn').classList.toggle('active',!state.savedOnly);
     $('savedBtn').classList.toggle('active',state.savedOnly);
   }
-  function favoritesPersist(){try{localStorage.setItem(storageKey,JSON.stringify([...state.saved]));}catch(_){}redrawSavedCounts();}
+  function favoritesPersist(){
+    try {
+      localStorage.setItem(storageKey,JSON.stringify([...state.saved]));
+      localStorage.setItem(snapshotsKey,JSON.stringify([...state.savedJobs.values()].slice(-200)));
+    }catch(_){
+      $('sourceNotice').hidden=false;
+      $('sourceNotice').textContent='Stockage du navigateur indisponible : les favoris peuvent ne pas être conservés après fermeture.';
+    }
+    redrawSavedCounts();
+  }
   function getVisible(){
-    let items=state.savedOnly ? state.jobs.filter(j=>state.saved.has(j.id)) : [...state.jobs];
+    const currentById=new Map(state.jobs.map(job=>[job.id,job]));
+    let items=state.savedOnly
+      ? [...state.saved].map(id=>currentById.get(id)||state.savedJobs.get(id)).filter(Boolean)
+      : [...state.jobs];
     if($('sortOrder').value==='company') items.sort((a,b)=>a.company.localeCompare(b.company,'fr'));
     return items;
   }
@@ -54,10 +90,19 @@
     }).join('');
     for(const button of target.querySelectorAll('[data-favorite]'))button.addEventListener('click',()=>{
       const id=button.dataset.favorite;
-      if(state.saved.has(id))state.saved.delete(id);else state.saved.add(id);
+      if(state.saved.has(id)){
+        state.saved.delete(id);
+        state.savedJobs.delete(id);
+      }else{
+        const job=state.jobs.find(j=>j.id===id)||state.savedJobs.get(id);
+        const snapshot=jobSnapshot(job);
+        if(!snapshot)return;
+        state.saved.add(id);
+        state.savedJobs.set(id,snapshot);
+      }
       favoritesPersist();render();
     });
-    for(const link of target.querySelectorAll('[data-prepare]'))link.addEventListener('click',()=>{const job=state.jobs.find(j=>j.id===link.dataset.prepare);if(job)try{sessionStorage.setItem('niko_selected_job',JSON.stringify(job));}catch{}});
+    for(const link of target.querySelectorAll('[data-prepare]'))link.addEventListener('click',()=>{const job=state.jobs.find(j=>j.id===link.dataset.prepare)||state.savedJobs.get(link.dataset.prepare);if(job)try{sessionStorage.setItem('niko_selected_job',JSON.stringify(job));}catch{}});
     $('listFooter').hidden=all.length<=state.shown;
     $('visibleCount').textContent=`${number(Math.min(all.length,state.shown))} sur ${number(all.length)} offres chargées`;
   }
@@ -81,6 +126,13 @@
       if (requestId !== latestRequestId) return;
       if(!Array.isArray(data.jobs))throw new Error('Format de réponse invalide');
       state.jobs=data.jobs.filter(j=>j&&typeof j.url==='string'&&/^https?:\/\//.test(j.url));
+      let refreshedFavorites=false;
+      for(const job of state.jobs){
+        if(!state.saved.has(job.id))continue;
+        const snapshot=jobSnapshot(job);
+        if(snapshot){state.savedJobs.set(job.id,snapshot);refreshedFavorites=true;}
+      }
+      if(refreshedFavorites)favoritesPersist();
       state.apiResponse=data;
       const activeSources=Object.keys(data.sources||{});
       const working=activeSources.filter(n=>data.sources[n]?.ok);
