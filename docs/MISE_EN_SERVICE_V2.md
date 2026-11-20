@@ -1,5 +1,18 @@
 # Niko Intelligence 4.1 — Mise en service native (sans Supabase, sans n8n)
 
+## État réel de la configuration gratuite — 20 novembre 2026
+
+- **Neon PostgreSQL :** projet `niko-emploi` créé sur l'organisation Neon Free, région Francfort (`aws-eu-central-1`), PostgreSQL 17 ; 11 tables `niko_*` présentes après exécution des deux fichiers de migration.
+- **Vercel :** `DATABASE_URL` ajoutée comme variable sensible **de production uniquement**, sans révéler la valeur ni la placer dans le dépôt. `DATA_ENCRYPTION_KEY`, `CRON_SECRET`, `APP_ORIGIN` étaient déjà présentes.
+- **Sans clé et sans coût supplémentaire :** recherche publique, radar d'entreprises, candidatures spontanées locales, exports de relance, analyse locale d'un message recruteur saisi manuellement et proposition de réponse. Le texte saisi dans l'analyse manuelle ne quitte pas l'appareil.
+- **Toujours non activé :** comptes cloud tant que `RESEND_API_KEY` et un `EMAIL_FROM` vérifié manquent ; OAuth Gmail tant que `GOOGLE_CLIENT_ID` et l'autorisation Google manquent ; API La Bonne Boîte tant que France Travail n'a pas accordé d'habilitation ; IA serveur payante tant qu'aucune clé n'est configurée. Aucune clé IA payante n'est nécessaire au mode local.
+- L'accès au projet Neon Free n'implique **aucun paiement activé** ; les quotas/limites du fournisseur restent applicables. La mise en ligne de la base ne prouve pas à elle seule qu'un parcours complet de compte avec lien e-mail fonctionne.
+
+**Sécurité :** les jetons d'authentification, le CV et les éventuelles informations de santé ne doivent jamais être insérés dans les URLs, journaux publics ou fichiers front-end. La variable PostgreSQL est réservée aux fonctions serveur Vercel. Les versions de prévisualisation ne reçoivent pas la connexion de production.
+
+---
+
+
 Niko Emploi reste une application unique hébergée sur Vercel. Le moteur de recommandation, le serveur de comptes, la gestion des consentements et l'orchestrateur sont directement dans ce dépôt. **Neon n'est utilisé que comme stockage PostgreSQL persistant**. Resend ne sert qu'à envoyer des liens de connexion et, sur consentement distinct, les alertes au candidat.
 
 ## 1. Ce qui fonctionne sans aucun secret
