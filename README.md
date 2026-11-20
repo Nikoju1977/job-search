@@ -1,5 +1,22 @@
 # Niko Emploi — Intelligence 4.0
 
+## Niko Emploi V6 — suivi de candidature complet
+
+Nouvel écran : **/suivi.html**. Le Studio de préparation **/candidatures.html** reste en place.
+
+- Pipeline Kanban, dossiers uniques, suivi des statuts et historique, relances 7/14/21 jours, rendez-vous et fichiers calendriers.
+- Sauvegarde locale, export CSV/JSON, import explicite de l'ancien historique.
+- Statistiques indicatives calculées sur des candidatures enregistrées, non sur des résultats inventés.
+- Lien Gmail facultatif : métadonnées de réponses détectées localement depuis le Studio ; jamais d'accusé de réception ni de candidature envoyés automatiquement.
+- API privée et versionnée, chiffrement des notes et événements, synchronisation opt-in, rappels e-mail facultatifs pour les comptes actifs.
+- Nouvelle migration **database/niko-tracker-v6.sql** requise pour activer le cloud ; sans migration, la page fonctionne en local.
+
+**Mise en service et limites :** [Guide Niko Emploi V6](docs/SUIVI_V6.md). Les tests Node / CI ne garantissent pas à eux seuls un fonctionnement réel après déploiement. Outlook/Graph et stockage des fichiers CV ne sont pas encore connectés ; l'import manuel .eml est possible et l'étiquette de version du CV n'est pas un fichier sauvegardé.
+
+---
+
+
+
 **Une seule application autonome, sans Supabase et sans n8n.** La logique des agents est intégrée à ce dépôt Node/Vercel ; PostgreSQL/Neon assure uniquement le stockage persistant.
 
 - Radar de recherche et rapprochement des offres par cinq axes explicables, accessible sans compte dans le navigateur.

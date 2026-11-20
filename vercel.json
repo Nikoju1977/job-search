@@ -1,6 +1,9 @@
 {
   "version": 2,
   "functions": {
+    "api/tracker.js": {
+      "maxDuration": 30
+    },
     "api/jobs.js": {
       "maxDuration": 30
     },

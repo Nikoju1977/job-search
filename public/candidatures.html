@@ -29,7 +29,7 @@
 <header class="studio-header">
   <div class="container studio-header-inner">
     <a class="studio-brand" href="/"><span class="studio-logo">N<span>·</span></span><span>NIKO <strong>EMPLOI</strong></span></a>
-    <nav class="studio-nav" aria-label="Navigation"><a href="/">Explorer les offres</a><a href="#cv" class="active">Mon espace candidature</a></nav>
+    <nav class="studio-nav" aria-label="Navigation"><a href="/">Explorer les offres</a><a href="#cv" class="active">Mon espace candidature</a><a href="/suivi.html">Mon suivi</a></nav>
     <a href="/" class="header-back">← Retour aux offres</a>
   </div>
 </header>
@@ -61,7 +61,7 @@
           <a href="#compte">◫ Vue d’ensemble</a>
           <a href="#niko-intelligence">✦ IA gratuite & NeuroMatch</a>
           <a href="#autonomie">◎ Veille autonome</a>
-          <a href="#suivi">✓ Historique et suivi</a>
+          <a href="#suivi">✓ Historique sur cet appareil</a><a href="/suivi.html">▤ Kanban &amp; relances</a>
         </nav>
         <div class="privacy-note"><span>♧</span><strong>Vos données, votre décision.</strong><p>Le CV est lu dans votre navigateur. L'IA ne le reçoit que lorsque vous demandez explicitement une lettre.</p></div>
       </aside>
@@ -69,7 +69,7 @@
         <section id="compte" class="studio-panel v2-account">
           <div class="panel-topline"><span>VERSION 2.0</span><span class="topline-accent">ESPACE PERSONNEL SÉCURISÉ</span></div>
           <div class="panel-heading"><div><h2>Votre carrière, votre cockpit<span>.</span></h2><p>Retrouvez les étapes importantes de vos candidatures. Les compteurs ci-dessous proviennent de votre historique, jamais de chiffres inventés.</p></div><span class="panel-icon">◫</span></div>
-          <div class="v2-stats"><div><small>Candidatures envoyées</small><strong id="v2Sent">0</strong></div><div><small>Réponses reçues</small><strong id="v2Replies">0</strong></div><div><small>Entretiens</small><strong id="v2Interviews">0</strong></div><div><small>À préparer</small><strong id="v2Prepared">0</strong></div></div>
+          <p><a href="/suivi.html" class="button-secondary" style="display:inline-flex;margin:5px 0 17px">Ouvrir mon tableau Kanban et mes relances ↗</a></p><div class="v2-stats"><div><small>Candidatures envoyées</small><strong id="v2Sent">0</strong></div><div><small>Réponses reçues</small><strong id="v2Replies">0</strong></div><div><small>Entretiens</small><strong id="v2Interviews">0</strong></div><div><small>À préparer</small><strong id="v2Prepared">0</strong></div></div>
           <div class="v2-account-box"><div><strong>Synchronisation sécurisée et multi-appareils</strong><p id="v2CloudStatus">Vérification de la disponibilité du service de comptes…</p></div>
             <form id="v2LoginForm" class="v2-login" hidden><label for="v2AccountEmail">Adresse e-mail</label><input type="email" id="v2AccountEmail" autocomplete="email" placeholder="vous@exemple.fr" required><button type="submit" class="button-primary">Recevoir mon lien de connexion</button></form>
             <div id="v2AccountActions" class="v2-account-actions" hidden><span id="v2AccountIdentity"></span><label class="check-line"><input id="v2SyncSent" type="checkbox"> Synchroniser les envois Gmail confirmés dans mon compte</label><button id="v2SyncProfile" type="button" class="button-primary">Chiffrer et sauvegarder mon profil</button><button id="v2ReloadAccount" type="button" class="button-secondary">Rafraîchir</button><button id="v2Logout" type="button" class="button-secondary">Déconnexion</button><button id="v2DeleteAccountData" type="button" class="text-action">Supprimer mon compte et mes données</button></div>
@@ -213,8 +213,8 @@
           <div class="agent-features"><span>✓ Réponse favorable</span><span>✓ Réponse défavorable</span><span>✓ Invitation à un entretien</span><span>✓ Doute : validation humaine</span></div>
           <div class="agent-settings"><label class="check-line"><input id="aiReplyConsent" type="checkbox"><span><strong>Utiliser l’IA pour analyser les réponses et affiner les brouillons.</strong> Le texte des e-mails de recrutement sera transmis au service IA uniquement avec mon accord.</span></label></div>
           <div class="agent-toolbar"><button id="checkReplies" class="button-primary" type="button">Analyser mes réponses Gmail →</button><button id="stopAgent" class="button-secondary" type="button">Arrêter l’automatisation</button></div>
-          <div class="agent-settings"><label class="check-line"><input id="autoAcknowledgements" type="checkbox"><span><strong>Activer les accusés de réception automatiques.</strong> Sur les fils de candidature reconnus, en cas de réponse favorable ou défavorable clairement identifiée, l’agent peut envoyer un simple remerciement sans prendre d’engagement. Disponible uniquement quand cette page est ouverte.</span></label></div>
-          <div id="agentStatus" class="agent-status" role="status">Connexion Gmail et consentement requis pour contrôler les réponses.</div>
+          <div class="agent-settings"><label class="check-line"><input id="autoAcknowledgements" type="checkbox"><span><strong>Vérifier mes réponses périodiquement.</strong> Tant que cette page reste ouverte, relire les fils Gmail autorisés toutes les 5 minutes. Aucun accusé de réception ni autre e-mail ne sera envoyé automatiquement.</span></label></div>
+          <div class="agent-settings"><label class="check-line"><input id="trackerInboxConsent" type="checkbox"><span><strong>Afficher les réponses détectées dans mon suivi Kanban.</strong> Seules les métadonnées (poste, employeur, type de réponse, date) sont enregistrées localement. Aucun corps d’e-mail ni adresse de recruteur n’est copié.</span></label></div><div id="agentStatus" class="agent-status" role="status">Connexion Gmail et consentement requis pour contrôler les réponses.</div>
           <div id="replies" class="agent-replies" aria-live="polite"><div class="studio-empty">Aucune réponse analysée.</div></div>
           <p class="agent-disclaimer">Les décisions de rendez-vous, les négociations, les documents demandés et les réponses ambiguës nécessitent votre validation. L’agent ne peut pas surveiller Gmail lorsque le navigateur est fermé.</p>
         </section>

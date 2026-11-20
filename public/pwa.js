@@ -71,7 +71,7 @@
     networkNotice.className = 'pwa-network-notice';
     networkNotice.setAttribute('role', 'status');
     networkNotice.setAttribute('aria-live', 'polite');
-    networkNotice.textContent = 'Mode hors ligne : les offres et candidatures exigent une connexion. Les annonces ne sont pas mises en cache.';
+    networkNotice.textContent = window.location.pathname==='/suivi.html'?'Mode hors ligne : les dossiers locaux restent disponibles. La synchronisation cloud et la vérification Gmail nécessitent Internet.':'Mode hors ligne : les offres et candidatures exigent une connexion. Les annonces ne sont pas mises en cache.';
     document.body.appendChild(networkNotice);
     const syncNetworkNotice = () => { networkNotice.hidden = navigator.onLine !== false; };
     window.addEventListener('online', syncNetworkNotice);
