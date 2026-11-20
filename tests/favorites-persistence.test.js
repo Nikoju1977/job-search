@@ -9,6 +9,7 @@ const tick=()=>new Promise(done=>setImmediate(done));
 
 function run(storage,responses) {
   const nodes=new Map();
+  const controls=new Map(); // stable browser-like DOM nodes retain event listeners
   const session=new Map();
   function element(id){
     if(!nodes.has(id)){
@@ -21,8 +22,12 @@ function run(storage,responses) {
           const prop=selector==='[data-favorite]'?'favorite':selector==='[data-prepare]'?'prepare':null;
           if(!prop)return [];
           return [...this.innerHTML.matchAll(new RegExp('data-'+prop+'="([^"]+)"','g'))].map(match=>{
-            const btn={dataset:{[prop]:match[1]},listeners:{},addEventListener(event,cb){this.listeners[event]=cb;}};
-            return btn;
+            const key=prop+':'+match[1];
+            if(!controls.has(key))controls.set(key,{
+              dataset:{[prop]:match[1]},listeners:{},
+              addEventListener(event,cb){this.listeners[event]=cb;}
+            });
+            return controls.get(key);
           });
         }};
       nodes.set(id,node);
