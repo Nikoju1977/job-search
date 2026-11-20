@@ -60,7 +60,11 @@
   node.textContent=message;
   node.style.color=error?'#a53633':'#4d6080';
  }
- const today=()=>new Date().toISOString().slice(0,10);
+ const today=()=>{
+  const parts=new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+  const part=type=>parts.find(value=>value.type===type)?.value||'';
+  return part('year')+'-'+part('month')+'-'+part('day');
+ };
  function isDue(item){return item.nextAction&&item.nextAction<=today()&&item.stage!=='terminee'}
  function saveCompany(company,role=''){
   if(!validRecord(company))return false;
