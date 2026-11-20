@@ -7,7 +7,13 @@ Niko Emploi doit toujours disposer d'un fonctionnement local réellement utilisa
 
 Sur Vercel `niko-emploi`, les variables sont présentes : `APP_ORIGIN`, `CRON_SECRET`, `DATA_ENCRYPTION_KEY`, `GREENHOUSE_BOARDS`.
 
-Les variables **absentes** sont notamment : `DATABASE_URL`, `RESEND_API_KEY`, `EMAIL_FROM`, `GOOGLE_CLIENT_ID`, `OPENAI_API_KEY`. Il n'est pas possible de fabriquer ou de deviner ces identifiants, ni de les extraire d'autres comptes.
+**Mise à jour vérifiée du 20 novembre 2026 :** `DATABASE_URL` existe maintenant dans Vercel **production**, en secret, avec le rôle PostgreSQL dédié `niko_emploi_runtime` (pas le propriétaire de la base). Les variables `RESEND_API_KEY`, `EMAIL_FROM`, `GOOGLE_CLIENT_ID`, `OPENAI_API_KEY` restent absentes. Aucune authentification e-mail ou IA facturable n'est annoncée comme opérationnelle.
+
+Neon : projet `niko-emploi` (`fragrant-cake-64571636`), région Francfort, abonnement déclaré `free_v3`, 11 tables existantes, zéro utilisateur ou candidature à la vérification. Sauvegarde manuelle préalable `niko-emploi-free-avant-optimisation-20261120`. Ne jamais publier l'URL PostgreSQL, le mot de passe ou la clé AES.
+
+**Optimisation 0 € :** la tâche Vercel Cron (une fois par jour) contrôle le secret avant toute connexion puis vérifie avec une requête légère si au moins un candidat a consenti à la veille autonome. Sinon, elle termine `idle` sans télécharger d'offres ni écrire l'index PostgreSQL. Les recherches publiques continuent d'interroger leurs sources indépendamment de Neon. L'activation future nécessite un compte réellement authentifié et un consentement conservé en base. Une lecture quotidienne peut réveiller brièvement le calcul Neon, mais son Free plan suspend le calcul après l'inactivité.
+
+**Limites actuelles :** les fonctions cloud associées aux e-mails transactionnels sont toujours inaccessibles en l'absence du fournisseur nécessaire ; les formulaires locaux, le radar et les exports restent disponibles. La sauvegarde Neon n'est pas un export durable hors fournisseur : prévoir des exports chiffrés périodiques après mise en service réelle des comptes.
 
 | Usage | Solution gratuite immédiatement fonctionnelle | Extension gratuite avec consentement |
 |---|---|---|
@@ -22,9 +28,9 @@ Les variables **absentes** sont notamment : `DATABASE_URL`, `RESEND_API_KEY`, `E
 ### Système cloud gratuit : condition préalable
 
 - **Neon Free** propose un PostgreSQL avec quotas. Choisir uniquement le plan marqué **Free / 0 €**. Vérifier que toute fonctionnalité payante, dépassement facturable ou mise à niveau est désactivé avant création. Plan officiel : https://neon.com/pricing
-- Connexion : utiliser l'app Neon dans ChatGPT ou la console officielle, avec l'action explicite de l'utilisateur. **Aucun fournisseur de base de données n'est encore relié à ce projet Vercel.**
-- Pour ne pas risquer d'affecter les données existantes : faire une sauvegarde, exécuter `database/niko-autonomy.sql` puis `database/niko-engine-v4.sql` dans un projet vierge, tester les contraintes et utiliser un rôle applicatif restreint.
-- Dans Vercel, créer `DATABASE_URL` comme secret **production**, sans l'exposer dans GitHub ni dans le chat. Les comptes cloud actuels requièrent en plus un **fournisseur d'e-mail transactionnel** (v. `lib/platform.js`). Sans celui-ci, ne pas activer les comptes.
+- Connexion : la base Neon Free est **déjà reliée** au projet Vercel via `DATABASE_URL` en secret de production ; ne pas créer de seconde base. La connexion ne prouve pas à elle seule que le parcours candidat complet fonctionne.
+- Les schémas `database/niko-autonomy.sql` et `database/niko-engine-v4.sql` sont déjà présents dans la base vérifiée ; ne pas les rejouer inutilement. Toute évolution future exige une migration additive contrôlée et un instantané de sauvegarde préalable.
+- `DATABASE_URL` est déjà dans Vercel comme secret de **production** ; ne jamais y remplacer le rôle restreint par `neondb_owner`. Les comptes cloud nécessitent toujours un **fournisseur d'e-mail transactionnel** (v. `lib/platform.js`). Sans celui-ci, ne pas les annoncer actifs.
 - Resend possède une formule Free mais son envoi vers des tiers implique généralement la validation d'un domaine que l'utilisateur contrôle. Si un domaine gratuit approprié n'est pas disponible, **ne pas le créer à titre payant**. Le cloud candidat reste désactivé. L'envoi manuel est suffisant pour une solution à 0 €.
 
 ### Gmail direct, seulement si l'utilisateur le souhaite
