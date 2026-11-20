@@ -65,3 +65,18 @@ test('tracker source is strictly client-side and no automatic recruiter outreach
  assert.match(shell,/radar-suivi\.js/);
  assert.doesNotMatch(shell,/\/api\/|client_secret|data_encryption/);
 });
+
+test('scheduled follow-up becomes an actual importable iCalendar event without sending email',()=>{
+ const h=harness();
+ h.api.saveCompany(company,'Agent entretien');
+ const record=JSON.parse(h.store.get('niko_radar_prospection_v1'))[0];
+ record.nextAction='2026-11-25';
+ const ics=h.api.calendarText(record);
+ assert.match(ics,/BEGIN:VCALENDAR\r\n/);
+ assert.match(ics,/DTSTART;VALUE=DATE:20261125/);
+ assert.match(ics,/DTEND;VALUE=DATE:20261126/);
+ assert.match(ics,/BEGIN:VALARM[\s\S]*TRIGGER:-P1D/);
+ assert.match(ics,/Employeur exemple/);
+ assert.doesNotMatch(ics,/mailto:|http:\/\/|https:\/\/|Bearer /);
+ assert.throws(()=>h.api.calendarText({...record,nextAction:''}),/invalide/);
+});
