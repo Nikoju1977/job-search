@@ -124,7 +124,10 @@
   const lbb=create('a','radar-action','Consulter La Bonne Boîte ↗');
   lbb.href='https://labonneboite.francetravail.fr/';lbb.target='_blank';lbb.rel='noopener noreferrer';
   const erase=create('button','radar-action','Retirer');erase.type='button';erase.addEventListener('click',()=>remove(item.siren));
-  buttons.append(save,official,lbb,erase);form.append(buttons);
+  const calendar=create('button','radar-action','Exporter la relance vers mon calendrier');
+  calendar.type='button';calendar.disabled=!item.nextAction||item.stage==='terminee';
+  calendar.addEventListener('click',()=>calendarDownload(item));
+  buttons.append(save,official,lbb,calendar,erase);form.append(buttons);
   form.addEventListener('submit',event=>{
    event.preventDefault();
    update(item.siren,{stage:stageSelect.value,nextAction:dateInput.value,role:roleInput.value,
@@ -157,6 +160,36 @@
   const blob=new Blob([text],{type}),url=URL.createObjectURL(blob),a=create('a');
   a.href=url;a.download=name;document.body.append(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),5000);
+ }
+ function calendarText(item){
+  if(!item||!safeDate(item.nextAction))throw Error('Date de relance invalide.');
+  const esc=value=>String(value||'').replace(/\\/g,'\\\\')
+   .replace(/\r\n|\r|\n/g,'\\n').replace(/[,;]/g,'\\ function exportCSV(){');
+  const d=new Date(item.nextAction+'T12:00:00Z');
+  d.setUTCDate(d.getUTCDate()+1);
+  const next=d.toISOString().slice(0,10).replace(/-/g,'');
+  const stamp=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}Z$/,'Z');
+  const due=item.nextAction.replace(/-/g,'');
+  const title='Relance candidature spontanée — '+item.name;
+  const explanation='Vérifier personnellement les suites de votre démarche pour '+item.name+
+   (item.role?' / '+item.role:'')+'. Aucun message envoyé automatiquement.';
+  return [
+   'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Niko Emploi//Radar Prospection//FR',
+   'CALSCALE:GREGORIAN','METHOD:PUBLISH','BEGIN:VEVENT',
+   'UID:niko-radar-'+item.siren+'-'+due+'@niko-emploi.vercel.app',
+   'DTSTAMP:'+stamp,'DTSTART;VALUE=DATE:'+due,'DTEND;VALUE=DATE:'+next,
+   'SUMMARY:'+esc(title),'DESCRIPTION:'+esc(explanation),
+   'BEGIN:VALARM','ACTION:DISPLAY','TRIGGER:-P1D',
+   'DESCRIPTION:'+esc(title),'END:VALARM','END:VEVENT','END:VCALENDAR',''
+  ].join('\r\n');
+ }
+ function calendarDownload(item){
+  if(!safeDate(item.nextAction)){
+   notice('Ajoutez et enregistrez une date de relance avant de créer un rappel.',true);return;
+  }
+  download('niko-radar-relance-'+item.siren+'-'+item.nextAction+'.ics',
+   calendarText(item),'text/calendar;charset=utf-8');
+  notice('Fichier calendrier créé : importez-le dans votre calendrier. Les notifications dépendent de votre application de calendrier.');
  }
  function exportCSV(){
   const keys=['siren','name','city','postcode','stage','role','nextAction','lbbChecked','note','directoryUrl'];
@@ -201,6 +234,6 @@
   $('trackerImport')?.addEventListener('change',event=>{const file=event.target.files?.[0];if(file)importJSON(file);event.target.value=''});
   window.addEventListener('storage',event=>{if(event.key===KEY){read();render();notice('Suivi actualisé depuis un autre onglet.')}});
  }
- window.NikoRadarTracker={decorate,render,saveCompany};
+ window.NikoRadarTracker={decorate,render,saveCompany,calendarText};
  document.addEventListener('DOMContentLoaded',init);
 })();
