@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/marche-cache.css">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/icon-192.png" type="image/png">
-<script src="/marche-cache.js" defer></script><script src="/pwa.js" defer></script>
+<script src="/radar-suivi.js" defer></script><script src="/marche-cache.js" defer></script><script src="/pwa.js" defer></script>
 </head>
 <body class="radar-page">
 <a class="skip-link" href="#results">Aller aux entreprises</a>
@@ -54,10 +54,29 @@
 <div id="companyList" class="radar-grid"></div>
 <div class="radar-pagination"><button type="button" id="prevPage" disabled>Page précédente</button><span id="pageNumber">Page 1</span><button type="button" id="nextPage" disabled>Page suivante</button></div>
 </section>
+<section class="radar-panel radar-tracker" id="radarTracker" aria-labelledby="trackerTitle">
+<div class="radar-panel-top"><div><div class="radar-eyebrow">VOTRE PLAN D'ACTION</div><h2 id="trackerTitle">Mes entreprises à contacter</h2><p>Un suivi privé pour organiser vos candidatures spontanées et ne manquer aucune relance.</p></div>
+<div class="tracker-kpis"><span><b id="trackerCount">0</b> entreprises suivies</span><span><b id="trackerDueCount">0</b> actions à effectuer</span></div></div>
+<p class="tracker-confidentialite"><strong>Confidentialité :</strong> ce suivi et vos notes sont conservés sans chiffrement dans le navigateur de cet appareil, sans synchronisation entre appareils. Évitez les informations sensibles sur un appareil partagé. Exportez régulièrement une sauvegarde.</p>
+<div class="tracker-toolbar">
+<label>Afficher<select id="trackerFilter" aria-label="Filtrer les entreprises suivies">
+<option value="all">Tous les dossiers</option><option value="due">Relances dues</option>
+<option value="reperee">À étudier</option><option value="cibler">À contacter</option>
+<option value="contactee">Contactées</option><option value="relance">Relances à préparer</option>
+<option value="reponse">Réponses déclarées</option><option value="terminee">Clôturées</option>
+</select></label>
+<button type="button" class="radar-secondary" id="trackerExport" disabled>Exporter CSV</button>
+<button type="button" class="radar-secondary" id="trackerJSON" disabled>Sauvegarder JSON</button>
+<label class="radar-secondary tracker-import">Importer JSON<input id="trackerImport" type="file" accept="application/json,.json" aria-label="Importer une sauvegarde JSON"></label>
+</div>
+<div id="trackerNotice" role="status" aria-live="polite"></div>
+<div id="trackerList" class="tracker-list"></div>
+<p class="tracker-caveat">Les états « contactée » et « réponse reçue » sont vos propres déclarations ; Niko Emploi ne vérifie pas les envois. Aucune candidature ni relance n'est envoyée automatiquement.</p>
+</section>
 <section class="radar-guides">
 <h2>Pour repérer les vrais besoins en recrutement</h2>
 <div class="radar-guide-grid">
-<article><h3>La Bonne Boîte</h3><p>France Travail identifie des entreprises présentant un potentiel d'embauche par métier et lieu. Ce service est distinct du registre présenté ci-dessus.</p><a href="https://labonneboite.francetravail.fr/" target="_blank" rel="noopener noreferrer">Consulter France Travail ↗</a></article>
+<article><h3>La Bonne Boîte — potentiel d'embauche</h3><p>Vérifiez manuellement les entreprises susceptibles d'embaucher pour votre métier et votre territoire. <strong>Ce résultat France Travail n'est pas connecté automatiquement à Niko Emploi.</strong></p><a href="https://labonneboite.francetravail.fr/" target="_blank" rel="noopener noreferrer">Ouvrir La Bonne Boîte ↗</a><p class="tracker-setup">L'intégration API v2 demande une habilitation France Travail et une configuration serveur. Niko Emploi n'affiche donc aucun score non vérifié.</p><a href="https://francetravail.io/produits-partages/catalogue/bonne-boite-v2" target="_blank" rel="noopener noreferrer">Demander l'accès API officiel ↗</a></article>
 <article><h3>BMO 2026</h3><p>Consultez les intentions de recrutement par bassin d'emploi, métier et secteur. Les données BMO ne certifient pas qu'une entreprise précise embauche.</p><a href="https://statistiques.francetravail.org/bmo/" target="_blank" rel="noopener noreferrer">Voir l'étude BMO ↗</a></article>
 </div>
 </section>
