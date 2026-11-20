@@ -48,6 +48,18 @@ test('country-specific Jobicy listings are not misrepresented as open to France'
   assert.equal(eligibleJobicy(job({location:'France',remote:true})),true);
   assert.equal(eligibleJobicy(job({location:'Europe',remote:true})),true);
 });
+test('City searches exclude outside-city remote jobs unless remote-only is explicitly selected', () => {
+  const remoteParis = job({title:'Designer Produit',location:'Paris, France',remote:true});
+  const remoteGlobal = job({title:'Designer Produit',location:'Télétravail — Monde',remote:true});
+  const localNantes = job({title:'Designer Produit',location:'Nantes, France',remote:false});
+  assert.equal(matches(remoteParis,'designer','Nantes',false,'Tous'),false);
+  assert.equal(matches(remoteGlobal,'designer','Nantes',false,'Tous'),false);
+  assert.equal(matches(remoteGlobal,'designer','Nantes',true,'Tous'),true);
+  assert.equal(matches(remoteParis,'designer','Nantes',true,'Tous'),true);
+  assert.equal(matches(localNantes,'designer','Nantes',false,'Tous'),true);
+  assert.equal(matches(localNantes,'designer','Nan',false,'Tous'),false);
+  assert.equal(matches(remoteGlobal,'designer','Toute la France',false,'Tous'),true);
+});
 test('distinct postings with IDs in URL queries are retained', () => {
   const a=job({url:'https://example.org/job?id=123',title:'QA Testeur'});
   const b=job({url:'https://example.org/job?id=124',title:'Product Designer'});
