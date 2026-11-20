@@ -30,3 +30,6 @@ jobs:
           node --check public/v2-dossiers.js
       - name: Tester le moteur de recherche et le studio
         run: npm test
+      - name: Parcours utilisateur Chromium (radar, suivi, Studio)
+        timeout-minutes: 4
+        run: node tests/browser-smoke.js
