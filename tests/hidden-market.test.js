@@ -3,6 +3,7 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const {validate,normalize,searchMarket}=require('../lib/hidden-market');
 test('requires safe postal code, radius, sector and page before remote requests',()=>{
  assert.equal(validate({zip:'44520',radius:'20',sector:'N'}).radius,20);
+ assert.equal(validate({zip:'44520',commune:'La Meilleraye-de-Bretagne'}).commune,'La Meilleraye-de-Bretagne');
  for(const q of [{zip:'bad'},{zip:'75001',radius:150},{zip:'44520',sector:'../../etc'},{page:1000}])
   assert.throws(()=>validate(q),/invalide|requis/);
 });
@@ -58,4 +59,19 @@ test('public UI connects to the existing candidate studio without sending applic
  assert.match(js,/niko_selected_job/);
  assert.match(js,/sessionStorage\.setItem/);
  assert.doesNotMatch(js,/gmail\.googleapis|messages\/send|fetch\(['"]https:\/\/api\.resend/);
+});
+test('exact commune resolves ambiguous postal codes without silently picking the largest',async()=>{
+ const mock=async url=>{
+  if(String(url).includes('geo.api.gouv.fr'))return {ok:true,json:async()=>[
+   {nom:'Moisdon-la-Rivière',population:1900,centre:{coordinates:[-1.4,47.6]}},
+   {nom:'La Meilleraye-de-Bretagne',population:1400,centre:{coordinates:[-1.3,47.5]}}
+  ]};
+  const params=new URL(url).searchParams;
+  assert.equal(params.get('lat'),'47.5');
+  assert.equal(params.get('long'),'-1.3');
+  return {ok:true,json:async()=>({results:[],total_results:0})};
+ };
+ const q=await searchMarket({zip:'44520',commune:'La Meilleraye-de-Bretagne',sector:'P',page:9},mock);
+ assert.equal(q.center.name,'La Meilleraye-de-Bretagne');
+ await assert.rejects(searchMarket({zip:'44520',commune:'Commune inexistante',sector:'P',page:10},mock),/Commune introuvable/);
 });

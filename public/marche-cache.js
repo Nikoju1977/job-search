@@ -60,7 +60,7 @@ function render(){
   meta.append(el('span','',([c.postcode,c.city].filter(Boolean).join(' ')||'Localisation non communiquée')),
     el('span','','SIREN '+c.siren));
   if(c.activity)meta.append(el('span','','NAF '+c.activity));
-  if(c.establishments)meta.append(el('span','',c.establishments+' établissement(s) déclaré(s)'));
+  if(c.establishments)meta.append(el('span','',c.establishments+' établissement(s) pour la société, France entière'));
   card.append(meta,el('p','','Piste de candidature spontanée : aucun poste ouvert confirmé par cette source.'));
   const actions=el('div','radar-actions');
   actions.append(link('Fiche officielle ↗',c.directoryUrl));
@@ -76,7 +76,7 @@ async function run(page=1){
  if(state.busy)return;
  const zip=$('zip').value.trim();
  if(!/^\d{5}$/.test(zip)){status('Renseignez un code postal à 5 chiffres.',true);return;}
- const params=new URLSearchParams({zip,radius:$('radius').value,sector:$('sector').value,page:String(page)});
+ const params=new URLSearchParams({zip,commune:$('commune').value.trim(),radius:$('radius').value,sector:$('sector').value,page:String(page)});
  const id=++state.request;state.busy=true;
  $('searchButton').disabled=true; $('searchButton').textContent='Recherche en cours…';
  status('Consultation des registres officiels…');

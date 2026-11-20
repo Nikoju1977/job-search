@@ -25,7 +25,8 @@
 <section class="radar-panel" aria-labelledby="radar-title">
 <div class="radar-panel-top"><div><h2 id="radar-title">Explorer un territoire</h2><p>Sans abonnement ni clé personnelle. Recherche dans les registres publics français.</p></div><span class="radar-chip">Source officielle</span></div>
 <form id="radarForm" class="radar-form">
-<label>Code postal<input type="text" id="zip" name="zip" inputmode="numeric" autocomplete="postal-code" pattern="[0-9]{5}" maxlength="5" value="44520" required aria-describedby="zipHelp"><small id="zipHelp">Le centre de la commune principale sert de point de départ.</small></label>
+<label>Code postal<input type="text" id="zip" name="zip" inputmode="numeric" autocomplete="postal-code" pattern="[0-9]{5}" maxlength="5" value="44520" required aria-describedby="zipHelp"><small id="zipHelp">Peut correspondre à plusieurs communes.</small></label>
+<label>Commune exacte<input id="commune" name="commune" type="text" maxlength="80" value="La Meilleraye-de-Bretagne" placeholder="Ex. La Meilleraye-de-Bretagne"><small>Laissez vide pour la commune la plus peuplée du code postal.</small></label>
 <label>Rayon<select id="radius" name="radius"><option value="5">5 km</option><option value="10">10 km</option><option value="20" selected>20 km</option><option value="30">30 km</option><option value="50">50 km</option></select></label>
 <label>Secteur d'activité<select id="sector" name="sector">
 <option value="all">Tous les secteurs</option>
