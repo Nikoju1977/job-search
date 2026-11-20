@@ -2,7 +2,7 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const source=fs.readFileSync(path.join(__dirname,'../public/suivi.js'),'utf8');
 const tick=()=>new Promise(done=>setImmediate(done));
-function harness(legacy=[]){
+function harness(legacy=[],options={}){
  const storage=new Map([['niko_history_v2',JSON.stringify(legacy)]]);
  const elements=new Map();
  const el=(tag='div',id='')=>({
@@ -21,7 +21,10 @@ function harness(legacy=[]){
   body:el('body')
  };
  const window={addEventListener(){},location:{href:''}};
- const localStorage={getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value)};
+ const localStorage={getItem:key=>storage.get(key)||null,setItem:(key,value)=>{
+  if(options.failWrites)throw Error('QuotaExceededError');
+  storage.set(key,value);
+ }};
  const fetch=async url=>{
   if(url==='/api/auth')return {ok:true,json:async()=>({authenticated:false})};
   throw Error('Unexpected endpoint '+url);
@@ -98,4 +101,17 @@ test('Outlook/Gmail EML metadata import does not save message body or change app
  assert.equal(inbox[0].receivedAt,'2026-11-18T11:00:00.000Z');
  assert.doesNotMatch(JSON.stringify(inbox),/Contenu privé|rh@example\.org/);
  assert.equal(h.get('mTotal').textContent,0);
+});
+
+test('Browser storage failure never reports an unsaved application as saved',async()=>{
+ const h=harness([],{failWrites:true});await tick();
+ h.get('addApplication').listeners.click();
+ h.get('caseTitle').value='Agent entretien';
+ h.get('caseCompany').value='Entreprise test';
+ await h.get('caseForm').listeners.submit({preventDefault(){}});
+ assert.equal(h.storage.has('niko_tracker_local_v6'),false);
+ assert.equal(h.get('mTotal').textContent,0);
+ assert.equal(h.get('applicationDialog').open,true);
+ assert.match(h.get('saveCaseStatus').textContent,/non enregistré|insuffisant/i);
+ assert.match(h.get('resultStatus').textContent,/Sauvegarde refusée/i);
 });
