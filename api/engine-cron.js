@@ -28,14 +28,30 @@ async function scanPublicCatalog(sql){
  await sql.query("delete from public.niko_public_jobs where last_seen_at < now() - interval '60 days'");
  return {offersReceived:data.jobs.length,indexed:inserted.length,partial:!!data.partial,sources:data.sources};
 }
+async function hasConsentingCandidates(sql){
+ // One small indexed read before expensive provider calls and bulk catalogue writes.
+ // No personal fields are fetched or exposed by this existence test.
+ const rows=await sql.query(
+  'select exists (select 1 from public.niko_agent_policies pol '+
+  'join public.niko_profiles p on p.user_id=pol.user_id '+
+  'where pol.enabled=true and pol.consent_at is not null '+
+  "and (length(p.target_role)>0 or p.cv_ciphertext is not null)) as active"
+ );
+ return rows[0]?.active===true;
+}
 module.exports=async function handler(req,res){
  res.setHeader('Cache-Control','no-store');
  try{
   if(req.method!=='GET')throw new ApiError(405,'Méthode non autorisée.');
-  if(!process.env.DATABASE_URL)return res.status(200).json({status:'paused',reason:'DATABASE_URL non configuré',performed:false});
+  // Authenticate before disclosing database configuration or waking a Neon compute.
   if(!authorized(req))throw new ApiError(401,'Invocation non autorisée.');
+  if(!process.env.DATABASE_URL)return res.status(200).json({status:'paused',reason:'DATABASE_URL non configuré',performed:false});
   const {neon}=require('@neondatabase/serverless');
   const sql=neon(process.env.DATABASE_URL);
+  if(!await hasConsentingCandidates(sql)) {
+   return res.status(200).json({status:'idle',performed:false,
+    reason:'Aucune veille personnalisée activée : pas de collecte ni écriture catalogue.'});
+  }
   const catalog=await scanPublicCatalog(sql);
   const agents=await scanCandidates({maxUsers:4});
   return res.status(200).json({status:'completed',performed:true,catalog,agents,notes:'Recommandations autonomes uniquement. Aucune candidature ni réponse envoyée automatiquement.'});
@@ -43,3 +59,4 @@ module.exports=async function handler(req,res){
 };
 module.exports.scanPublicCatalog=scanPublicCatalog;
 module.exports.authorized=authorized;
+module.exports.hasConsentingCandidates=hasConsentingCandidates;
