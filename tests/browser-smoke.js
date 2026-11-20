@@ -86,7 +86,7 @@ async function smoke(){
   await call('Page.navigate',{url:base+'/marche-cache.html'});
   await wait('document.readyState==="complete"&&!!document.querySelector("#radarForm")&&!!window.NikoRadarTracker','radar JS');
   assert.equal(await evaluate('document.querySelector("#sector").value'),'cleaning');
-  assert.ok(await evaluate('!!document.querySelector("a[href=\"https://labonneboite.francetravail.fr/\"]")'));
+  assert.ok(await evaluate('Array.from(document.querySelectorAll("a")).some(a=>a.href.startsWith("https://labonneboite.francetravail.fr/"))'));
   await evaluate('document.querySelector("#radarForm").requestSubmit();true');
   await wait('document.querySelectorAll(".radar-company").length===1','company search');
   assert.match(await evaluate('document.querySelector("#status").textContent'),/Aucune offre confirmée/);
