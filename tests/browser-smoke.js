@@ -58,7 +58,10 @@ async function smoke(){
   }
   async function evaluate(expression){
    const res=await call('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});
-   if(res.exceptionDetails)throw Error('JS '+(res.exceptionDetails.text||JSON.stringify(res.exceptionDetails)));
+   if(res.exceptionDetails){
+    const ex=res.exceptionDetails;
+    throw Error('Browser expression '+expression.slice(0,180)+' failed: '+(ex.exception?.description||ex.exception?.value||ex.text||JSON.stringify(ex)));
+   }
    return res.result?.value;
   }
   const wait=(expr,label)=>poll(()=>evaluate(expr),label,16500);
