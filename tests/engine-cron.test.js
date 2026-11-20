@@ -5,15 +5,19 @@ const fs=require('node:fs');
 const path=require('node:path');
 const cron=require('../api/engine-cron');
 test('Daily autonomous scan is OFF without persistent storage',async()=>{
- const old=process.env.DATABASE_URL;delete process.env.DATABASE_URL;
+ const old=process.env.DATABASE_URL,oldSecret=process.env.CRON_SECRET;
+ delete process.env.DATABASE_URL;process.env.CRON_SECRET='0123456789_abcdefghijklmnopqrstuvwxyz';
  try{
   let result;
   const res={setHeader(){},status(status){this.statusCode=status;return this;},json(data){result=data;return this;}};
-  await cron({method:'GET',headers:{}},res);
+  await cron({method:'GET',headers:{authorization:'Bearer 0123456789_abcdefghijklmnopqrstuvwxyz'}},res);
   assert.equal(res.statusCode,200);
   assert.equal(result.status,'paused');
   assert.equal(result.performed,false);
- }finally{if(old===undefined)delete process.env.DATABASE_URL;else process.env.DATABASE_URL=old;}
+ }finally{
+  if(old===undefined)delete process.env.DATABASE_URL;else process.env.DATABASE_URL=old;
+  if(oldSecret===undefined)delete process.env.CRON_SECRET;else process.env.CRON_SECRET=oldSecret;
+ }
 });
 test('Protects cron with configured secret and constant-time comparison',()=>{
  const saved=process.env.CRON_SECRET;process.env.CRON_SECRET='0123456789_abcdefghijklmnopqrstuvwxyz';
@@ -36,4 +40,18 @@ test('Background scan uses an idempotent job index and does not send application
 test('The cron is on an all-plans-compatible daily cadence',()=>{
  const v=JSON.parse(fs.readFileSync(path.join(__dirname,'../vercel.json'),'utf8'));
  assert.deepEqual(v.crons,[{path:'/api/engine-cron',schedule:'0 6 * * *'}]);
+});
+
+test('Cron does not disclose database setup to anonymous visitors',async()=>{
+ const oldDb=process.env.DATABASE_URL,oldSecret=process.env.CRON_SECRET;
+ delete process.env.DATABASE_URL;process.env.CRON_SECRET='0123456789_abcdefghijklmnopqrstuvwxyz';
+ try{
+  const res={setHeader(){},status(n){this.statusCode=n;return this;},json(body){this.body=body;return this;}};
+  await cron({method:'GET',headers:{}},res);
+  assert.equal(res.statusCode,401);
+  assert.doesNotMatch(JSON.stringify(res.body),/DATABASE_URL|paused/);
+ }finally{
+  if(oldDb===undefined)delete process.env.DATABASE_URL;else process.env.DATABASE_URL=oldDb;
+  if(oldSecret===undefined)delete process.env.CRON_SECRET;else process.env.CRON_SECRET=oldSecret;
+ }
 });
