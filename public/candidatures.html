@@ -193,7 +193,7 @@
 </div>
 <div class="sending-block">
             <div class="sending-title"><h3>Envoyer votre candidature</h3><span>Avec votre accord uniquement</span></div>
-            <p>Si vous disposez de l'adresse du recruteur, l'envoi Gmail peut inclure automatiquement votre CV et votre lettre. Les formulaires d'autres plateformes restent accessibles depuis leur annonce.</p>
+            <p>Sans configuration Google, utilisez gratuitement « Préparer un e-mail » : votre messagerie s’ouvre avec un brouillon. Vérifiez le destinataire et <strong>ajoutez votre CV manuellement</strong>. L’envoi Gmail intégré avec pièce jointe nécessite une autorisation Google OAuth.</p>
             <div class="send-grid"><label>Adresse e-mail du recruteur<input id="recruiterEmail" type="email" placeholder="recrutement@entreprise.fr" maxlength="180"></label><button id="sendBtn" type="button" class="button-primary">Envoyer avec Gmail →</button></div>
             <label class="check-line"><input type="checkbox" id="sendConsent"><span>Je valide le destinataire, le CV et la lettre et j'autorise cet envoi.</span></label>
             <div class="send-footer"><button id="emailFallback" class="text-action" type="button">Préparer un e-mail sans connexion Gmail ↗</button><span id="gmailStatus">Connexion Google requise pour l'envoi direct.</span></div>
@@ -214,6 +214,16 @@
           <div class="agent-settings"><label class="check-line"><input id="aiReplyConsent" type="checkbox"><span><strong>Utiliser l’IA pour analyser les réponses et affiner les brouillons.</strong> Le texte des e-mails de recrutement sera transmis au service IA uniquement avec mon accord.</span></label></div>
           <div class="agent-toolbar"><button id="checkReplies" class="button-primary" type="button">Analyser mes réponses Gmail →</button><button id="stopAgent" class="button-secondary" type="button">Arrêter l’automatisation</button></div>
           <div class="agent-settings"><label class="check-line"><input id="autoAcknowledgements" type="checkbox"><span><strong>Activer les accusés de réception automatiques.</strong> Sur les fils de candidature reconnus, en cas de réponse favorable ou défavorable clairement identifiée, l’agent peut envoyer un simple remerciement sans prendre d’engagement. Disponible uniquement quand cette page est ouverte.</span></label></div>
+          <div class="studio-panel" id="manualReplyPanel" style="margin:18px 0;padding:18px;border:1px solid #ccd8e6;border-radius:14px">
+            <h3>Analyser une réponse sans Gmail ni abonnement</h3>
+            <p>Copiez ici le texte d’un message reçu : une analyse par règles locales propose un brouillon. <strong>Le texte reste dans votre navigateur, aucun e-mail n’est envoyé et le résultat doit être vérifié.</strong></p>
+            <label for="manualReplyInput" class="full-label">Message du recruteur (texte uniquement, maximum 4 000 caractères)</label>
+            <textarea id="manualReplyInput" rows="5" maxlength="4000" placeholder="Collez uniquement le contenu utile du message, sans information sensible."></textarea>
+            <div class="agent-toolbar"><button id="manualReplyAnalyze" class="button-primary" type="button">Analyser gratuitement sur cet appareil</button><button id="manualReplyCopy" class="button-secondary" type="button" disabled>Copier le brouillon</button></div>
+            <div id="manualReplyResult" role="status" aria-live="polite"></div>
+            <label for="manualReplyDraft" class="full-label">Réponse proposée (modifiable, jamais envoyée automatiquement)</label>
+            <textarea id="manualReplyDraft" rows="5" maxlength="3000" placeholder="La réponse apparaîtra ici après analyse."></textarea>
+          </div>
           <div id="agentStatus" class="agent-status" role="status">Connexion Gmail et consentement requis pour contrôler les réponses.</div>
           <div id="replies" class="agent-replies" aria-live="polite"><div class="studio-empty">Aucune réponse analysée.</div></div>
           <p class="agent-disclaimer">Les décisions de rendez-vous, les négociations, les documents demandés et les réponses ambiguës nécessitent votre validation. L’agent ne peut pas surveiller Gmail lorsque le navigateur est fermé.</p>

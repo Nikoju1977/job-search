@@ -259,11 +259,31 @@ async function sendReply(item){const to=parseAddr(item.from);if(!validEmail(to)|
  state.handled.add(item.id);persistHandled();state.replies=state.replies.filter(x=>x.id!==item.id);renderReplies();history({title:item.title,company:item.company},'Réponse envoyée');show('Réponse envoyée au recruteur.');
  }catch(e){show('Réponse non confirmée : '+e.message,true);}
 }
+function analyzeManualReply(){
+ const body=$('manualReplyInput').value.trim();
+ if(body.length<12){
+  $('manualReplyResult').textContent='Ajoutez le contenu du message pour l’analyser.';
+  $('manualReplyDraft').value='';
+  $('manualReplyCopy').disabled=true;
+  return;
+ }
+ const kind=classification(body);
+ const labels={entretien:'Invitation à un entretien possible',favorable:'Retour favorable possible',
+  defavorable:'Refus possible',incertain:'Interprétation incertaine'};
+ $('manualReplyResult').textContent=(labels[kind]||labels.incertain)+
+  ' — analyse indicative par règles locales, sans IA serveur ni transmission. Relisez le message et le brouillon.';
+ $('manualReplyDraft').value=replyText(kind,prof().fullName);
+ $('manualReplyCopy').disabled=false;
+}
 function autoLoop(){if(state.timer){clearInterval(state.timer);state.timer=null;}if($('autoAcknowledgements')?.checked){state.timer=setInterval(()=>{if(document.visibilityState==='visible')checkReplies(true);},5*60*1000);}}
 async function init(){
  try{const resp=await fetch('/api/config',{cache:'no-store'});if(resp.ok)state.config=await resp.json();}catch{}
- $('generationMode').textContent=state.config.aiConfigured?'L’IA est disponible avec votre consentement.':'Mode local disponible · Connexion IA non configurée.';
- $('gmailStatus').textContent=state.config.gmailConfigured?'Gmail disponible après autorisation Google.':'Gmail nécessite une configuration OAuth par l’administrateur.';
+ const googleReady=!!(state.config.gmailConfigured&&state.config.googleClientId);
+ $('generationMode').textContent=state.config.aiConfigured?'Rédaction locale gratuite ou IA serveur après consentement (cette dernière peut engendrer des frais).':'Rédaction locale gratuite à partir de votre CV : aucune clé ni abonnement requis.';
+ $('gmailStatus').textContent=googleReady?'Gmail intégré : connectez votre compte via Google avant tout envoi.':'Mode 0 € : l’envoi Gmail intégré est désactivé sans OAuth. Utilisez « Préparer un e-mail » gratuitement.';
+ for(const id of ['sendBtn','sendBatch','checkReplies','stopAgent'])$(id).disabled=!googleReady;
+ $('autoAcknowledgements').disabled=!googleReady;
+ $('aiReplyConsent').disabled=!state.config.aiConfigured;
  try{const data=JSON.parse(localStorage.getItem(PKEY)||'null');if(data){for(const id of ['fullName','email','targetRole','targetLocation','cvText'])if(typeof data[id]==='string')$(id).value=data[id];$('remember').checked=true;$('cvSummary').textContent='Profil restauré. Réimportez le CV pour l’envoyer en pièce jointe.';}}
  catch{}
  try{state.history=JSON.parse(localStorage.getItem(HKEY)||'[]');if(!Array.isArray(state.history))state.history=[];}catch{state.history=[];}
@@ -288,10 +308,20 @@ async function init(){
  $('prepareBatch').onclick=async()=>{if(!state.queue.length)return show('Ajoutez d’abord des annonces.',true);busy('prepareBatch',true,'Préparation…');try{for(const job of state.queue)if(!job.letter)await generate(job,true);renderQueue();show('Lettres préparées : ouvrez chaque annonce pour les vérifier avant envoi.');}finally{busy('prepareBatch',false)}};
  $('sendBatch').onclick=sendBatch;
  $('clearHistory').onclick=()=>{if(confirm('Effacer l’historique local des candidatures ?')){state.history=[];persistHistory();renderHistory();}};
- $('checkReplies').onclick=()=>checkReplies(false);
+ $('manualReplyAnalyze').onclick=analyzeManualReply;
+ $('manualReplyInput').addEventListener('input',()=>{
+  $('manualReplyResult').textContent='';$('manualReplyCopy').disabled=true;
+ });
+ $('manualReplyCopy').onclick=async()=>{
+  const text=$('manualReplyDraft').value.trim();
+  if(!text)return show('Aucun brouillon à copier.',true);
+  try{await navigator.clipboard.writeText(text);show('Brouillon copié : aucun message envoyé.');}
+  catch{show('Copie impossible : sélectionnez le texte du brouillon pour le copier manuellement.',true);}
+ };
+  $('checkReplies').onclick=()=>checkReplies(false);
  $('autoAcknowledgements').onchange=()=>{if($('autoAcknowledgements').checked&&!confirm('Activer les accusés de réception automatiques pour les réponses favorables ou défavorables clairement identifiées ? Ce mode fonctionne uniquement lorsque cette page reste ouverte.')){$('autoAcknowledgements').checked=false;}autoLoop();};
  $('stopAgent').onclick=()=>{$('autoAcknowledgements').checked=false;autoLoop();show('Envoi automatique désactivé.');};
- $('agentStatus').textContent='Prêt à examiner les réponses aux candidatures envoyées via Niko Emploi.';
+ $('agentStatus').textContent=googleReady?'Suivi Gmail disponible après authentification et envoi d’une candidature.':'Suivi Gmail direct non configuré. L’analyse locale ci-dessus reste opérationnelle et gratuite.';
 }
 init();
 })();

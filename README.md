@@ -1,5 +1,11 @@
 # Niko Emploi — Intelligence 4.0
 
+## Mode 0 € sans aucune clé
+
+Le radar, la recherche, le suivi des entreprises, les lettres locales, les rappels au format calendrier et l'analyse manuelle de réponses recruteurs restent disponibles gratuitement. L'application ne fabrique aucune preuve d'embauche. Les boutons d'envoi Gmail direct restent désactivés tant que Google OAuth n'est pas configuré. Le cloud candidat exige un fournisseur de base de données et un expéditeur autorisés ; **aucun abonnement ni frais n'est engagé automatiquement**.
+
+[Guide complet de configuration 0 €](docs/CONFIGURATION_ZERO_EURO.md).
+
 ## Radar marché caché — entreprises et suivi local
 
 Dans `/marche-cache.html`, le Radar recense des entreprises par SIREN et propose un **suivi personnel de prospection** : états, notes, dates de relance et export CSV/JSON. Les données restent sur l'appareil et ne sont pas chiffrées localement. Aucun message n'est envoyé automatiquement.
