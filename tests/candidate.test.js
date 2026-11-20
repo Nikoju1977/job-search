@@ -36,3 +36,19 @@ test('No unconfigured provider keys are hard-coded in client-side files',()=>{
  const content=fs.readFileSync(path.join(__dirname,'../public/candidatures.js'),'utf8');
  assert.ok(!/sk-proj-[A-Za-z0-9]/.test(content));
 });
+
+test('Spontaneous applications never invent an advert or an open vacancy',()=>{
+ const spontaneous={
+  title:'Candidature spontanée — Agent d’entretien',
+  company:'Entreprise de propreté',
+  source:'Entreprise repérée — aucun recrutement confirmé',
+  excerpt:'Démarche spontanée. Vérifiez les besoins de recrutement directement auprès de l’entreprise.'
+ };
+ const body=draftLetter(cv,spontaneous);
+ assert.match(body,/Objet : Candidature spontanée — Agent d’entretien/);
+ assert.match(body,/besoin actuel ou futur/);
+ assert.doesNotMatch(body,/votre annonce|votre offre|annonce publiée/i);
+ const browser=fs.readFileSync(path.join(__dirname,'../public/candidatures.js'),'utf8');
+ assert.match(browser,/candidature spontan/);
+ assert.match(browser,/besoin actuel ou futur/);
+});

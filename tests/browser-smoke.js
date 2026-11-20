@@ -113,6 +113,14 @@ async function smoke(){
   await wait('location.pathname==="/candidatures.html"&&document.querySelector("#chosenJob")?.textContent.includes("Entreprise test fictive (CI)")','candidate studio handoff');
   assert.match(await evaluate('document.querySelector("#letterPosition").value'),/Candidature spontanée/);
   assert.equal(await evaluate('document.querySelector("#letterCompany").value'),'Entreprise test fictive (CI)');
+  await evaluate('(()=>{document.querySelector("#fullName").value="Candidat de test";'+
+   'document.querySelector("#cvText").value="Expérience en nettoyage des bâtiments, entretien des locaux et respect des consignes de sécurité.";'+
+   'document.querySelector("#generateBtn").click();return true})()');
+  await wait('document.querySelector("#letterText")?.value.length>120','keyless local letter generation');
+  const letter=await evaluate('document.querySelector("#letterText").value');
+  assert.match(letter,/Candidature spontanée/);
+  assert.doesNotMatch(letter,/Votre offre|Votre annonce/i);
+
   assert.equal(posts.length,0,'Unexpected automatic POST from new radar');
   console.log('CHROMIUM E2E PASS: search, follow, status, due date, persistence, calendar enabled, studio handoff, no automatic POST');
  }catch(error){throw Error(error.message+(diagnostics?'\nRunner diagnostics: '+diagnostics.slice(-1800):''))}
