@@ -33,8 +33,8 @@ module.exports=async function handler(req,res){
  res.setHeader('Cache-Control','no-store');
  try{
   if(req.method!=='GET')throw new ApiError(405,'Méthode non autorisée.');
-  if(!process.env.DATABASE_URL)return res.status(200).json({status:'paused',reason:'DATABASE_URL non configuré',performed:false});
   if(!authorized(req))throw new ApiError(401,'Invocation non autorisée.');
+  if(!process.env.DATABASE_URL)return res.status(200).json({status:'paused',reason:'DATABASE_URL non configuré',performed:false});
   const {neon}=require('@neondatabase/serverless');
   const sql=neon(process.env.DATABASE_URL);
   const results=await Promise.allSettled([
