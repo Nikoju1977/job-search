@@ -21,6 +21,9 @@
     },
     "api/engine-cron.js": {
       "maxDuration": 30
+    },
+    "api/hidden-market.js": {
+      "maxDuration": 20
     }
   },
   "headers": [
