@@ -75,3 +75,21 @@ test('exact commune resolves ambiguous postal codes without silently picking the
  assert.equal(q.center.name,'La Meilleraye-de-Bretagne');
  await assert.rejects(searchMarket({zip:'44520',commune:'Commune inexistante',sector:'P',page:10},mock),/Commune introuvable/);
 });
+
+test('Cleaning-specific filter targets verified NAF codes instead of recruitment agencies',async()=>{
+ let providerUrl='';
+ const mockFetch=async url=>{
+  if(String(url).startsWith('https://geo.api.gouv.fr'))return {
+   ok:true,json:async()=>[{nom:'La Meilleraye-de-Bretagne',population:1000,centre:{coordinates:[-1.3,47.5]}}]
+  };
+  providerUrl=String(url);
+  return {ok:true,json:async()=>({results:[],total_results:0})};
+ };
+ const out=await searchMarket({zip:'44520',commune:'La Meilleraye-de-Bretagne',
+  sector:'cleaning',radius:10,page:7},mockFetch);
+ assert.equal(out.companies.length,0);
+ const url=new URL(providerUrl);
+ assert.equal(url.hostname,'recherche-entreprises.api.gouv.fr');
+ assert.equal(url.searchParams.get('activite_principale'),'81.21Z,81.22Z,81.29A,81.29B');
+ assert.equal(url.searchParams.has('section_activite_principale'),false);
+});
