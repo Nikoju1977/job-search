@@ -1,5 +1,12 @@
 # Niko Emploi — Intelligence 4.0
 
+## Radar marché caché — entreprises et suivi local
+
+Dans `/marche-cache.html`, le Radar recense des entreprises par SIREN et propose un **suivi personnel de prospection** : états, notes, dates de relance et export CSV/JSON. Les données restent sur l'appareil et ne sont pas chiffrées localement. Aucun message n'est envoyé automatiquement.
+
+Le service **La Bonne Boîte** est accessible par lien officiel pour consulter manuellement le potentiel d'embauche. L'accès API v2 n'est **pas activé** sans habilitation ; voir [le guide de préparation de l'intégration](docs/RADAR_LBB_INTEGRATION.md). Aucune probabilité d'embauche n'est déduite des données de l'Annuaire des entreprises.
+
+
 **Une seule application autonome, sans Supabase et sans n8n.** La logique des agents est intégrée à ce dépôt Node/Vercel ; PostgreSQL/Neon assure uniquement le stockage persistant.
 
 - Radar de recherche et rapprochement des offres par cinq axes explicables, accessible sans compte dans le navigateur.
