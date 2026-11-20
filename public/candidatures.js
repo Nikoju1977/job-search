@@ -79,11 +79,21 @@ function renderQueue(){const area=$('queue');area.replaceChildren();if(!state.qu
  buttons.append(open,rem);row.append(desc,field,buttons);area.append(row);}
 }
 function fallbackLetter(job,p=prof()){
- const company=job.company||'[Entreprise]',title=job.title||'[Poste]',matched=detected(p.cvText).filter(x=>detected(job.excerpt||'').includes(x));
+ const company=job.company||'[Entreprise]',rawTitle=job.title||'[Poste]';
+ const spontaneous=/^candidature spontan[eé]e\b/i.test(rawTitle)||/\bspontan[eé]e?\b/i.test(job.source||'')||/d[eé]marche spontan/i.test(job.excerpt||'');
+ const role=spontaneous?rawTitle.replace(/^candidature spontan[eé]e\s*(?:[—–:|-]\s*)?/i,'').trim():rawTitle;
+ const shownRole=role||'un métier adapté à mon parcours';
+ const subject=spontaneous?'Candidature spontanée — '+shownRole:'Candidature au poste de '+shownRole;
+ const introduction=spontaneous
+  ?'Je me permets de vous adresser une candidature spontanée afin de rejoindre '+company+
+   (role?' sur un poste de '+role:' dans un domaine correspondant à mon expérience')+
+   '. Je souhaiterais savoir si mes compétences pourraient répondre à un besoin actuel ou futur.'
+  :'Votre offre pour le poste de '+shownRole+' chez '+company+' a retenu mon attention. Je vous propose ma candidature.';
+ const matched=detected(p.cvText).filter(x=>detected(job.excerpt||'').includes(x));
  const picked=(matched.length?matched:detected(p.cvText)).slice(0,3);
  const evidence=picked.length?'Mon CV fait apparaître des compétences en '+picked.join(', ')+'. Je serais heureux(se) de vous présenter leur lien avec ce poste.':'Je souhaiterais vous présenter plus précisément mon parcours et ses liens avec les missions envisagées.';
  const rqth=$('discloseRqth').checked?'\n\nJe bénéficie d’une reconnaissance de la qualité de travailleur handicapé (RQTH) et reste disponible, si nécessaire, pour échanger sur les modalités de travail adaptées au poste.':'';
- return [(p.fullName||'[Votre nom]'),'','Objet : Candidature au poste de '+title,'','Madame, Monsieur,','','Votre offre pour le poste de '+title+' chez '+company+' a retenu mon attention. Je vous propose ma candidature.','',evidence,'','Je souhaiterais pouvoir échanger avec vous sur vos attentes et sur la manière dont je pourrais contribuer à votre équipe.'+rqth,'','Je vous remercie du temps consacré à l’étude de ma candidature et reste à votre disposition pour un entretien.','','Veuillez agréer, Madame, Monsieur, mes salutations distinguées.','',p.fullName||'[Votre nom]'].join('\n');
+ return [(p.fullName||'[Votre nom]'),'','Objet : '+subject,'','Madame, Monsieur,','',introduction,'',evidence,'','Je souhaiterais pouvoir échanger avec vous sur vos attentes et sur la manière dont je pourrais contribuer à votre équipe.'+rqth,'','Je vous remercie du temps consacré à l’étude de ma candidature et reste à votre disposition pour un entretien.','','Veuillez agréer, Madame, Monsieur, mes salutations distinguées.','',p.fullName||'[Votre nom]'].join('\n');
 }
 async function generate(job=state.selected,quiet=false){const p=prof();job=job||{title:$('letterPosition').value.trim(),company:$('letterCompany').value.trim(),excerpt:''};if(p.cvText.length<35||!job.title||!job.company){if(!quiet)show('Complétez le texte du CV, le poste et l’entreprise.',true);return null;}
  let letter=fallbackLetter(job,p),mode='local';
