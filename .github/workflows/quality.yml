@@ -15,6 +15,7 @@ jobs:
         run: |
           node --check api/hidden-market.js
           node --check lib/hidden-market.js
+          node --check public/radar-suivi.js
           node --check public/marche-cache.js
           node --check public/app.js
           node --check public/candidatures.js

@@ -69,6 +69,7 @@ function render(){
    try{await navigator.clipboard.writeText(newMessage(c,$('role').value.trim()||'poste à définir'));status('Brouillon copié. Aucun message envoyé.');}
    catch{status('Copie indisponible : vérifiez les autorisations du navigateur.',true);}
   }));
+  window.NikoRadarTracker?.decorate(c,actions);
   card.append(actions);container.append(card);
  }
 }
