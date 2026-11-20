@@ -120,6 +120,18 @@ async function smoke(){
   const letter=await evaluate('document.querySelector("#letterText").value');
   assert.match(letter,/Candidature spontanée/);
   assert.doesNotMatch(letter,/Votre offre|Votre annonce/i);
+  // No server credentials: Gmail and cloud remain honestly unavailable.
+  await wait('document.querySelector("#sendBtn")?.disabled===true&&document.querySelector("#checkReplies")?.disabled===true',
+   'unconfigured Google controls disabled');
+  await evaluate('(()=>{document.querySelector("#manualReplyInput").value="Bonjour, nous souhaitons vous proposer un entretien pour discuter de votre candidature. Quels sont vos créneaux ?";'+
+   'document.querySelector("#manualReplyAnalyze").click();return true})()');
+  await wait('document.querySelector("#manualReplyDraft").value.length>60','keyless reply draft');
+  const replyDraft=await evaluate('document.querySelector("#manualReplyDraft").value');
+  assert.match(replyDraft,/entretien/i);
+  assert.match(await evaluate('document.querySelector("#manualReplyResult").textContent'),/analyse indicative par règles locales/);
+  assert.equal(await evaluate('document.querySelector("#manualReplyCopy").disabled'),false);
+  assert.equal(await evaluate('document.querySelector("#sendBtn").disabled'),true);
+
 
   assert.equal(posts.length,0,'Unexpected automatic POST from new radar');
   console.log('CHROMIUM E2E PASS: search, follow, status, due date, persistence, calendar enabled, studio handoff, no automatic POST');
