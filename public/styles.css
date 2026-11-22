@@ -23,3 +23,9 @@
 .studio-job-btn:hover{background:#ffd8e7}
 @media(max-width:960px){.studio-teaser-inner{flex-wrap:wrap}.studio-teaser-cta{margin-left:80px}}
 @media(max-width:650px){.studio-teaser-inner{display:grid;padding:23px;gap:12px}.studio-teaser-cta{margin-left:0;white-space:normal;justify-content:space-between}.studio-teaser-copy h2{font-size:18px}.studio-job-btn{margin:0}}
+
+/* Source coverage and recovery actions in genuine zero-result searches. */
+.empty-state .search-coverage{max-width:520px;margin:15px auto 0;padding:11px 13px;border-radius:9px;background:#f1f5f9;color:#34495b;font-size:12px;line-height:1.6}
+.empty-state button.secondary-action{margin-left:10px;background:#e9eef5;color:var(--navy);border:1px solid #c7d3df}
+.empty-state button.secondary-action:hover{background:#dce7f1}
+@media(max-width:420px){.empty-state button.secondary-action{margin-left:0;display:block;margin-inline:auto}}
