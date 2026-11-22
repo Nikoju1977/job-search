@@ -29,3 +29,8 @@
 .empty-state button.secondary-action{margin-left:10px;min-height:44px;background:#e9eef5;color:var(--navy);border:1px solid #c7d3df}
 .empty-state button.secondary-action:hover{background:#dce7f1}
 @media(max-width:420px){.empty-state button.secondary-action{margin-left:0;display:block;margin-inline:auto}}
+
+/* Independent official source, intentionally not counted as an integrated API. */
+.empty-state a.official-search-action{display:block;max-width:330px;min-height:44px;box-sizing:border-box;margin:13px auto 0;padding:11px 14px;border-radius:8px;border:1px solid #c7d3df;background:#f1f5f9;color:var(--navy);text-decoration:underline;text-underline-offset:2px;font-size:12px;font-weight:700;line-height:1.5}
+.empty-state a.official-search-action:hover{background:#e3ecf5}
+.empty-state a.official-search-action:focus-visible{outline:3px solid #1b67b2;outline-offset:3px}
