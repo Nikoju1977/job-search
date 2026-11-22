@@ -26,8 +26,9 @@
   return true;
  }
  function safeDate(value){
-  return typeof value==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(value)&&
-   !Number.isNaN(Date.parse(value+'T00:00:00Z'))?value:'';
+  if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value))return '';
+  const date=new Date(value+'T00:00:00Z');
+  return Number.isFinite(date.getTime())&&date.toISOString().slice(0,10)===value?value:'';
  }
  function sanitize(item){
   return {
@@ -164,7 +165,7 @@
  function calendarText(item){
   if(!item||!safeDate(item.nextAction))throw Error('Date de relance invalide.');
   const esc=value=>String(value||'').replace(/\\/g,'\\\\')
-   .replace(/\r\n|\r|\n/g,'\\n').replace(/[,;]/g,'\\ function exportCSV(){');
+   .replace(/\r\n|\r|\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\\;');
   const d=new Date(item.nextAction+'T12:00:00Z');
   d.setUTCDate(d.getUTCDate()+1);
   const next=d.toISOString().slice(0,10).replace(/-/g,'');
