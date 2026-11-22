@@ -26,6 +26,6 @@
 
 /* Source coverage and recovery actions in genuine zero-result searches. */
 .empty-state .search-coverage{max-width:520px;margin:15px auto 0;padding:11px 13px;border-radius:9px;background:#f1f5f9;color:#34495b;font-size:12px;line-height:1.6}
-.empty-state button.secondary-action{margin-left:10px;background:#e9eef5;color:var(--navy);border:1px solid #c7d3df}
+.empty-state button.secondary-action{margin-left:10px;min-height:44px;background:#e9eef5;color:var(--navy);border:1px solid #c7d3df}
 .empty-state button.secondary-action:hover{background:#dce7f1}
 @media(max-width:420px){.empty-state button.secondary-action{margin-left:0;display:block;margin-inline:auto}}
