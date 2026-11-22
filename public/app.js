@@ -74,8 +74,18 @@
     const target=$('jobList');
     if(state.loading){target.innerHTML='<div class="loading-state"><span class="loader"></span><h3>Nous interrogeons les plateformes…</h3><p>Seules les annonces réellement reçues seront affichées.</p></div>'; $('listFooter').hidden=true;return;}
     if(!all.length){
-      target.innerHTML=`<div class="empty-state"><span class="empty-icon">${icon(state.savedOnly?'heart':'search')}</span><h3>${state.savedOnly?'Aucune annonce enregistrée':'Aucune offre trouvée dans les sources consultées'}</h3><p>${state.savedOnly?'Enregistrez vos annonces préférées avec le cœur présent sur chaque fiche.':'Essayez un mot-clé plus large ou une autre ville. Les résultats ne sont jamais inventés pour remplir la page.'}</p><button id="resetSearch">${state.savedOnly?'Afficher toutes les offres':'Effacer les filtres'}</button></div>`;
+      const coverage=state.apiResponse;
+      const providers=Object.values(coverage?.sources||{});
+      const responding=providers.filter(source=>source?.ok).length;
+      const inspected=Number(coverage?.scanned)||0;
+      const coverageNote=!state.savedOnly&&coverage
+        ? `<p class="search-coverage">Sur ${number(inspected)} annonces collectées, aucune ne correspond aux filtres actuels. ${responding} source${responding>1?'s':''} sur ${providers.length} ont répondu. Ce relevé ne couvre pas toutes les offres disponibles.</p>`
+        : '';
+      const canWiden=!state.savedOnly&&!/^(toute la france|france)$/i.test($('location').value.trim());
+      const widenAction=canWiden?'<button id="widenSearch" class="secondary-action" type="button">Élargir à toute la France</button>':'';
+      target.innerHTML=`<div class="empty-state"><span class="empty-icon">${icon(state.savedOnly?'heart':'search')}</span><h3>${state.savedOnly?'Aucune annonce enregistrée':'Aucune offre trouvée dans les sources consultées'}</h3><p>${state.savedOnly?'Enregistrez vos annonces préférées avec le cœur présent sur chaque fiche.':'Essayez un mot-clé plus large ou une autre ville. Les résultats ne sont jamais inventés pour remplir la page.'}</p>${coverageNote}<button id="resetSearch" type="button">${state.savedOnly?'Afficher toutes les offres':'Effacer les filtres'}</button>${widenAction}</div>`;
       const reset=$('resetSearch');reset?.addEventListener('click',()=>{if(state.savedOnly){state.savedOnly=false;render();}else{$('keyword').value='';$('location').value='Toute la France';$('remote').checked=false;$('filterContract').value='Tous';load();}});
+      const widen=$('widenSearch');widen?.addEventListener('click',()=>{$('location').value='Toute la France';load();});
       $('listFooter').hidden=true;return;
     }
     target.innerHTML=display.map(job=>{
