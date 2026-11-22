@@ -43,3 +43,13 @@ Le suivi personnel est stocké **uniquement en localStorage**, sans chiffrement.
 - Tester le passage entreprise → suivi → modification → export et import de la sauvegarde.
 - Vérifier un changement de statut dans deux onglets et un échec de stockage.
 - Tester le service sur Chrome Android, Safari iOS et bureau. Les tests automatisés DOM ne remplacent pas ce contrôle.
+
+
+## Fiabilisation calendrier, hors ligne et téléchargements (code du 22 novembre 2026)
+
+- Le générateur de rappels `.ics` échappe correctement les virgules, points-virgules, antislashs et retours à la ligne du titre et de la description. Une date qui ne représente pas un véritable jour calendaire est rejetée avant export.
+- Les exports **CSV**, **JSON** et les rappels calendaires proposent maintenant un lien de téléchargement manuel pendant cinq minutes environ. Une fois expiré, il faut déclencher un nouvel export. Le téléchargement doit être confirmé dans le navigateur ; l'application ne peut pas garantir que le fichier a été enregistré sur le téléphone.
+- Le Service Worker met en cache la page **publique** `/marche-cache.html` et ses ressources statiques pour réouvrir l'interface en absence de réseau après un premier chargement réussi. Les dossiers déjà présents dans `localStorage` restent affichables. Les recherches d'entreprises, APIs publiques et services France Travail **ne fonctionnent pas hors connexion** et aucun contenu privé n'est placé dans le cache PWA.
+- Les notes de prospection sont stockées en clair sur l'appareil. Elles ne sont pas envoyées au serveur et une sauvegarde JSON reste nécessaire pour changer d'appareil ou se protéger d'une purge du stockage.
+
+**État de livraison :** fichiers committés sur GitHub ; disponibilité de la nouvelle version sur Vercel, intégrité des `.ics` dans chaque calendrier, compatibilité Safari et fonctionnement hors connexion réel non vérifiés à cette étape. La suite du plan reste la revue des flux de candidature et l'évaluation des fournisseurs d'offres autorisés.
