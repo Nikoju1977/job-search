@@ -152,7 +152,12 @@ async function smoke(){
   await wait('document.querySelector("#widenSearch")?.textContent.includes("toute la France")&&document.querySelector(".search-coverage")?.textContent.includes("127")','empty search coverage recovery');
   assert.equal(await evaluate('document.querySelector(".search-coverage")?.textContent.includes("2 sources sur 3")'),true);
   assert.match(await evaluate('document.querySelector("#sourceNotice").textContent'),/partiels/);
+  // France Travail remains an external manual search; it is never counted as an API provider.
+  assert.equal(await evaluate('document.querySelector("#officialSearch")?.href'),'https://candidat.francetravail.fr/offres/recherche');
+  assert.equal(await evaluate('document.querySelector("#officialSearch")?.target'),'_blank');
+  assert.equal(await evaluate('document.querySelector("#officialSearch")?.rel.includes("noopener")'),true);
   await call('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:3,mobile:true});
+  assert.equal(await evaluate('(()=>{const b=document.querySelector("#officialSearch").getBoundingClientRect();return b.width>=44&&b.height>=44&&b.left>=0&&b.right<=innerWidth})()'),true,'Official external link fits mobile and has an accessible touch target');
   assert.equal(await evaluate('(()=>{const b=document.querySelector("#widenSearch").getBoundingClientRect();return b.width>=44&&b.height>=44&&b.left>=0&&b.right<=innerWidth})()'),true,'Mobile recovery control within 390px viewport and 44px touch target');
   await evaluate('document.querySelector("#widenSearch").click();true');
   await wait('document.querySelector("#location")?.value==="Toute la France"&&document.querySelector("#widenSearch")===null&&window.__nikoJobQueries.length>=3','widen-search request');
