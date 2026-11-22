@@ -133,6 +133,31 @@ async function smoke(){
   assert.equal(await evaluate('document.querySelector("#sendBtn").disabled'),true);
 
 
+  // Empty search coverage recovery: fixture responses are deliberately synthetic and
+  // used only in CI, never exposed as real vacancies or employer data.
+  const emptySearchFixture = [
+   '(()=>{const nativeFetch=window.fetch.bind(window);window.__nikoJobQueries=[];',
+   'window.fetch=(input,options)=>{const url=typeof input==="string"?input:String(input?.url||"");',
+   'if(url.startsWith("/api/jobs?")){window.__nikoJobQueries.push(url);',
+   'const data={jobs:[],count:0,scanned:127,duplicatesRemoved:0,partial:true,',
+   'sources:{Jobicy:{ok:true,received:33},EasyJobs:{ok:false,received:0,error:"Accès refusé par la source (403)"},Arbeitnow:{ok:true,received:94}},',
+   'retrievedAt:"2026-11-22T07:43:00.000Z",nextPageAvailable:false};',
+   'return Promise.resolve(new Response(JSON.stringify(data),{status:200,headers:{"Content-Type":"application/json"}}));}',
+   'return nativeFetch(input,options);};})();'
+  ].join('\n');
+  await call('Page.addScriptToEvaluateOnNewDocument',{source:emptySearchFixture});
+  await call('Page.navigate',{url:base+'/'});
+  await wait('document.readyState==="complete"&&document.querySelector("#resultNumber")?.textContent==="0"&&document.querySelector("#sourceNotice")?.hidden===false','jobs empty search');
+  await evaluate('(()=>{document.querySelector("#location").value="Nantes";document.querySelector("#searchForm").requestSubmit();return true})()');
+  await wait('document.querySelector("#widenSearch")?.textContent.includes("toute la France")&&document.querySelector(".search-coverage")?.textContent.includes("127")','empty search coverage recovery');
+  assert.equal(await evaluate('document.querySelector(".search-coverage")?.textContent.includes("2 sources sur 3")'),true);
+  assert.match(await evaluate('document.querySelector("#sourceNotice").textContent'),/partiels/);
+  await call('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:3,mobile:true});
+  assert.equal(await evaluate('(()=>{const b=document.querySelector("#widenSearch").getBoundingClientRect();return b.width>=44&&b.height>=44&&b.left>=0&&b.right<=innerWidth})()'),true,'Mobile recovery control within 390px viewport and 44px touch target');
+  await evaluate('document.querySelector("#widenSearch").click();true');
+  await wait('document.querySelector("#location")?.value==="Toute la France"&&document.querySelector("#widenSearch")===null&&window.__nikoJobQueries.length>=3','widen-search request');
+  assert.equal(await evaluate('new URL(window.__nikoJobQueries.at(-1),location.origin).searchParams.get("location")'),'Toute la France');
+  await call('Emulation.clearDeviceMetricsOverride');
   assert.equal(posts.length,0,'Unexpected automatic POST from new radar');
   console.log('CHROMIUM E2E PASS: search, follow, status, due date, persistence, calendar enabled, studio handoff, no automatic POST');
  }catch(error){throw Error(error.message+(diagnostics?'\nRunner diagnostics: '+diagnostics.slice(-1800):''))}
