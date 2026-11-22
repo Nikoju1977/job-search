@@ -1,9 +1,9 @@
 /* Niko Emploi PWA: cache only the public application shell. Never cache applicant data, APIs or responses. */
 'use strict';
-const CACHE_NAME = 'niko-emploi-shell-v5-core-20261122';
+const CACHE_NAME = 'niko-emploi-shell-v6-radar-recovery-20261122';
 const CACHE_PREFIX = 'niko-emploi-shell-';
 const APP_SHELL = [
-  '/', '/index.html', '/app.js', '/styles.css', '/premium-2026.css', '/studio-niko-core.js',
+  '/', '/index.html', '/marche-cache.html', '/app.js', '/styles.css', '/premium-2026.css', '/studio-niko-core.js',
   '/pwa.js', '/pwa.css', '/marche-cache.js', '/marche-cache.css', '/radar-suivi.js', '/offline.html', '/manifest.webmanifest',
   '/icons/icon-192.png', '/icons/icon-512.png',
   '/icons/icon-maskable-512.png', '/icons/apple-touch-icon.png'
@@ -38,6 +38,11 @@ self.addEventListener('fetch', event => {
         return fresh;
       } catch (_) {
         const cache = await caches.open(CACHE_NAME);
+        // Public radar shell can reopen offline; local follow-ups live in localStorage.
+        if (url.pathname === '/marche-cache.html') {
+          const radar = await cache.match('/marche-cache.html');
+          if (radar) return radar;
+        }
         if (url.pathname === '/' || url.pathname === '/index.html') {
           const shell = await cache.match('/');
           if (shell) return shell;
