@@ -1,9 +1,9 @@
 /* Niko Emploi PWA: cache only the public application shell. Never cache applicant data, APIs or responses. */
 'use strict';
-const CACHE_NAME = 'niko-emploi-shell-v4-20261122';
+const CACHE_NAME = 'niko-emploi-shell-v5-core-20261122';
 const CACHE_PREFIX = 'niko-emploi-shell-';
 const APP_SHELL = [
-  '/', '/index.html', '/app.js', '/styles.css', '/premium-2026.css',
+  '/', '/index.html', '/app.js', '/styles.css', '/premium-2026.css', '/studio-niko-core.js',
   '/pwa.js', '/pwa.css', '/marche-cache.js', '/marche-cache.css', '/radar-suivi.js', '/offline.html', '/manifest.webmanifest',
   '/icons/icon-192.png', '/icons/icon-512.png',
   '/icons/icon-maskable-512.png', '/icons/apple-touch-icon.png'
