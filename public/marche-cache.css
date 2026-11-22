@@ -26,3 +26,14 @@
 .tracker-edit .radar-actions{grid-column:1/-1}
 .tracker-caveat,.tracker-setup{font-size:.83rem;color:#56677d}
 @media(max-width:760px){.tracker-list{grid-template-columns:1fr}.tracker-kpis{width:100%}.radar-tracker .radar-panel-top{flex-wrap:wrap}.tracker-edit{grid-template-columns:1fr}.tracker-edit label{grid-column:1/-1}}
+
+/* Récupération manuelle d'un CSV/JSON/ICS si le téléchargement mobile est bloqué. */
+.tracker-download-fallback:not([hidden]){
+ display:inline-flex;align-items:center;max-width:100%;min-height:44px;
+ border:1px solid #245b73;border-radius:10px;background:#e1f5f7;
+ color:#12435a;text-decoration:none;font-weight:800;
+ padding:10px 13px;margin:8px 0 12px;font-size:.86rem;
+ overflow-wrap:anywhere;white-space:normal;
+}
+.tracker-download-fallback:not([href]){color:#7b8795;pointer-events:none;opacity:.7}
+.tracker-download-fallback:focus-visible{outline:3px solid #e4a842;outline-offset:3px}
