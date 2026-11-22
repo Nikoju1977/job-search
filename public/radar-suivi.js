@@ -157,10 +157,26 @@
   if(/^\s*[=+\-@]/.test(str))str="'"+str;
   return '"'+str.replace(/"/g,'""')+'"';
  }
+ let pendingDownload=null,pendingDownloadTimer=null;
  function download(name,text,type){
-  const blob=new Blob([text],{type}),url=URL.createObjectURL(blob),a=create('a');
-  a.href=url;a.download=name;document.body.append(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),5000);
+  const blob=new Blob([text],{type});
+  if(!blob.size){notice('Fichier vide : export impossible.',true);return false;}
+  if(pendingDownload)URL.revokeObjectURL(pendingDownload);
+  if(pendingDownloadTimer)clearTimeout(pendingDownloadTimer);
+  const url=URL.createObjectURL(blob);
+  pendingDownload=url;
+  const fallback=$('trackerDownloadFallback');
+  if(fallback){
+   fallback.href=url;fallback.download=name;fallback.hidden=false;
+   fallback.textContent='Télécharger manuellement '+name;
+  }
+  const a=create('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();
+  pendingDownloadTimer=setTimeout(()=>{
+   if(pendingDownload!==url)return;
+   URL.revokeObjectURL(url);pendingDownload=null;
+   if(fallback){fallback.removeAttribute('href');fallback.textContent='Lien de téléchargement expiré. Renouvelez l’export.';}
+  },300000);
+  return true;
  }
  function calendarText(item){
   if(!item||!safeDate(item.nextAction))throw Error('Date de relance invalide.');
