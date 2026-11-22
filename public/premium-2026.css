@@ -262,3 +262,22 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 }
 .skip-link:focus,.skip-link:focus-visible{top:0;outline:3px solid #554fd8;outline-offset:2px}
 :where(.studio-panel,.niko-ai,.n5-lab,.results-section){scroll-margin-top:100px}
+
+
+/* STUDIO NIKO UI V7 — emploi mobile sans masquage des résultats */
+:where(.job-card,.search-card,.filters){overflow-wrap:anywhere}
+:where(.mobile-dock a,.apply-link,.studio-job-btn,.search-submit){min-height:44px;touch-action:manipulation}
+@media(max-width:650px){
+  :where(input,select,textarea){font-size:16px}
+  :where(.search-card input,.search-card select,.filters select){min-height:46px}
+  .job-card{padding:18px 15px}
+  .job-card :where(a,button){min-height:44px}
+  .mobile-dock{bottom:calc(8px + env(safe-area-inset-bottom));height:64px}
+  /* Le guide compact reste au-dessus du dock, sans masquer ses cinq boutons. */
+  #studio-niko-embedded-guide{bottom:calc(82px + env(safe-area-inset-bottom))!important}
+  #studio-niko-embedded-guide .sn-guide-sheet{max-height:calc(100dvh - 160px)!important}
+  :where(.search-card,.filters,.studio-panel){padding:18px 15px}
+  .list-top{gap:10px}
+  .studio-sidebar{overscroll-behavior-x:contain;scroll-snap-type:x proximity}
+}
+
