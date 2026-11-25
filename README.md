@@ -1,4 +1,38 @@
-# Niko Emploi — Intelligence 4.0
+# Niko Emploi — Studio Niko Design
+
+**Multi-source job discovery · Explainable matching · Optional local semantic inference · Candidate-controlled automation**
+
+[![Runtime](https://img.shields.io/badge/runtime-Node.js%2024-blue)](package.json) [![Inference](https://img.shields.io/badge/inference-Transformers.js-blue)](public/niko-neuromatch-worker.js) [![License](https://img.shields.io/badge/license-restricted-lightgrey)](LICENSE.md)
+
+[Application (disponibilité non vérifiée)](https://niko-emploi.vercel.app) · [Configuration](docs/CONFIGURATION_ZERO_EURO.md) · [Sécurité](SECURITY.md) · [English overview](#english-overview)
+
+## Architecture et contrats d'exécution
+
+```mermaid
+flowchart TD
+ Sources[External job APIs] --> Normalize[Normalize and deduplicate]
+ Normalize --> Search[Search and explainable matching]
+ CV[Candidate local profile] --> Semantic[Optional browser embedding worker]
+ Search --> Semantic
+ Search --> Tracking[Candidate-controlled tracking]
+ Semantic --> Tracking
+ Consent[Opt-in candidate account] --> Backend[Configured Node and PostgreSQL]
+ Backend --> Cron[Daily recommendation job]
+ Cron --> Tracking
+ Tracking --> Review[Explicit application review]
+```
+
+| Source | Fonction |
+| --- | --- |
+| [lib/jobs.js](lib/jobs.js) | Connecteurs, normalisation, filtres et dédoublonnage |
+| [public/niko-neuromatch-worker.js](public/niko-neuromatch-worker.js) | Transformers.js, extraction de vecteurs via MiniLM quantifié |
+| [lib/niko-runner.js](lib/niko-runner.js) | Veille serveur pour candidats opt-in, sous configuration |
+| [lib/niko-db.js](lib/niko-db.js) | Connexion PostgreSQL/Neon |
+| [vercel.json](vercel.json) | Déclaration de la tâche planifiée |
+
+Le code contient un véritable appel de pipeline `feature-extraction` dans le Worker, distinct du score explicable classique. Ce n'est pas une preuve de chargement effectif du modèle sur chaque appareil. Les sources intégrées peuvent être indisponibles ; leur couverture et leurs conditions d'accès ne sont pas revérifiées ici.
+
+**Version technique :** le manifeste npm exige Node.js 24.x. Le moteur autonome serveur dépend de la configuration réelle de la base, du chiffrement et des services concernés ; la déclaration Cron ne prouve pas son exécution.
 
 ## Mode 0 € sans aucune clé
 
@@ -48,7 +82,7 @@ Tests : `npm test`. Site : https://niko-emploi.vercel.app
 
 ---
 
-# Niko Emploi — édition 1.0
+## Historique — édition 1.0
 
 Moteur d'offres d'emploi **réelles** (jamais de faux résultats de démonstration) avec recherche, filtres, favoris et dédoublonnage intersources.
 
@@ -82,9 +116,10 @@ Tests : \`npm test\` (moteur de recherche, CV/ATS, protection RQTH, serveur/API)
 
 ## Utiliser localement
 
-Node.js 20+ :
+Node.js 24.x (version déclarée dans package.json) :
 
 ```sh
+npm install
 npm start
 ```
 
@@ -141,3 +176,20 @@ et un bouton « Installer Niko Emploi » sont intégrés au moteur d'offres et a
 - Le navigateur actualise le service worker sur déploiement; pour publier une nouvelle version du shell, incrémenter \`CACHE_NAME\` dans \`public/sw.js\`.
 
 Tests : \`npm test\` inclut les contrôles structurels PWA.
+
+
+## Qualification proposée
+
+Avec profils et annonces fictifs ou réponses de fournisseurs simulées, vérifier le dédoublonnage, les liens sources, les erreurs, le classement explicable et le repli quand le modèle local est indisponible. Tester séparément l'activation et la révocation du consentement candidat, les autorisations de compte, les exports et le désabonnement. Ne pas envoyer de candidature réelle ni transmettre de CV ou de données sensibles pour ces essais.
+
+Le moteur de rapprochement n'établit ni une probabilité d'embauche ni une évaluation objective des candidats. Les préférences locales et les données de CV nécessitent une protection adaptée. Les fonctions Gmail de premier plan sont distinctes de la veille serveur opt-in. Aucun nouvel essai, appel fournisseur, contrôle de configuration de production ou benchmark n'a été réalisé ici.
+
+## English overview
+
+Niko Emploi combines multi-source job discovery, normalization and deduplication, explainable matching, optional local multilingual MiniLM embeddings, candidate tracking and conditional server-side recommendations. The browser model is downloaded on request; its successful inference has not been verified in this documentation revision. Server autonomy requires configured PostgreSQL and security settings, with candidate opt-in. Job listing availability and hiring outcomes are not guaranteed. Applications and recruiter replies must respect the documented consent controls. Run with Node.js 24.x, install dependencies using npm install, then npm start. See the configuration and security guides for deployment conditions.
+
+## Licence et contribution
+
+[LICENSE.md](LICENSE.md) : droits réservés pour les contributions originales concernées. Les sources d'emploi, modèles et bibliothèques tiers restent soumis à leurs conditions et licences. Ne jamais partager de CV, de jeton ou de données candidat dans une issue publique.
+
+**Studio Niko Design** · Candidate control, provenance and explainable matching.
