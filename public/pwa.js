@@ -37,8 +37,14 @@
     } else {
       description.textContent = 'Dans Chrome ou Microsoft Edge, ouvrez le menu du navigateur (⋮) puis « Installer Niko Emploi ». Le navigateur propose l’installation seulement lorsqu’il prend cette fonction en charge.';
     }
+    if (installDialog.open) return;
     if (typeof installDialog.showModal === 'function') installDialog.showModal();
     else installDialog.setAttribute('open', '');
+  }
+  function closeInstructions() {
+    if (!installDialog) return;
+    if (typeof installDialog.close === 'function') installDialog.close();
+    else installDialog.removeAttribute('open');
   }
   function setupUI() {
     installButton = document.createElement('button');
@@ -46,7 +52,13 @@
     installButton.type = 'button';
     installButton.className = 'pwa-install-button';
     installButton.setAttribute('aria-label', 'Installer Niko Emploi sur cet appareil');
-    installButton.innerHTML = '<span aria-hidden="true" class="pwa-install-symbol">↧</span><span>Installer Niko Emploi</span>';
+    const symbol = document.createElement('span');
+    symbol.setAttribute('aria-hidden', 'true');
+    symbol.className = 'pwa-install-symbol';
+    symbol.textContent = '↧';
+    const label = document.createElement('span');
+    label.textContent = 'Installer Niko Emploi';
+    installButton.append(symbol, label);
     installButton.addEventListener('click', promptInstall);
     if (installed()) installButton.hidden = true;
     document.body.appendChild(installButton);
@@ -54,15 +66,25 @@
     installDialog = document.createElement('dialog');
     installDialog.className = 'pwa-install-dialog';
     installDialog.setAttribute('aria-labelledby', 'pwaInstallTitle');
-    installDialog.innerHTML = '<div class="pwa-install-dialog-inner"><img src="/icons/icon-192.png" alt="" width="65" height="65"><h2 id="pwaInstallTitle">Niko Emploi dans votre poche</h2><p id="pwaInstallInstructions"></p><p class="pwa-install-note">L’installation est gratuite. Pour consulter des annonces à jour ou envoyer une candidature, une connexion Internet est nécessaire.</p><button type="button" class="pwa-install-close">Compris</button></div>';
-    installDialog.querySelector('.pwa-install-close').addEventListener('click', () => {
-      if (typeof installDialog.close === 'function') installDialog.close();
-      else installDialog.removeAttribute('open');
-    });
+    const inner = document.createElement('div');
+    inner.className = 'pwa-install-dialog-inner';
+    const image = document.createElement('img');
+    image.src = '/icons/icon-192.png'; image.alt = ''; image.width = 65; image.height = 65;
+    const title = document.createElement('h2');
+    title.id = 'pwaInstallTitle'; title.textContent = 'Niko Emploi dans votre poche';
+    const instructions = document.createElement('p');
+    instructions.id = 'pwaInstallInstructions';
+    const note = document.createElement('p');
+    note.className = 'pwa-install-note';
+    note.textContent = 'L’installation est gratuite. Pour consulter des annonces à jour ou envoyer une candidature, une connexion Internet est nécessaire.';
+    const close = document.createElement('button');
+    close.type = 'button'; close.className = 'pwa-install-close'; close.textContent = 'Compris';
+    close.addEventListener('click', closeInstructions);
+    inner.append(image, title, instructions, note, close);
+    installDialog.appendChild(inner);
     installDialog.addEventListener('click', event => {
       if (event.target === installDialog) {
-        if (typeof installDialog.close === 'function') installDialog.close();
-        else installDialog.removeAttribute('open');
+        closeInstructions();
       }
     });
     document.body.appendChild(installDialog);
@@ -85,7 +107,7 @@
   window.addEventListener('appinstalled', () => {
     pendingPrompt = null;
     if (installButton) installButton.hidden = true;
-    if (installDialog && installDialog.open) installDialog.close();
+    if (installDialog && installDialog.open) closeInstructions();
   });
   if ('serviceWorker' in navigator && window.isSecureContext) {
     window.addEventListener('load', () => {
