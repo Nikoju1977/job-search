@@ -57,7 +57,7 @@ test('l’installation affiche la procédure iOS et Android et ne prétend pas a
 });
 
 
-test('installation DOM sans injection HTML et fermeture compatible', async () => {
+function loadInstallation() {
   const vm = require('node:vm');
   const listeners = {};
   function element(tag) {
@@ -72,6 +72,11 @@ test('installation DOM sans injection HTML et fermeture compatible', async () =>
   const body=element('body');
   vm.runInNewContext(read('pwa.js'), {document:{body,readyState:'complete',createElement:element},navigator:{userAgent:'iPhone',onLine:true},window:{matchMedia:()=>({matches:false}),addEventListener:(k,f)=>listeners[k]=f}});
   const [button,dialog]=body.children;
+  return {button, dialog, listeners};
+}
+
+test('installation DOM sans injection HTML et fermeture compatible', async () => {
+  const {button, dialog, listeners} = loadInstallation();
   assert.equal(button.children[1].textContent,'Installer Niko Emploi');
   button.listeners.click(); assert.equal(dialog.open,true);
   assert.match(dialog.querySelector('#pwaInstallInstructions').textContent,/iPhone/);
@@ -88,4 +93,19 @@ test('installation DOM sans injection HTML et fermeture compatible', async () =>
   await pending;
   assert.equal(dialog.open, false, 'Un échec tardif ne doit pas rouvrir le dialogue après installation');
   assert.doesNotMatch(read('pwa.js'),/\\.innerHTML\\s*=/);
+});
+
+
+test('une installation acceptée ferme l’aide avant l’événement appinstalled', async () => {
+  const {button, dialog, listeners} = loadInstallation();
+  await button.listeners.click();
+  assert.equal(dialog.open, true);
+  listeners.beforeinstallprompt({
+    preventDefault() {},
+    prompt: async () => {},
+    userChoice: Promise.resolve({outcome: 'accepted'})
+  });
+  await button.listeners.click();
+  assert.equal(button.hidden, true);
+  assert.equal(dialog.open, false);
 });
