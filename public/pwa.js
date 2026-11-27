@@ -17,7 +17,7 @@
       try {
         await prompt.prompt();
         const choice = await prompt.userChoice;
-        if (choice && choice.outcome === 'accepted') installButton.hidden = true;
+        if (choice && choice.outcome === 'accepted') { closeInstructions(); installButton.hidden = true; }
       } catch (_) {
         if (!installButton.hidden) showInstructions();
       } finally {
