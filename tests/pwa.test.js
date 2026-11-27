@@ -57,7 +57,7 @@ test('l’installation affiche la procédure iOS et Android et ne prétend pas a
 });
 
 
-test('installation DOM sans injection HTML et fermeture compatible', () => {
+test('installation DOM sans injection HTML et fermeture compatible', async () => {
   const vm = require('node:vm');
   const listeners = {};
   function element(tag) {
@@ -75,6 +75,17 @@ test('installation DOM sans injection HTML et fermeture compatible', () => {
   assert.equal(button.children[1].textContent,'Installer Niko Emploi');
   button.listeners.click(); assert.equal(dialog.open,true);
   assert.match(dialog.querySelector('#pwaInstallInstructions').textContent,/iPhone/);
-  listeners.appinstalled(); assert.equal(dialog.open,false); assert.equal(button.hidden,true);
+  let rejectPrompt;
+  listeners.beforeinstallprompt({
+    preventDefault() {},
+    prompt: () => new Promise((resolve, reject) => { rejectPrompt = reject; })
+  });
+  const pending = button.listeners.click();
+  listeners.appinstalled();
+  assert.equal(dialog.open, false);
+  assert.equal(button.hidden, true);
+  rejectPrompt(new Error('Le navigateur a fermé le prompt'));
+  await pending;
+  assert.equal(dialog.open, false, 'Un échec tardif ne doit pas rouvrir le dialogue après installation');
   assert.doesNotMatch(read('pwa.js'),/\\.innerHTML\\s*=/);
 });

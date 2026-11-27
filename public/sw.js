@@ -1,6 +1,6 @@
 /* Niko Emploi PWA: cache only the public application shell. Never cache applicant data, APIs or responses. */
 'use strict';
-const CACHE_NAME = 'niko-emploi-shell-v6-radar-recovery-20261122';
+const CACHE_NAME = 'niko-emploi-shell-v7-install-race';
 const CACHE_PREFIX = 'niko-emploi-shell-';
 const APP_SHELL = [
   '/', '/index.html', '/marche-cache.html', '/app.js', '/styles.css', '/premium-2026.css', '/studio-niko-core.js',
