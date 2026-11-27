@@ -9,6 +9,7 @@
   const isAppleMobile = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   const isAndroid = /Android/i.test(ua);
   async function promptInstall() {
+    if (installButton.hidden || installButton.disabled) return;
     if (pendingPrompt) {
       const prompt = pendingPrompt;
       pendingPrompt = null;
@@ -18,7 +19,7 @@
         const choice = await prompt.userChoice;
         if (choice && choice.outcome === 'accepted') installButton.hidden = true;
       } catch (_) {
-        showInstructions();
+        if (!installButton.hidden) showInstructions();
       } finally {
         installButton.disabled = false;
       }
